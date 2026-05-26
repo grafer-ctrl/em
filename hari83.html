@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Coba istirahat dulu sebentar", en:"Try taking a short rest first"},
+{id:"Menurutku kamu jangan terlalu dipikirkan", en:"I think you should not overthink it"},
+{id:"Coba lakukan pelan-pelan saja", en:"Try doing it slowly"},
+{id:"Mungkin kamu butuh waktu untuk santai", en:"Maybe you need some time to relax"},
+{id:"Coba tidur lebih cepat malam ini", en:"Try sleeping earlier tonight"},
+{id:"Menurutku kamu sudah melakukan yang terbaik", en:"I think you already did your best"},
+{id:"Coba jangan terlalu keras ke diri sendiri", en:"Try not to be too hard on yourself"},
+{id:"Mungkin kamu perlu liburan sebentar", en:"Maybe you need a short vacation"},
+{id:"Coba dengarkan musik biar rileks", en:"Try listening to music to relax"},
+{id:"Menurutku lebih baik fokus satu hal dulu", en:"I think it is better to focus on one thing first"},
+{id:"Coba makan dulu kalau belum makan", en:"Try eating first if you have not eaten"},
+{id:"Mungkin kamu perlu istirahat dari media sosial", en:"Maybe you need a break from social media"},
+{id:"Coba jangan begadang terus", en:"Try not to stay up late all the time"},
+{id:"Menurutku kamu harus lebih percaya diri", en:"I think you should be more confident"},
+{id:"Coba cerita ke orang yang kamu percaya", en:"Try talking to someone you trust"},
+{id:"Mungkin jalan-jalan sebentar bisa membantu", en:"Maybe taking a short walk could help"},
+{id:"Coba jangan terlalu memaksakan diri", en:"Try not to push yourself too hard"},
+{id:"Menurutku kamu pantas dapat waktu istirahat", en:"I think you deserve some rest"},
+{id:"Coba lakukan hal yang kamu suka", en:"Try doing something you enjoy"},
+{id:"Mungkin kamu perlu suasana baru", en:"Maybe you need a new atmosphere"},
+{id:"Coba pikirkan sisi positifnya", en:"Try thinking about the positive side"},
+{id:"Menurutku kamu harus lebih santai", en:"I think you should relax more"},
+{id:"Coba kurangi overthinking sedikit", en:"Try reducing overthinking a little"},
+{id:"Mungkin kamu cuma sedang lelah", en:"Maybe you are just tired"},
+{id:"Coba jangan membandingkan diri dengan orang lain", en:"Try not to compare yourself to others"},
+{id:"Menurutku kamu harus bangga sama dirimu", en:"I think you should be proud of yourself"},
+{id:"Coba minum air dulu", en:"Try drinking some water first"},
+{id:"Mungkin kamu perlu tidur yang cukup", en:"Maybe you need enough sleep"},
+{id:"Coba ambil napas pelan-pelan", en:"Try taking slow breaths"},
+{id:"Menurutku semuanya akan membaik", en:"I think everything will get better"},
+{id:"Coba fokus ke hal yang bisa kamu kontrol", en:"Try focusing on things you can control"},
+{id:"Mungkin kamu perlu hiburan sedikit", en:"Maybe you need a little entertainment"},
+{id:"Coba beri waktu untuk dirimu sendiri", en:"Try giving yourself some time"},
+{id:"Menurutku tidak apa-apa untuk istirahat", en:"I think it is okay to rest"},
+{id:"Coba jangan terlalu memikirkan komentar orang", en:"Try not to think too much about other people's comments"},
+{id:"Mungkin ngobrol dengan teman bisa membantu", en:"Maybe talking with friends could help"},
+{id:"Coba lebih menikmati prosesnya", en:"Try enjoying the process more"},
+{id:"Menurutku kamu terlalu keras bekerja", en:"I think you work too hard"},
+{id:"Coba lakukan sesuatu yang menyenangkan", en:"Try doing something fun"},
+{id:"Mungkin kamu butuh waktu sendiri", en:"Maybe you need some alone time"},
+{id:"Coba jangan buru-buru mengambil keputusan", en:"Try not to rush decisions"},
+{id:"Menurutku kamu harus lebih menghargai dirimu", en:"I think you should appreciate yourself more"},
+{id:"Coba cari hal baru yang menarik", en:"Try finding something new and interesting"},
+{id:"Mungkin olahraga ringan bisa membantu", en:"Maybe light exercise could help"},
+{id:"Coba jangan terlalu stres", en:"Try not to stress too much"},
+{id:"Menurutku kamu perlu recharge energi", en:"I think you need to recharge your energy"},
+{id:"Coba dengarkan lagu favoritmu", en:"Try listening to your favorite song"},
+{id:"Mungkin kamu perlu suasana tenang", en:"Maybe you need a calm atmosphere"},
+{id:"Coba lakukan satu langkah kecil dulu", en:"Try taking one small step first"},
+{id:"Menurutku kamu harus lebih menikmati hidup", en:"I think you should enjoy life more"},
+{id:"Coba jangan terlalu perfeksionis", en:"Try not to be too perfectionist"},
+{id:"Mungkin semuanya cuma butuh waktu", en:"Maybe everything just needs time"},
+{id:"Coba lebih percaya sama proses", en:"Try trusting the process more"},
+{id:"Menurutku kamu sudah cukup hebat", en:"I think you are already amazing"},
+{id:"Coba jangan menyimpan semuanya sendiri", en:"Try not to keep everything to yourself"},
+{id:"Mungkin kamu perlu refreshing", en:"Maybe you need some refreshment"},
+{id:"Coba lakukan hal kecil yang bikin bahagia", en:"Try doing small things that make you happy"},
+{id:"Menurutku kamu perlu lebih santai menikmati hari", en:"I think you should relax and enjoy the day more"},
+{id:"Coba berhenti sejenak kalau capek", en:"Try taking a break if you are tired"},
+{id:"Mungkin kamu terlalu banyak pikiran", en:"Maybe you have too many thoughts"},
+{id:"Coba kurangi melihat hal negatif", en:"Try reducing negative things around you"},
+{id:"Menurutku kamu layak bahagia", en:"I think you deserve happiness"},
+{id:"Coba tidur tanpa main HP dulu", en:"Try sleeping without using your phone first"},
+{id:"Mungkin kamu perlu suasana baru untuk semangat", en:"Maybe you need a new atmosphere to feel motivated"},
+{id:"Coba lakukan yang membuatmu nyaman", en:"Try doing what makes you comfortable"},
+{id:"Menurutku kamu harus lebih menghargai usaha kecilmu", en:"I think you should appreciate your small efforts more"},
+{id:"Coba jangan terlalu takut gagal", en:"Try not to be too afraid of failure"},
+{id:"Mungkin kamu hanya butuh istirahat mental", en:"Maybe you just need mental rest"},
+{id:"Coba lebih terbuka soal perasaanmu", en:"Try being more open about your feelings"},
+{id:"Menurutku kamu harus memberi dirimu waktu", en:"I think you should give yourself time"},
+{id:"Coba lakukan sesuatu tanpa tekanan", en:"Try doing something without pressure"},
+{id:"Mungkin ngobrol santai bisa bikin lebih lega", en:"Maybe casual conversations can make you feel better"},
+{id:"Coba jangan terlalu serius setiap saat", en:"Try not to be serious all the time"},
+{id:"Menurutku kamu perlu lebih sering tertawa", en:"I think you need to laugh more often"},
+{id:"Coba menikmati momen kecil", en:"Try enjoying small moments"},
+{id:"Mungkin kamu perlu berhenti memikirkan hal lama", en:"Maybe you need to stop thinking about old things"},
+{id:"Coba jangan terlalu sibuk terus", en:"Try not to stay busy all the time"},
+{id:"Menurutku hidup tidak perlu terburu-buru", en:"I think life does not need to be rushed"},
+{id:"Coba cari suasana yang bikin nyaman", en:"Try finding an atmosphere that feels comfortable"},
+{id:"Mungkin kamu perlu ngobrol dengan orang baru", en:"Maybe you need to talk with new people"},
+{id:"Coba lebih menikmati waktu sendiri", en:"Try enjoying your alone time more"},
+{id:"Menurutku kamu perlu lebih percaya kemampuanmu", en:"I think you should trust your abilities more"},
+{id:"Coba jangan terlalu banyak menyesal", en:"Try not to regret too much"},
+{id:"Mungkin kamu perlu istirahat dari drama", en:"Maybe you need a break from drama"},
+{id:"Coba fokus pada hal baik hari ini", en:"Try focusing on good things today"},
+{id:"Menurutku kamu harus lebih menghargai kesehatanmu", en:"I think you should value your health more"},
+{id:"Coba lebih sering melakukan hal yang kamu suka", en:"Try doing things you enjoy more often"},
+{id:"Mungkin kamu hanya perlu teman ngobrol", en:"Maybe you just need someone to talk to"},
+{id:"Coba jangan terlalu khawatir soal masa depan", en:"Try not to worry too much about the future"},
+{id:"Menurutku semuanya akan berjalan pelan-pelan", en:"I think everything will work out slowly"},
+{id:"Coba beri dirimu pujian juga", en:"Try giving yourself compliments too"},
+{id:"Mungkin kamu perlu mengurangi tekanan pada diri sendiri", en:"Maybe you need to reduce pressure on yourself"},
+{id:"Coba lihat seberapa jauh kamu sudah berkembang", en:"Try looking at how far you have grown"},
+{id:"Menurutku kamu sudah cukup kuat", en:"I think you are already strong enough"},
+{id:"Coba menikmati hidup sedikit lebih santai", en:"Try enjoying life a little more calmly"},
+{id:"Mungkin kamu perlu lebih banyak senyum", en:"Maybe you need to smile more"},
+{id:"Coba jangan terlalu takut mencoba hal baru", en:"Try not to be afraid of trying new things"},
+{id:"Menurutku kamu akan baik-baik saja", en:"I think you will be okay"},
+{id:"Coba terus maju walaupun pelan", en:"Try to keep moving forward even slowly"},
+{id:"Mungkin hari esok akan lebih baik", en:"Maybe tomorrow will be better"},
+{id:"Coba percaya kalau semuanya ada waktunya", en:"Try believing that everything has its own timing"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

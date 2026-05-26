@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional English Conversation</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 24px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    
+    body { 
+      background: var(--bg); 
+      color: var(--text-main); 
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 16px;
+    }
+
+    .app-container { width: 100%; max-width: 500px; }
+
+    .card, .chat-window {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .card-header { padding: 24px; border-bottom: 1px solid var(--border); }
+    .card-body { padding: 24px; }
+    
+    /* Control Groups */
+    .control-group { margin-bottom: 15px; }
+    label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 5px; }
+    input[type="range"] { width: 100%; cursor: pointer; }
+    
+    button { padding: 12px 24px; border-radius: 14px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+    button.primary { background: var(--primary); color: white; width: 100%; }
+    button.primary:hover { background: var(--primary-hover); }
+    button.outline { background: #f1f5f9; color: var(--text-main); }
+    
+    .info-box { background: #eef2ff; color: var(--primary); padding: 15px; border-radius: 14px; font-size: 0.85rem; font-weight: 500; margin-top: 15px; text-align: center; line-height: 1.4; }
+    
+    .bubbles-area { padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 250px; }
+    .bubble-text { max-width: 85%; padding: 14px 20px; border-radius: 20px; font-size: 1rem; }
+    .bubble-them { background: #f1f5f9; border-bottom-left-radius: 4px; align-self: flex-start; }
+    .bubble-me { background: var(--primary); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+    
+    .translation { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+    .speaker-btn { background: #e2e8f0; border-radius: 50%; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border: none; }
+    
+    .nav-bottom { padding: 20px; background: #fff; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .slide { display: none; }
+    .active-slide { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div id="slideSetup" class="slide active-slide">
+    <div class="card">
+      <div class="card-header">
+        <h2>3 bulan bisa bicara B Inggris</h2>
+        <p>Atur kecepatan dan volume suara Anda.</p>
+      </div>
+      <div class="card-body">
+        <div class="control-group">
+          <label>Kecepatan Suara</label>
+          <input type="range" id="rateRange" min="0.5" max="2" step="0.1" value="1">
+        </div>
+        <div class="control-group">
+          <label>Volume Suara (Max 300%)</label>
+          <input type="range" id="volumeRange" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        
+        <div class="info-box">
+          Jawablah dengan B inggris, bicara bahasa inggris gak harus nunggu sempurna.
+        </div>
+        
+        <button class="primary" style="margin-top: 20px;" id="startBtn">Mulai Latihan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="slideChat" class="slide">
+    <div class="chat-window">
+      <div class="card-header" style="display:flex; justify-content: space-between; align-items: center;">
+        <div><h2 id="partnerName">Selesaikan</h2><p id="sessionCounter">Sesi 1 / 10</p></div>
+        <button class="outline" onclick="location.reload()">Exit</button>
+      </div>
+
+      <div class="bubbles-area">
+        <div class="bubble-them">
+          <div class="bubble-text" id="partnerMsg">...</div>
+        </div>
+        <div class="translation">
+          <button class="speaker-btn" id="speakPartner">🔊</button>
+          <span id="partnerTrans">...</span>
+        </div>
+
+        <div class="bubble-me">
+          <div class="bubble-text" id="userMsg">❓ ❓ ❓</div>
+        </div>
+        <div class="translation" style="justify-content: flex-end;">
+          <span id="userTrans" style="font-style: italic;"></span>
+        </div>
+      </div>
+
+      <div class="nav-bottom">
+        <button id="prevBtn" class="outline">Prev</button>
+        <button id="revealBtn" class="outline">Lihat Jawaban</button>
+        <button id="nextBtn" class="primary" style="width: auto;">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===[MULAI TANDA] TAMBAHKAN PERCAKAPAN ANDA DI BAWAH INI ===
+  const DIALOGS =[
+  {
+    pEn: () => `Hi, can you hear me clearly?`,
+    pId: () => `Hai, apakah kamu bisa mendengarku dengan jelas?`,
+    aEn: () => `Yes, I can hear you well.`,
+    aId: () => `Ya, saya bisa mendengarmu dengan baik.`
+  },
+
+  {
+    pEn: () => `Nice! Where are you from?`,
+    pId: () => `Bagus! Kamu dari mana?`,
+    aEn: () => `I’m from Indonesia.`,
+    aId: () => `Saya dari Indonesia.`
+  },
+
+  {
+    pEn: () => `Wow, Indonesia is beautiful.`,
+    pId: () => `Wow, Indonesia itu indah.`,
+    aEn: () => `Thank you so much.`,
+    aId: () => `Terima kasih banyak.`
+  },
+
+  {
+    pEn: () => `What city do you live in?`,
+    pId: () => `Kamu tinggal di kota apa?`,
+    aEn: () => `I live in Semarang.`,
+    aId: () => `Saya tinggal di Semarang.`
+  },
+
+  {
+    pEn: () => `That sounds cool.`,
+    pId: () => `Terdengar keren.`,
+    aEn: () => `Yes, it’s a nice city.`,
+    aId: () => `Ya, itu kota yang bagus.`
+  },
+
+  {
+    pEn: () => `Why are you using OmeTV today?`,
+    pId: () => `Kenapa kamu menggunakan OmeTV hari ini?`,
+    aEn: () => `I want to practice my English.`,
+    aId: () => `Saya ingin melatih bahasa Inggris saya.`
+  },
+
+  {
+    pEn: () => `Your English is already good.`,
+    pId: () => `Bahasa Inggrismu sudah bagus.`,
+    aEn: () => `Really? Thank you.`,
+    aId: () => `Benarkah? Terima kasih.`
+  },
+
+  {
+    pEn: () => `Do you often talk with foreigners?`,
+    pId: () => `Apakah kamu sering berbicara dengan orang asing?`,
+    aEn: () => `Sometimes, but I still feel nervous.`,
+    aId: () => `Kadang-kadang, tapi saya masih merasa gugup.`
+  },
+
+  {
+    pEn: () => `Don’t worry, you’re doing great.`,
+    pId: () => `Jangan khawatir, kamu melakukannya dengan baik.`,
+    aEn: () => `That makes me feel better.`,
+    aId: () => `Itu membuat saya merasa lebih baik.`
+  },
+
+  {
+    pEn: () => `What do you usually do in your free time?`,
+    pId: () => `Apa yang biasanya kamu lakukan di waktu luang?`,
+    aEn: () => `I usually watch movies and listen to music.`,
+    aId: () => `Saya biasanya menonton film dan mendengarkan musik.`
+  },
+
+  {
+    pEn: () => `What kind of music do you like?`,
+    pId: () => `Musik seperti apa yang kamu suka?`,
+    aEn: () => `I like pop and chill songs.`,
+    aId: () => `Saya suka lagu pop dan santai.`
+  },
+
+  {
+    pEn: () => `Who is your favorite singer?`,
+    pId: () => `Siapa penyanyi favoritmu?`,
+    aEn: () => `I really like Taylor Swift.`,
+    aId: () => `Saya sangat suka Taylor Swift.`
+  },
+
+  {
+    pEn: () => `Oh, she is very popular.`,
+    pId: () => `Oh, dia sangat populer.`,
+    aEn: () => `Yes, her songs are amazing.`,
+    aId: () => `Ya, lagu-lagunya luar biasa.`
+  },
+
+  {
+    pEn: () => `Do you like watching movies too?`,
+    pId: () => `Apakah kamu juga suka menonton film?`,
+    aEn: () => `Yes, especially comedy movies.`,
+    aId: () => `Ya, terutama film komedi.`
+  },
+
+  {
+    pEn: () => `Comedy movies are fun.`,
+    pId: () => `Film komedi itu menyenangkan.`,
+    aEn: () => `They always make me laugh.`,
+    aId: () => `Mereka selalu membuat saya tertawa.`
+  },
+
+  {
+    pEn: () => `Are you a student or do you work?`,
+    pId: () => `Apakah kamu seorang pelajar atau bekerja?`,
+    aEn: () => `I’m still a student.`,
+    aId: () => `Saya masih seorang pelajar.`
+  },
+
+  {
+    pEn: () => `What are you studying?`,
+    pId: () => `Apa yang sedang kamu pelajari?`,
+    aEn: () => `I’m studying computer science.`,
+    aId: () => `Saya belajar ilmu komputer.`
+  },
+
+  {
+    pEn: () => `That sounds interesting.`,
+    pId: () => `Terdengar menarik.`,
+    aEn: () => `Yes, I enjoy learning about technology.`,
+    aId: () => `Ya, saya suka belajar tentang teknologi.`
+  },
+
+  {
+    pEn: () => `Do you want to become a programmer?`,
+    pId: () => `Apakah kamu ingin menjadi programmer?`,
+    aEn: () => `Yes, that is my dream.`,
+    aId: () => `Ya, itu adalah impian saya.`
+  },
+
+  {
+    pEn: () => `I hope your dream comes true.`,
+    pId: () => `Saya harap impianmu menjadi kenyataan.`,
+    aEn: () => `Thank you, that means a lot.`,
+    aId: () => `Terima kasih, itu sangat berarti.`
+  },
+
+  {
+    pEn: () => `By the way, how old are you?`,
+    pId: () => `Ngomong-ngomong, umurmu berapa?`,
+    aEn: () => `I’m 19 years old.`,
+    aId: () => `Saya berumur 19 tahun.`
+  },
+
+  {
+    pEn: () => `You look younger than 19.`,
+    pId: () => `Kamu terlihat lebih muda dari 19.`,
+    aEn: () => `Haha, I hear that a lot.`,
+    aId: () => `Haha, saya sering mendengar itu.`
+  },
+
+  {
+    pEn: () => `What time is it in your country now?`,
+    pId: () => `Jam berapa sekarang di negaramu?`,
+    aEn: () => `It’s around 10 PM here.`,
+    aId: () => `Sekarang sekitar jam 10 malam di sini.`
+  },
+
+  {
+    pEn: () => `Oh, it’s pretty late.`,
+    pId: () => `Oh, sudah cukup malam.`,
+    aEn: () => `Yes, but I’m not sleepy yet.`,
+    aId: () => `Ya, tapi saya belum mengantuk.`
+  },
+
+  {
+    pEn: () => `I’m happy we matched on OmeTV.`,
+    pId: () => `Saya senang kita bertemu di OmeTV.`,
+    aEn: () => `Me too, you are very friendly.`,
+    aId: () => `Saya juga, kamu sangat ramah.`
+  },
+
+  {
+    pEn: () => `Thank you for talking with me.`,
+    pId: () => `Terima kasih sudah berbicara dengan saya.`,
+    aEn: () => `You’re welcome.`,
+    aId: () => `Sama-sama.`
+  },
+
+  {
+    pEn: () => `I learned some new English expressions today.`,
+    pId: () => `Saya belajar beberapa ekspresi bahasa Inggris baru hari ini.`,
+    aEn: () => `That’s really nice to hear.`,
+    aId: () => `Senang mendengarnya.`
+  },
+
+  {
+    pEn: () => `I hope we can talk again someday.`,
+    pId: () => `Saya harap kita bisa berbicara lagi suatu hari nanti.`,
+    aEn: () => `Sure, that would be fun.`,
+    aId: () => `Tentu, itu akan menyenangkan.`
+  },
+
+  {
+    pEn: () => `Okay, take care and stay healthy.`,
+    pId: () => `Oke, jaga diri dan tetap sehat.`,
+    aEn: () => `You too. Have a great day!`,
+    aId: () => `Kamu juga. Semoga harimu menyenangkan!`
+  }
+];
+  // ===[AKHIR TANDA] ===
+
+  let current = 0;
+  let voices =[];
+
+  window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
+
+  function speak(text, isPartner = true) {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    const voice = voices.find(v => v.lang.includes('en-US')) || voices[0];
+    if (voice) utter.voice = voice;
+    
+    // Ambil nilai dari slider
+    utter.rate = parseFloat(document.getElementById('rateRange').value);
+    utter.volume = parseFloat(document.getElementById('volumeRange').value);
+    
+    utter.pitch = isPartner ? 1.0 : 1.2;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function update() {
+    const d = DIALOGS[current];
+    document.getElementById('partnerMsg').textContent = d.pEn();
+    document.getElementById('partnerTrans').textContent = d.pId();
+    document.getElementById('userMsg').textContent = "❓ ❓ ❓";
+    document.getElementById('userTrans').textContent = "";
+    document.getElementById('sessionCounter').textContent = `Sesi ${current + 1} / ${DIALOGS.length}`;
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    document.getElementById('slideSetup').classList.remove('active-slide');
+    document.getElementById('slideChat').classList.add('active-slide');
+    update();
+    setTimeout(() => speak(DIALOGS[current].pEn()), 500);
+  });
+
+  document.getElementById('speakPartner').addEventListener('click', () => speak(DIALOGS[current].pEn()));
+
+  document.getElementById('revealBtn').addEventListener('click', () => {
+    const d = DIALOGS[current];
+    document.getElementById('userMsg').textContent = d.aEn();
+    document.getElementById('userTrans').textContent = d.aId();
+    speak(d.aEn(), false);
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if(current < DIALOGS.length - 1) { current++; update(); speak(DIALOGS[current].pEn()); }
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if(current > 0) { current--; update(); speak(DIALOGS[current].pEn()); }
+  });
+</script>
+</body>
+</html>

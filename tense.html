@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16 English Tenses</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            
+            /* Category Colors */
+            --present: #3b82f6;
+            --past: #ef4444;
+            --future: #10b981;
+            --past-future: #8b5cf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navigation / Back Button */
+        .nav-back {
+            margin-bottom: 2rem;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.2s;
+            gap: 0.5rem;
+        }
+
+        .btn-back:hover {
+            color: var(--present);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Grid Layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Card Style */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.05), 0 8px 8px -5px rgba(0, 0, 0, 0.02);
+            border-color: #cbd5e1;
+        }
+
+        /* Top Border Indicator */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        /* Category Specific Border Styles */
+        .card.present::before { background-color: var(--present); }
+        .card.past::before { background-color: var(--past); }
+        .card.future::before { background-color: var(--future); }
+        .card.past-future::before { background-color: var(--past-future); }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 1rem;
+            width: fit-content;
+        }
+
+        .present .badge { background-color: #eff6ff; color: var(--present); }
+        .past .badge { background-color: #fef2f2; color: var(--past); }
+        .future .badge { background-color: #ecfdf5; color: var(--future); }
+        .past-future .badge { background-color: #f5f3ff; color: var(--past-future); }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
+        }
+
+        .formula {
+            font-family: monospace;
+            font-size: 0.8rem;
+            background-color: #f1f5f9;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            color: #334155;
+            word-break: break-all;
+            margin-bottom: 1rem;
+        }
+
+        /* Details Toggle for Examples */
+        details {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        summary {
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-primary);
+            outline: none;
+            user-select: none;
+        }
+
+        summary:hover {
+            opacity: 0.8;
+        }
+
+        .examples-list {
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            list-style: none;
+        }
+
+        .examples-list li {
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+            border-left: 2px solid var(--border-color);
+        }
+
+        .example-en {
+            font-weight: 600;
+            color: #334155;
+            display: block;
+        }
+
+        .example-id {
+            color: var(--text-secondary);
+            font-style: italic;
+            display: block;
+            font-size: 0.8rem;
+            margin-top: 0.1rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header Back Home -->
+        <div class="nav-back">
+            <a href="index.html" class="btn-back">
+                &larr; Back to Home
+            </a>
+        </div>
+
+        <header>
+            <h1>16 English Tenses</h1>
+            <p>Panduan ringkas tata bahasa Inggris dalam tampilan grid modern.</p>
+        </header>
+
+        <div class="grid-container">
+
+            <!-- PRESENT TENSES -->
+            <div class="card present">
+                <div>
+                    <span class="badge">Present</span>
+                    <h2>Simple Present</h2>
+                    <p>Digunakan untuk menyatakan fakta, kebiasaan, atau kejadian yang terjadi pada saat ini.</p>
+                    <div class="formula">S + V1 (s/es)</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I drink coffee every morning.</span>
+                            <span class="example-id">Saya minum kopi setiap pagi.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">The sun rises in the east.</span>
+                            <span class="example-id">Matahari terbit di timur.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They play football on Sundays.</span>
+                            <span class="example-id">Mereka bermain sepak bola setiap hari Minggu.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She works at a hospital.</span>
+                            <span class="example-id">Dia bekerja di rumah sakit.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">Water boils at 100 degrees Celsius.</span>
+                            <span class="example-id">Air mendidih pada suhu 100 derajat Celsius.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card present">
+                <div>
+                    <span class="badge">Present</span>
+                    <h2>Present Continuous</h2>
+                    <p>Menunjukkan aksi yang sedang berlangsung saat pembicaraan sedang terjadi.</p>
+                    <div class="formula">S + am/is/are + V-ing</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I am writing an email right now.</span>
+                            <span class="example-id">Saya sedang menulis email saat ini.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She is learning English at the moment.</span>
+                            <span class="example-id">Dia sedang belajar bahasa Inggris saat ini.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They are playing in the garden.</span>
+                            <span class="example-id">Mereka sedang bermain di taman.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We are preparing dinner.</span>
+                            <span class="example-id">Kami sedang menyiapkan makan malam.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">The dog is barking at the stranger.</span>
+                            <span class="example-id">Anjing itu sedang menggonggong pada orang asing.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card present">
+                <div>
+                    <span class="badge">Present</span>
+                    <h2>Present Perfect</h2>
+                    <p>Menunjukkan aksi yang telah selesai pada masa lalu namun efeknya masih terasa hingga sekarang.</p>
+                    <div class="formula">S + have/has + V3</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I have visited Bali twice.</span>
+                            <span class="example-id">Saya sudah mengunjungi Bali dua kali.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She has finished her homework.</span>
+                            <span class="example-id">Dia telah menyelesaikan pekerjaan rumahnya.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We have lived here for five years.</span>
+                            <span class="example-id">Kami telah tinggal di sini selama lima tahun.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They have already eaten lunch.</span>
+                            <span class="example-id">Mereka sudah makan siang.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He has lost his keys.</span>
+                            <span class="example-id">Dia kehilangan kunci-kuncinya.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card present">
+                <div>
+                    <span class="badge">Present</span>
+                    <h2>Present Perfect Continuous</h2>
+                    <p>Menjelaskan aksi yang dimulai di masa lalu dan masih berlangsung terus hingga sekarang.</p>
+                    <div class="formula">S + have/has + been + V-ing</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I have been studying for three hours.</span>
+                            <span class="example-id">Saya telah belajar selama tiga jam.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">It has been raining since morning.</span>
+                            <span class="example-id">Hujan telah turun sejak pagi.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They have been waiting for the bus.</span>
+                            <span class="example-id">Mereka telah menunggu bus.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She has been working here since 2020.</span>
+                            <span class="example-id">Dia telah bekerja di sini sejak tahun 2020.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We have been planning this trip for weeks.</span>
+                            <span class="example-id">Kami telah merencanakan perjalanan ini selama berminggu-minggu.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <!-- PAST TENSES -->
+            <div class="card past">
+                <div>
+                    <span class="badge">Past</span>
+                    <h2>Simple Past</h2>
+                    <p>Digunakan untuk menyatakan kejadian yang terjadi dan telah selesai di masa lampau.</p>
+                    <div class="formula">S + V2</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I bought a new car yesterday.</span>
+                            <span class="example-id">Saya membeli mobil baru kemarin.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She graduated from college last year.</span>
+                            <span class="example-id">Dia lulus dari perguruan tinggi tahun lalu.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They visited their grandparents last week.</span>
+                            <span class="example-id">Mereka mengunjungi kakek-nenek mereka minggu lalu.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We watched a movie last night.</span>
+                            <span class="example-id">Kami menonton film tadi malam.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He left the key on the table.</span>
+                            <span class="example-id">Dia meninggalkan kunci itu di atas meja.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card past">
+                <div>
+                    <span class="badge">Past</span>
+                    <h2>Past Continuous</h2>
+                    <p>Menjelaskan peristiwa yang sedang terjadi pada waktu spesifik di masa lalu.</p>
+                    <div class="formula">S + was/were + V-ing</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I was reading a book when she called.</span>
+                            <span class="example-id">Saya sedang membaca buku ketika dia menelepon.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They were sleeping when the rain started.</span>
+                            <span class="example-id">Mereka sedang tidur ketika hujan mulai turun.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She was cooking dinner at 7 PM yesterday.</span>
+                            <span class="example-id">Dia sedang memasak makan malam pukul 7 malam kemarin.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We were driving home when it happened.</span>
+                            <span class="example-id">Kami sedang berkendara pulang ketika peristiwa itu terjadi.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He was studying while his brother was playing.</span>
+                            <span class="example-id">Dia sedang belajar sementara saudaranya sedang bermain.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card past">
+                <div>
+                    <span class="badge">Past</span>
+                    <h2>Past Perfect</h2>
+                    <p>Menyatakan bahwa suatu aksi telah selesai sebelum tindakan lain di masa lalu terjadi.</p>
+                    <div class="formula">S + had + V3</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I had eaten breakfast before I left for work.</span>
+                            <span class="example-id">Saya telah sarapan sebelum saya berangkat kerja.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">The train had departed when we arrived.</span>
+                            <span class="example-id">Kereta telah berangkat ketika kami tiba.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She had cleaned the house before her guests came.</span>
+                            <span class="example-id">Dia telah membersihkan rumah sebelum tamunya datang.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They had finished the project before the deadline.</span>
+                            <span class="example-id">Mereka telah menyelesaikan proyek sebelum tenggat waktu.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He had lost weight before he started the new diet.</span>
+                            <span class="example-id">Dia telah menurunkan berat badan sebelum dia memulai diet baru.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card past">
+                <div>
+                    <span class="badge">Past</span>
+                    <h2>Past Perfect Continuous</h2>
+                    <p>Mengungkapkan aksi yang telah dimulai dan berlangsung beberapa lama di masa lalu sebelum aksi lain terjadi.</p>
+                    <div class="formula">S + had + been + V-ing</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I had been waiting for an hour before the bus finally arrived.</span>
+                            <span class="example-id">Saya telah menunggu selama satu jam sebelum bus akhirnya tiba.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They had been playing football for two hours before it rained.</span>
+                            <span class="example-id">Mereka telah bermain sepak bola selama dua jam sebelum hujan turun.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She had been working there for ten years before she resigned.</span>
+                            <span class="example-id">Dia telah bekerja di sana selama sepuluh tahun sebelum dia mengundurkan diri.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He had been studying all night, so he was very tired.</span>
+                            <span class="example-id">Dia telah belajar sepanjang malam, jadi dia sangat lelah.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We had been driving for miles before finding a gas station.</span>
+                            <span class="example-id">Kami telah berkendara bermil-mil sebelum menemukan pom bensin.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <!-- FUTURE TENSES -->
+            <div class="card future">
+                <div>
+                    <span class="badge">Future</span>
+                    <h2>Simple Future</h2>
+                    <p>Digunakan untuk menyatakan peristiwa yang akan terjadi di masa yang akan datang.</p>
+                    <div class="formula">S + will + V1 / S + be going to + V1</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I will travel to Japan next month.</span>
+                            <span class="example-id">Saya akan bepergian ke Jepang bulan depan.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She is going to cook dinner tonight.</span>
+                            <span class="example-id">Dia akan memasak makan malam malam ini.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They will help us with the project.</span>
+                            <span class="example-id">Mereka akan membantu kita dengan proyek ini.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We will meet you at the cafe.</span>
+                            <span class="example-id">Kami akan menemuimu di kafe.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">It will rain tomorrow afternoon.</span>
+                            <span class="example-id">Hujan akan turun besok sore.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card future">
+                <div>
+                    <span class="badge">Future</span>
+                    <h2>Future Continuous</h2>
+                    <p>Menunjukkan aksi yang sedang berlangsung pada waktu spesifik di masa depan.</p>
+                    <div class="formula">S + will + be + V-ing</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I will be working at 10 AM tomorrow.</span>
+                            <span class="example-id">Saya akan sedang bekerja pukul 10 pagi besok.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She will be sleeping when you arrive.</span>
+                            <span class="example-id">Dia akan sedang tidur saat kamu tiba.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They will be flying to Bali this time tomorrow.</span>
+                            <span class="example-id">Mereka akan sedang terbang ke Bali pada jam sekian besok.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We will be waiting for you at the airport.</span>
+                            <span class="example-id">Kami akan sedang menunggumu di bandara.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He will be playing games tonight.</span>
+                            <span class="example-id">Dia akan sedang bermain game nanti malam.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card future">
+                <div>
+                    <span class="badge">Future</span>
+                    <h2>Future Perfect</h2>
+                    <p>Menyatakan peristiwa yang akan telah selesai pada suatu titik waktu tertentu di masa depan.</p>
+                    <div class="formula">S + will + have + V3</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I will have graduated by next year.</span>
+                            <span class="example-id">Saya akan telah lulus tahun depan.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She will have finished the report by 5 PM.</span>
+                            <span class="example-id">Dia akan telah menyelesaikan laporan itu pukul 5 sore.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They will have built the bridge by the end of this month.</span>
+                            <span class="example-id">Mereka akan telah membangun jembatan itu pada akhir bulan ini.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We will have lived here for a year next Monday.</span>
+                            <span class="example-id">Kami akan telah tinggal di sini selama setahun Senin depan.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He will have arrived in London by tomorrow morning.</span>
+                            <span class="example-id">Dia akan telah tiba di London besok pagi.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card future">
+                <div>
+                    <span class="badge">Future</span>
+                    <h2>Future Perfect Continuous</h2>
+                    <p>Mengungkapkan aksi yang akan telah berlangsung selama durasi waktu tertentu di masa depan.</p>
+                    <div class="formula">S + will + have + been + V-ing</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">By next month, I will have been working here for three years.</span>
+                            <span class="example-id">Pada bulan depan, saya akan telah bekerja di sini selama tiga tahun.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She will have been sleeping for two hours by the time we arrive.</span>
+                            <span class="example-id">Dia akan telah tidur selama dua jam pada saat kita tiba.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They will have been studying for four hours by midnight.</span>
+                            <span class="example-id">Mereka akan telah belajar selama empat jam menjelang tengah malam.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We will have been driving for five hours by then.</span>
+                            <span class="example-id">Kami akan telah berkendara selama lima jam pada saat itu.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He will have been living in Jakarta for ten years by 2027.</span>
+                            <span class="example-id">Dia akan telah tinggal di Jakarta selama sepuluh tahun pada tahun 2027.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <!-- PAST FUTURE TENSES -->
+            <div class="card past-future">
+                <div>
+                    <span class="badge">Past Future</span>
+                    <h2>Simple Past Future</h2>
+                    <p>Menyatakan aksi yang direncanakan atau diprediksi di masa lalu mengenai masa depan.</p>
+                    <div class="formula">S + would + V1</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I would go to your house if I had free time.</span>
+                            <span class="example-id">Saya akan pergi ke rumahmu jika saya punya waktu luang.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She said that she would help me.</span>
+                            <span class="example-id">Dia berkata bahwa dia akan membantuku.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They would buy a new house if they won the lottery.</span>
+                            <span class="example-id">Mereka akan membeli rumah baru jika mereka memenangkan lotre.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We would attend the meeting yesterday, but we forgot.</span>
+                            <span class="example-id">Kami akan menghadiri pertemuan itu kemarin, tetapi kami lupa.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He promised he would call her.</span>
+                            <span class="example-id">Dia berjanji dia akan meneleponnya.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card past-future">
+                <div>
+                    <span class="badge">Past Future</span>
+                    <h2>Past Future Continuous</h2>
+                    <p>Menunjukkan aksi yang seharusnya sedang berlangsung di masa lampau pada waktu tertentu.</p>
+                    <div class="formula">S + would + be + V-ing</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I would be studying at this time yesterday, but my friend visited.</span>
+                            <span class="example-id">Saya seharusnya sedang belajar pada jam sekian kemarin, tetapi teman saya berkunjung.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She would be working if it were a Monday.</span>
+                            <span class="example-id">Dia akan sedang bekerja seandainya hari itu hari Senin.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They would be traveling if they had enough money.</span>
+                            <span class="example-id">Mereka akan sedang bepergian jika mereka punya cukup uang.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We would be preparing the party yesterday afternoon.</span>
+                            <span class="example-id">Kami seharusnya sedang mempersiapkan pesta kemarin sore.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He would be sleeping if he didn't have to study.</span>
+                            <span class="example-id">Dia akan sedang tidur seandainya dia tidak harus belajar.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card past-future">
+                <div>
+                    <span class="badge">Past Future</span>
+                    <h2>Past Future Perfect</h2>
+                    <p>Digunakan untuk menyatakan pengandaian tindakan yang akan sudah selesai dilakukan di masa lalu.</p>
+                    <div class="formula">S + would + have + V3</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">I rounded have completed the task if you had helped me.</span>
+                            <span class="example-id">Saya akan telah menyelesaikan tugas tersebut jika kamu telah membantu saya.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She would have gone to the party if she had been invited.</span>
+                            <span class="example-id">Dia akan telah pergi ke pesta tersebut jika dia diundang.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They would have bought the car last year if the price was right.</span>
+                            <span class="example-id">Mereka akan telah membeli mobil tersebut tahun lalu seandainya harganya cocok.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We would have passed the test if we had studied harder.</span>
+                            <span class="example-id">Kami akan telah lulus ujian jika kami belajar lebih keras.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He would have arrived on time if the train wasn't late.</span>
+                            <span class="example-id">Dia akan telah tiba tepat waktu seandainya keretanya tidak terlambat.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+            <div class="card past-future">
+                <div>
+                    <span class="badge">Past Future</span>
+                    <h2>Past Future Perfect Continuous</h2>
+                    <p>Menjelaskan aksi pengandaian yang akan telah sedang berlangsung selama kurun waktu tertentu di masa lampau.</p>
+                    <div class="formula">S + would + have + been + V-ing</div>
+                </div>
+                <details>
+                    <summary>Tampilkan 5 Contoh</summary>
+                    <ul class="examples-list">
+                        <li>
+                            <span class="example-en">By last December, I would have been working here for five years.</span>
+                            <span class="example-id">Pada Desember lalu, saya seharusnya telah bekerja di sini selama lima tahun.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">She would have been studying for three hours if she hadn't slept.</span>
+                            <span class="example-id">Dia seharusnya telah belajar selama tiga jam seandainya dia tidak tidur.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">They would have been living in Bandung for ten years by 2025.</span>
+                            <span class="example-id">Mereka seharusnya telah tinggal di Bandung selama sepuluh tahun pada tahun 2025.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">We would have been traveling for a week by that time.</span>
+                            <span class="example-id">Kami seharusnya telah bepergian selama seminggu pada saat itu.</span>
+                        </li>
+                        <li>
+                            <span class="example-en">He would have been waiting for two hours if he arrived earlier.</span>
+                            <span class="example-id">Dia seharusnya telah menunggu selama dua jam seandainya dia tiba lebih awal.</span>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

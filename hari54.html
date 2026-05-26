@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OmeTV English Shadowing App</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: white;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+
+    .instruction {
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .setting {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .value {
+      margin-top: 5px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 15px;
+      background: white;
+      color: #4f46e5;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .topic-box {
+      background: rgba(255,255,255,0.15);
+      padding: 25px;
+      border-radius: 20px;
+      margin-top: 20px;
+      text-align: center;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .text-hidden {
+      font-size: 20px;
+      opacity: 0;
+      transition: 0.4s;
+      user-select: none;
+    }
+
+    .text-show {
+      opacity: 1;
+    }
+
+    .timer {
+      font-size: 60px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .desc {
+      margin-top: 15px;
+      font-size: 17px;
+      opacity: 0.9;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .btn-group button {
+      margin-top: 0;
+      flex: 1;
+    }
+
+    .category-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 10px 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    @media(max-width: 600px) {
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .timer {
+        font-size: 45px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- SCREEN 1 -->
+    <div id="screen1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <h1 style="margin:0;font-size:28px;">OmeTV English Practice</h1>
+      </div>
+
+      <div class="instruction">
+        <strong>Instruksi:</strong><br><br>
+        Anda cukup dengarkan suara lalu tirukan pengucapannya.
+        Fokus pada pronunciation, kecepatan bicara, dan intonasi.
+      </div>
+
+      <div class="setting">
+        <label>Volume Suara</label>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+        <div class="value" id="volumeValue">100%</div>
+      </div>
+
+      <div class="setting">
+        <label>Lamanya Timer</label>
+        <input type="range" id="timerSetting" min="1" max="10" value="5">
+        <div class="value" id="timerValue">5 Menit</div>
+      </div>
+
+      <div class="setting">
+        <label>Kecepatan Suara</label>
+        <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1">
+        <div class="value" id="speedValue">1x</div>
+      </div>
+
+      <button onclick="startPractice()">Mulai Latihan</button>
+      <button onclick="randomTopic()">Acak Topik</button>
+    </div>
+
+
+    <!-- SCREEN 2 -->
+    <div id="screen2" class="hidden">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px;flex-wrap:wrap;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <button onclick="randomTopic()" style="width:auto;padding:10px 18px;margin-top:0;">🎲 Acak</button>
+      </div>
+
+      <div class="category-badge">English Shadowing Category</div>
+
+      <h2 id="categoryTitle">Listen & Repeat</h2>
+
+      <div class="topic-box">
+
+        <div id="practiceText" class="text-hidden">
+          Hello everyone! My name is Dias.
+        </div>
+
+        <div id="translationText" class="text-hidden" style="margin-top:15px; font-size:16px; opacity:0.85;">
+          Halo semuanya! Nama saya Dias.
+        </div>
+
+        <div class="timer" id="timer">05:00</div>
+
+        <div class="desc">
+          Dengarkan dan tirukan kalimat tadi sebelum waktu habis.
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button onclick="showAnswer()">Kunci Jawaban</button>
+        <button onclick="repeatVoice()">Putar Ulang Suara</button>
+        <button onclick="nextTopic()">Next Topic</button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const topics = [
+
+  {
+    category: "1. Saya Orang yang Positif",
+    en: "I always try to stay positive even when life becomes difficult. I believe a good attitude can help people solve problems and create better relationships. I enjoy encouraging others and spreading good energy in conversations. Staying positive also helps me become more confident every day. How do you stay positive during hard times?",
+    id: "Saya selalu mencoba tetap positif bahkan ketika hidup menjadi sulit. Saya percaya sikap yang baik dapat membantu orang menyelesaikan masalah dan menciptakan hubungan yang lebih baik. Saya suka menyemangati orang lain dan menyebarkan energi positif dalam percakapan. Tetap positif juga membantu saya menjadi lebih percaya diri setiap hari. Bagaimana kamu tetap positif saat masa sulit?"
+  },
+
+  {
+    category: "2. Saya Suka Belajar",
+    en: "I am someone who enjoys learning new things and improving myself little by little. I believe knowledge and experience are important for personal growth and future success. Even simple conversations can teach valuable lessons. I always try to stay curious and open-minded. What new skills are you interested in learning?",
+    id: "Saya adalah seseorang yang suka belajar hal baru dan meningkatkan diri sedikit demi sedikit. Saya percaya pengetahuan dan pengalaman penting untuk perkembangan diri dan kesuksesan masa depan. Bahkan percakapan sederhana bisa mengajarkan pelajaran berharga. Saya selalu mencoba tetap penasaran dan berpikiran terbuka. Kemampuan baru apa yang ingin kamu pelajari?"
+  },
+
+  {
+    category: "3. Saya Percaya Diri",
+    en: "I try to become more confident every day by practicing communication and meeting new people. Confidence is not about being perfect, but about believing in yourself and continuing to improve. I think everyone has unique strengths and talents. Sometimes stepping out of our comfort zone helps us grow faster. What helps you feel confident?",
+    id: "Saya mencoba menjadi lebih percaya diri setiap hari dengan melatih komunikasi dan bertemu orang baru. Percaya diri bukan tentang menjadi sempurna, tetapi tentang percaya pada diri sendiri dan terus berkembang. Saya pikir setiap orang memiliki kelebihan dan bakat unik. Kadang keluar dari zona nyaman membantu kita berkembang lebih cepat. Apa yang membuatmu merasa percaya diri?"
+  },
+
+  {
+    category: "4. Saya Suka Berkomunikasi",
+    en: "I enjoy talking with people from different backgrounds because every conversation can bring new perspectives and ideas. Good communication is an important skill in both personal life and work. I try to be respectful, friendly, and open when talking with others. Building connections with people is something I value a lot. Do you enjoy meeting new people too?",
+    id: "Saya suka berbicara dengan orang dari latar belakang berbeda karena setiap percakapan bisa membawa perspektif dan ide baru. Komunikasi yang baik adalah kemampuan penting dalam kehidupan pribadi maupun pekerjaan. Saya mencoba bersikap sopan, ramah, dan terbuka saat berbicara dengan orang lain. Membangun hubungan dengan orang adalah hal yang sangat saya hargai. Apakah kamu juga suka bertemu orang baru?"
+  },
+
+  {
+    category: "5. Saya Suka Tantangan",
+    en: "I believe challenges are opportunities to learn and become stronger. Sometimes difficult situations can teach valuable lessons that help us grow as individuals. I try not to give up easily when facing problems or obstacles. Staying determined is important for achieving goals and dreams. How do you usually handle challenges in your life?",
+    id: "Saya percaya tantangan adalah kesempatan untuk belajar dan menjadi lebih kuat. Kadang situasi sulit bisa mengajarkan pelajaran berharga yang membantu kita berkembang sebagai pribadi. Saya mencoba untuk tidak mudah menyerah saat menghadapi masalah atau hambatan. Tetap tekun penting untuk mencapai tujuan dan mimpi. Bagaimana biasanya kamu menghadapi tantangan dalam hidup?"
+  },
+
+  {
+    category: "6. Saya Kreatif",
+    en: "I enjoy thinking creatively and trying new ideas in daily life. Creativity can appear in many forms such as conversations, hobbies, problem solving, or content creation. I believe creative people can inspire others and make situations more interesting. Trying new things also helps develop confidence and experience. What creative activities do you enjoy?",
+    id: "Saya suka berpikir kreatif dan mencoba ide baru dalam kehidupan sehari-hari. Kreativitas bisa muncul dalam banyak bentuk seperti percakapan, hobi, pemecahan masalah, atau membuat konten. Saya percaya orang kreatif bisa menginspirasi orang lain dan membuat situasi lebih menarik. Mencoba hal baru juga membantu mengembangkan rasa percaya diri dan pengalaman. Aktivitas kreatif apa yang kamu sukai?"
+  },
+
+  {
+    category: "7. Saya Disiplin",
+    en: "I try to stay disciplined and manage my time wisely every day. Even small habits can make a big difference over time when done consistently. I believe discipline is important for achieving personal goals and improving skills. Staying focused is not always easy, but it helps create better results in the future. How do you stay productive?",
+    id: "Saya mencoba tetap disiplin dan mengatur waktu dengan baik setiap hari. Bahkan kebiasaan kecil bisa membuat perbedaan besar jika dilakukan secara konsisten. Saya percaya disiplin penting untuk mencapai tujuan pribadi dan meningkatkan kemampuan. Tetap fokus memang tidak selalu mudah, tetapi membantu menciptakan hasil yang lebih baik di masa depan. Bagaimana kamu tetap produktif?"
+  },
+
+  {
+    category: "8. Saya Ramah",
+    en: "I like creating friendly and comfortable conversations with people. Being kind and respectful can make others feel appreciated and relaxed. I believe simple friendliness can leave a positive impression and create better connections. Sometimes even small compliments can brighten someone’s day. What do you think makes a person friendly?",
+    id: "Saya suka menciptakan percakapan yang ramah dan nyaman dengan orang lain. Bersikap baik dan sopan bisa membuat orang merasa dihargai dan santai. Saya percaya keramahan sederhana dapat meninggalkan kesan positif dan menciptakan hubungan yang lebih baik. Kadang pujian kecil saja bisa membuat hari seseorang lebih cerah. Menurutmu apa yang membuat seseorang terlihat ramah?"
+  },
+
+  {
+    category: "9. Saya Suka Berkembang",
+    en: "I always try to improve myself little by little in different areas of life. Personal growth is important because life keeps changing and we should continue learning. I enjoy challenging myself to become better than yesterday. Progress may be slow sometimes, but consistency is what matters most. In what ways do you want to improve yourself?",
+    id: "Saya selalu mencoba mengembangkan diri sedikit demi sedikit dalam berbagai aspek kehidupan. Perkembangan diri penting karena hidup terus berubah dan kita harus terus belajar. Saya suka menantang diri sendiri untuk menjadi lebih baik dari kemarin. Kemajuan mungkin terasa lambat kadang-kadang, tetapi konsistensi adalah yang paling penting. Dalam hal apa kamu ingin mengembangkan diri?"
+  },
+
+  {
+    category: "10. Saya Suka Membantu Orang",
+    en: "I feel happy when I can help other people, even in small ways. Sometimes listening carefully or giving encouragement can make a big difference for someone. I believe kindness creates positive energy and stronger relationships. Helping others also teaches empathy and understanding. What is one kind thing you did recently?",
+    id: "Saya merasa senang ketika bisa membantu orang lain, bahkan dalam hal kecil. Kadang mendengarkan dengan baik atau memberi semangat bisa membuat perbedaan besar bagi seseorang. Saya percaya kebaikan menciptakan energi positif dan hubungan yang lebih kuat. Membantu orang lain juga mengajarkan empati dan pengertian. Apa satu hal baik yang baru-baru ini kamu lakukan?"
+  },
+
+  {
+    category: "11. Saya Ambisius",
+    en: "I have dreams and goals that motivate me to work harder every day. I want to build a better future and become someone who makes my family proud. Ambition is important because it gives direction and purpose in life. I know success takes time, patience, and effort. What motivates you to keep moving forward?",
+    id: "Saya memiliki mimpi dan tujuan yang memotivasi saya untuk bekerja lebih keras setiap hari. Saya ingin membangun masa depan yang lebih baik dan menjadi seseorang yang membuat keluarga bangga. Ambisi penting karena memberi arah dan tujuan dalam hidup. Saya tahu kesuksesan membutuhkan waktu, kesabaran, dan usaha. Apa yang memotivasimu untuk terus maju?"
+  },
+
+  {
+    category: "12. Saya Suka Beradaptasi",
+    en: "I think adapting to new situations is an important life skill. Every environment and person is different, so being flexible helps us communicate and grow more easily. I enjoy learning how to understand different personalities and cultures. Adaptability can help people succeed in many situations. Are you good at adapting to new environments?",
+    id: "Saya pikir beradaptasi dengan situasi baru adalah kemampuan hidup yang penting. Setiap lingkungan dan orang berbeda, jadi menjadi fleksibel membantu kita berkomunikasi dan berkembang lebih mudah. Saya suka belajar memahami berbagai kepribadian dan budaya. Kemampuan beradaptasi bisa membantu orang sukses dalam banyak situasi. Apakah kamu pandai beradaptasi dengan lingkungan baru?"
+  },
+
+  {
+    category: "13. Saya Pendengar yang Baik",
+    en: "I believe listening is just as important as speaking in a conversation. I try to understand people carefully and respect their opinions and feelings. Good listeners can build trust and stronger connections with others. Sometimes people simply want someone who listens sincerely. Do you prefer talking more or listening more?",
+    id: "Saya percaya mendengarkan sama pentingnya dengan berbicara dalam percakapan. Saya mencoba memahami orang dengan baik dan menghargai pendapat serta perasaan mereka. Pendengar yang baik bisa membangun kepercayaan dan hubungan yang lebih kuat dengan orang lain. Kadang orang hanya ingin seseorang yang mendengarkan dengan tulus. Apakah kamu lebih suka banyak berbicara atau lebih banyak mendengarkan?"
+  },
+
+  {
+    category: "14. Saya Suka Berpikir Positif",
+    en: "I try to focus on positive things even when situations become stressful. Positive thinking helps me stay calm and motivated during difficult moments. I believe mindset can influence the way we solve problems and interact with people. Optimistic people often inspire others around them too. How do you stay optimistic?",
+    id: "Saya mencoba fokus pada hal positif bahkan saat situasi menjadi penuh tekanan. Berpikir positif membantu saya tetap tenang dan termotivasi di saat sulit. Saya percaya pola pikir dapat memengaruhi cara kita menyelesaikan masalah dan berinteraksi dengan orang lain. Orang yang optimis juga sering menginspirasi orang di sekitarnya. Bagaimana kamu tetap optimis?"
+  },
+
+  {
+    category: "15. Saya Menghargai Waktu",
+    en: "Time is very valuable to me because once it passes, we cannot get it back. I try to use my time wisely for learning, relaxing, and improving myself. Balancing productivity and rest is important for a healthy lifestyle. Good time management can help people achieve their goals faster. How do you usually spend your time?",
+    id: "Waktu sangat berharga bagi saya karena setelah berlalu, kita tidak bisa mendapatkannya kembali. Saya mencoba menggunakan waktu dengan baik untuk belajar, bersantai, dan mengembangkan diri. Menyeimbangkan produktivitas dan istirahat penting untuk gaya hidup sehat. Manajemen waktu yang baik dapat membantu orang mencapai tujuan lebih cepat. Bagaimana biasanya kamu menghabiskan waktumu?"
+  },
+    {
+    category: "16. Saya Mudah Bergaul",
+    en: "I enjoy connecting with different kinds of people and learning from their experiences. I try to make conversations comfortable, friendly, and enjoyable for everyone. Being open-minded helps me adapt to different personalities and situations. I believe good communication can create strong relationships and opportunities. Are you someone who easily makes new friends too?",
+    id: "Saya suka berhubungan dengan berbagai macam orang dan belajar dari pengalaman mereka. Saya mencoba membuat percakapan terasa nyaman, ramah, dan menyenangkan untuk semua orang. Bersikap terbuka membantu saya beradaptasi dengan berbagai kepribadian dan situasi. Saya percaya komunikasi yang baik dapat menciptakan hubungan dan peluang yang kuat. Apakah kamu juga orang yang mudah mendapatkan teman baru?"
+  },
+
+  {
+    category: "17. Saya Fokus pada Masa Depan",
+    en: "I often think about my future and how I can improve my life step by step. I believe setting goals and staying consistent are important for success. Even though progress can be slow sometimes, I try to stay motivated and keep learning. The future depends on the actions we take today. What goals are you focusing on right now?",
+    id: "Saya sering memikirkan masa depan dan bagaimana cara meningkatkan hidup sedikit demi sedikit. Saya percaya menetapkan tujuan dan tetap konsisten penting untuk kesuksesan. Meskipun kemajuan kadang lambat, saya mencoba tetap termotivasi dan terus belajar. Masa depan bergantung pada tindakan yang kita lakukan hari ini. Tujuan apa yang sedang kamu fokuskan sekarang?"
+  },
+
+  {
+    category: "18. Saya Suka Inspirasi Baru",
+    en: "I enjoy finding inspiration from conversations, videos, music, and people around me. Sometimes a simple idea or short conversation can motivate someone to improve themselves. I think inspiration is everywhere if we stay curious and open-minded. Positive influences can help us become better people over time. What usually inspires you the most?",
+    id: "Saya suka menemukan inspirasi dari percakapan, video, musik, dan orang-orang di sekitar saya. Kadang ide sederhana atau percakapan singkat bisa memotivasi seseorang untuk berkembang. Saya pikir inspirasi ada di mana-mana jika kita tetap penasaran dan berpikiran terbuka. Pengaruh positif bisa membantu kita menjadi pribadi yang lebih baik seiring waktu. Apa yang biasanya paling menginspirasimu?"
+  },
+
+  {
+    category: "19. Saya Menyukai Kesederhanaan",
+    en: "I think simple things in life can bring real happiness and peace. I enjoy calm moments, honest conversations, and spending time with positive people. Life does not always need to be complicated to feel meaningful and enjoyable. Sometimes simplicity makes us appreciate life more deeply. What simple things make you happy?",
+    id: "Saya pikir hal sederhana dalam hidup bisa membawa kebahagiaan dan ketenangan yang nyata. Saya menikmati momen tenang, percakapan jujur, dan menghabiskan waktu dengan orang-orang positif. Hidup tidak selalu harus rumit untuk terasa bermakna dan menyenangkan. Kadang kesederhanaan membuat kita lebih menghargai hidup. Hal sederhana apa yang membuatmu bahagia?"
+  },
+
+  {
+    category: "20. Saya Suka Berpikir Kreatif",
+    en: "I enjoy thinking of new ideas and different ways to solve problems. Creativity is useful not only in art, but also in communication, work, and daily life. I believe creative thinking can make situations more interesting and exciting. Trying new approaches helps people grow and discover new possibilities. Do you consider yourself a creative person?",
+    id: "Saya suka memikirkan ide baru dan cara berbeda untuk menyelesaikan masalah. Kreativitas tidak hanya berguna dalam seni, tetapi juga dalam komunikasi, pekerjaan, dan kehidupan sehari-hari. Saya percaya berpikir kreatif bisa membuat situasi lebih menarik dan seru. Mencoba pendekatan baru membantu orang berkembang dan menemukan kemungkinan baru. Apakah kamu menganggap dirimu orang yang kreatif?"
+  },
+
+  {
+    category: "21. Saya Menikmati Proses Belajar",
+    en: "For me, learning is a lifelong process that never truly ends. I like improving my skills little by little and discovering new information every day. Sometimes learning can be difficult, but it becomes rewarding when we see progress. I think curiosity is one of the best qualities a person can have. What do you enjoy learning about?",
+    id: "Bagi saya, belajar adalah proses seumur hidup yang tidak pernah benar-benar berakhir. Saya suka meningkatkan kemampuan sedikit demi sedikit dan menemukan informasi baru setiap hari. Kadang belajar bisa sulit, tetapi terasa memuaskan saat kita melihat perkembangan. Saya pikir rasa ingin tahu adalah salah satu kualitas terbaik yang bisa dimiliki seseorang. Apa yang kamu suka pelajari?"
+  },
+
+  {
+    category: "22. Saya Suka Memberi Energi Positif",
+    en: "I try to bring positive energy into conversations and interactions with people. A friendly attitude and kind words can improve someone’s mood more than we realize. I believe positivity can create a better environment and stronger relationships. Even small encouragement can help people feel more confident. How do you spread positivity to others?",
+    id: "Saya mencoba membawa energi positif ke dalam percakapan dan interaksi dengan orang lain. Sikap ramah dan kata-kata baik bisa memperbaiki suasana hati seseorang lebih dari yang kita sadari. Saya percaya hal positif dapat menciptakan lingkungan yang lebih baik dan hubungan yang lebih kuat. Bahkan semangat kecil bisa membantu orang merasa lebih percaya diri. Bagaimana kamu menyebarkan energi positif kepada orang lain?"
+  },
+
+  {
+    category: "23. Saya Suka Mengenal Budaya Baru",
+    en: "I enjoy learning about different cultures, traditions, and lifestyles from around the world. Talking with people from other countries helps me understand new perspectives and ways of thinking. I think cultural exchange makes conversations more interesting and meaningful. Every culture has something unique and valuable to share. Which culture or country interests you the most?",
+    id: "Saya suka belajar tentang budaya, tradisi, dan gaya hidup yang berbeda dari seluruh dunia. Berbicara dengan orang dari negara lain membantu saya memahami perspektif dan cara berpikir baru. Saya pikir pertukaran budaya membuat percakapan lebih menarik dan bermakna. Setiap budaya memiliki sesuatu yang unik dan berharga untuk dibagikan. Budaya atau negara mana yang paling menarik bagimu?"
+  },
+
+  {
+    category: "24. Saya Ingin Terus Berkembang",
+    en: "I believe there is always room for self-improvement no matter how much experience we have. I try to become a better person by learning from mistakes and experiences. Growth takes time, patience, and consistency, but every small step matters. Becoming better each day is one of my personal goals. In what area of life do you want to grow?",
+    id: "Saya percaya selalu ada ruang untuk perkembangan diri tidak peduli seberapa banyak pengalaman yang kita miliki. Saya mencoba menjadi pribadi yang lebih baik dengan belajar dari kesalahan dan pengalaman. Perkembangan membutuhkan waktu, kesabaran, dan konsistensi, tetapi setiap langkah kecil itu penting. Menjadi lebih baik setiap hari adalah salah satu tujuan pribadi saya. Dalam bidang apa kamu ingin berkembang?"
+  },
+
+  {
+    category: "25. Saya Ingin Memberikan Kesan Baik",
+    en: "I believe first impressions are important because they can influence how people remember us. I try to be polite, confident, and respectful when meeting someone new. A good attitude and genuine communication can leave a positive impact on others. I think kindness and authenticity are more valuable than pretending to be perfect. What kind of impression do you like to give people?",
+    id: "Saya percaya kesan pertama itu penting karena dapat memengaruhi bagaimana orang mengingat kita. Saya mencoba bersikap sopan, percaya diri, dan menghormati saat bertemu orang baru. Sikap yang baik dan komunikasi yang tulus dapat meninggalkan dampak positif pada orang lain. Saya pikir kebaikan dan keaslian lebih berharga daripada berpura-pura sempurna. Kesan seperti apa yang ingin kamu berikan kepada orang lain?"
+  }
+
+];
+
+    let currentTopic = 0;
+    let countdown;
+
+    const volumeSlider = document.getElementById('volume');
+    const timerSlider = document.getElementById('timerSetting');
+    const speedSlider = document.getElementById('speed');
+
+    volumeSlider.addEventListener('input', () => {
+      document.getElementById('volumeValue').innerText = Math.round(volumeSlider.value * 100) + '%';
+    });
+
+    timerSlider.addEventListener('input', () => {
+      document.getElementById('timerValue').innerText = timerSlider.value + ' Menit';
+    });
+
+    speedSlider.addEventListener('input', () => {
+      document.getElementById('speedValue').innerText = speedSlider.value + 'x';
+    });
+
+    function loadTopic() {
+      document.getElementById('categoryTitle').innerText = topics[currentTopic].category;
+      document.getElementById('practiceText').innerText = topics[currentTopic].en;
+      document.getElementById('translationText').innerText = topics[currentTopic].id;
+    }
+
+    function speakText() {
+
+      speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance(topics[currentTopic].en);
+
+      speech.lang = 'en-US';
+      speech.volume = volumeSlider.value;
+      speech.rate = speedSlider.value;
+
+      speech.onend = () => {
+        document.getElementById('practiceText').classList.remove('text-show');
+        document.getElementById('translationText').classList.remove('text-show');
+        startTimer();
+      };
+
+      speechSynthesis.speak(speech);
+    }
+
+    function startPractice() {
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function startTimer() {
+
+      clearInterval(countdown);
+
+      let minutes = parseInt(timerSlider.value);
+      let time = minutes * 60;
+
+      countdown = setInterval(() => {
+
+        let mins = Math.floor(time / 60);
+        let secs = time % 60;
+
+        mins = mins < 10 ? '0' + mins : mins;
+        secs = secs < 10 ? '0' + secs : secs;
+
+        document.getElementById('timer').innerText = `${mins}:${secs}`;
+
+        if(time <= 0) {
+          clearInterval(countdown);
+          document.getElementById('timer').innerText = 'Selesai';
+        }
+
+        time--;
+
+      }, 1000);
+    }
+
+    function showAnswer() {
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+    }
+
+    function repeatVoice() {
+
+      clearInterval(countdown);
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function nextTopic() {
+
+      clearInterval(countdown);
+
+      currentTopic++;
+
+      if(currentTopic >= topics.length) {
+        currentTopic = 0;
+      }
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function randomTopic() {
+
+      clearInterval(countdown);
+
+      let randomIndex;
+
+      do {
+        randomIndex = Math.floor(Math.random() * topics.length);
+      } while(randomIndex === currentTopic && topics.length > 1);
+
+      currentTopic = randomIndex;
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+  </script>
+
+</body>
+</html>

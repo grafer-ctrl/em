@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OmeTV English Shadowing App</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: white;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+
+    .instruction {
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .setting {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .value {
+      margin-top: 5px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 15px;
+      background: white;
+      color: #4f46e5;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .topic-box {
+      background: rgba(255,255,255,0.15);
+      padding: 25px;
+      border-radius: 20px;
+      margin-top: 20px;
+      text-align: center;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .text-hidden {
+      font-size: 20px;
+      opacity: 0;
+      transition: 0.4s;
+      user-select: none;
+    }
+
+    .text-show {
+      opacity: 1;
+    }
+
+    .timer {
+      font-size: 60px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .desc {
+      margin-top: 15px;
+      font-size: 17px;
+      opacity: 0.9;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .btn-group button {
+      margin-top: 0;
+      flex: 1;
+    }
+
+    .category-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 10px 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    @media(max-width: 600px) {
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .timer {
+        font-size: 45px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- SCREEN 1 -->
+    <div id="screen1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <h1 style="margin:0;font-size:28px;">OmeTV English Practice</h1>
+      </div>
+
+      <div class="instruction">
+        <strong>Instruksi:</strong><br><br>
+        Anda cukup dengarkan suara lalu tirukan pengucapannya.
+        Fokus pada pronunciation, kecepatan bicara, dan intonasi.
+      </div>
+
+      <div class="setting">
+        <label>Volume Suara</label>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+        <div class="value" id="volumeValue">100%</div>
+      </div>
+
+      <div class="setting">
+        <label>Lamanya Timer</label>
+        <input type="range" id="timerSetting" min="1" max="10" value="5">
+        <div class="value" id="timerValue">5 Menit</div>
+      </div>
+
+      <div class="setting">
+        <label>Kecepatan Suara</label>
+        <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1">
+        <div class="value" id="speedValue">1x</div>
+      </div>
+
+      <button onclick="startPractice()">Mulai Latihan</button>
+      <button onclick="randomTopic()">Acak Topik</button>
+    </div>
+
+
+    <!-- SCREEN 2 -->
+    <div id="screen2" class="hidden">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px;flex-wrap:wrap;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <button onclick="randomTopic()" style="width:auto;padding:10px 18px;margin-top:0;">🎲 Acak</button>
+      </div>
+
+      <div class="category-badge">English Shadowing Category</div>
+
+      <h2 id="categoryTitle">Listen & Repeat</h2>
+
+      <div class="topic-box">
+
+        <div id="practiceText" class="text-hidden">
+          Hello everyone! My name is Dias.
+        </div>
+
+        <div id="translationText" class="text-hidden" style="margin-top:15px; font-size:16px; opacity:0.85;">
+          Halo semuanya! Nama saya Dias.
+        </div>
+
+        <div class="timer" id="timer">05:00</div>
+
+        <div class="desc">
+          Dengarkan dan tirukan kalimat tadi sebelum waktu habis.
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button onclick="showAnswer()">Kunci Jawaban</button>
+        <button onclick="repeatVoice()">Putar Ulang Suara</button>
+        <button onclick="nextTopic()">Next Topic</button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const topics = [
+
+    {
+    category: "101. Belajar Naik Sepeda",
+    en: "Learning to ride a bicycle takes practice, but it becomes fun after getting used to it.",
+    id: "Belajar naik sepeda membutuhkan latihan, tetapi menjadi menyenangkan setelah terbiasa."
+  },
+  {
+    category: "102. Menonton Video Pendek",
+    en: "Short videos are entertaining, but sometimes people spend too much time watching them.",
+    id: "Video pendek menghibur, tetapi kadang orang menghabiskan terlalu banyak waktu menontonnya."
+  },
+  {
+    category: "103. Bermain Saat Hujan",
+    en: "Playing in the rain can feel exciting, especially with close friends.",
+    id: "Bermain saat hujan bisa terasa menyenangkan, terutama bersama teman dekat."
+  },
+  {
+    category: "104. Membeli Makanan Jalanan",
+    en: "Street food is often cheap, delicious, and easy to find at night.",
+    id: "Makanan kaki lima biasanya murah, lezat, dan mudah ditemukan pada malam hari."
+  },
+  {
+    category: "105. Menggunakan Headphone",
+    en: "I use headphones every day to listen to music without disturbing other people.",
+    id: "Saya menggunakan headphone setiap hari untuk mendengarkan musik tanpa mengganggu orang lain."
+  },
+  {
+    category: "106. Menonton Pertandingan",
+    en: "Watching live matches with friends creates a more exciting atmosphere.",
+    id: "Menonton pertandingan langsung bersama teman menciptakan suasana yang lebih seru."
+  },
+  {
+    category: "107. Bermain Game Online",
+    en: "Online games allow people from different countries to play together easily.",
+    id: "Game online memungkinkan orang dari berbagai negara bermain bersama dengan mudah."
+  },
+  {
+    category: "108. Belajar di Perpustakaan",
+    en: "Libraries are quiet places that help students focus better while studying.",
+    id: "Perpustakaan adalah tempat yang tenang yang membantu siswa lebih fokus saat belajar."
+  },
+  {
+    category: "109. Menunggu Bus",
+    en: "Waiting for the bus too long can feel boring and tiring.",
+    id: "Menunggu bus terlalu lama bisa terasa membosankan dan melelahkan."
+  },
+  {
+    category: "110. Bermain Layang-layang",
+    en: "Flying kites is more enjoyable when the weather is windy and sunny.",
+    id: "Bermain layang-layang lebih menyenangkan ketika cuaca berangin dan cerah."
+  },
+  {
+    category: "111. Menonton Kartun",
+    en: "Cartoons are not only for children because adults can enjoy them too.",
+    id: "Kartun bukan hanya untuk anak-anak karena orang dewasa juga bisa menikmatinya."
+  },
+  {
+    category: "112. Membaca Komik",
+    en: "Comics are interesting because the pictures make the stories easier to understand.",
+    id: "Komik menarik karena gambarnya membuat cerita lebih mudah dipahami."
+  },
+  {
+    category: "113. Pergi ke Sekolah",
+    en: "Going to school every day teaches discipline and responsibility.",
+    id: "Pergi ke sekolah setiap hari mengajarkan disiplin dan tanggung jawab."
+  },
+  {
+    category: "114. Bermain di Rumah",
+    en: "Sometimes staying at home is more comfortable than going outside.",
+    id: "Kadang tetap di rumah lebih nyaman daripada pergi keluar."
+  },
+  {
+    category: "115. Menjaga Tanaman",
+    en: "Taking care of plants can make the environment look fresher and greener.",
+    id: "Merawat tanaman dapat membuat lingkungan terlihat lebih segar dan hijau."
+  },
+  {
+    category: "116. Belajar Menari",
+    en: "Dancing is a fun activity that also helps keep the body active.",
+    id: "Menari adalah aktivitas menyenangkan yang juga membantu tubuh tetap aktif."
+  },
+  {
+    category: "117. Menggunakan Kamera",
+    en: "Taking photos with a camera helps capture special moments in life.",
+    id: "Mengambil foto dengan kamera membantu mengabadikan momen spesial dalam hidup."
+  },
+  {
+    category: "118. Mendengarkan Radio",
+    en: "Some people still enjoy listening to the radio while driving or relaxing.",
+    id: "Beberapa orang masih suka mendengarkan radio saat berkendara atau bersantai."
+  },
+  {
+    category: "119. Membantu Orang Tua",
+    en: "Helping parents with simple tasks at home shows responsibility and care.",
+    id: "Membantu orang tua dengan tugas sederhana di rumah menunjukkan tanggung jawab dan kepedulian."
+  },
+  {
+    category: "120. Bermain Bersama Tetangga",
+    en: "Playing with neighbors can build good friendships and happy memories.",
+    id: "Bermain bersama tetangga dapat membangun persahabatan yang baik dan kenangan bahagia."
+  }
+];
+
+    let currentTopic = 0;
+    let countdown;
+
+    const volumeSlider = document.getElementById('volume');
+    const timerSlider = document.getElementById('timerSetting');
+    const speedSlider = document.getElementById('speed');
+
+    volumeSlider.addEventListener('input', () => {
+      document.getElementById('volumeValue').innerText = Math.round(volumeSlider.value * 100) + '%';
+    });
+
+    timerSlider.addEventListener('input', () => {
+      document.getElementById('timerValue').innerText = timerSlider.value + ' Menit';
+    });
+
+    speedSlider.addEventListener('input', () => {
+      document.getElementById('speedValue').innerText = speedSlider.value + 'x';
+    });
+
+    function loadTopic() {
+      document.getElementById('categoryTitle').innerText = topics[currentTopic].category;
+      document.getElementById('practiceText').innerText = topics[currentTopic].en;
+      document.getElementById('translationText').innerText = topics[currentTopic].id;
+    }
+
+    function speakText() {
+
+      speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance(topics[currentTopic].en);
+
+      speech.lang = 'en-US';
+      speech.volume = volumeSlider.value;
+      speech.rate = speedSlider.value;
+
+      speech.onend = () => {
+        document.getElementById('practiceText').classList.remove('text-show');
+        document.getElementById('translationText').classList.remove('text-show');
+        startTimer();
+      };
+
+      speechSynthesis.speak(speech);
+    }
+
+    function startPractice() {
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function startTimer() {
+
+      clearInterval(countdown);
+
+      let minutes = parseInt(timerSlider.value);
+      let time = minutes * 60;
+
+      countdown = setInterval(() => {
+
+        let mins = Math.floor(time / 60);
+        let secs = time % 60;
+
+        mins = mins < 10 ? '0' + mins : mins;
+        secs = secs < 10 ? '0' + secs : secs;
+
+        document.getElementById('timer').innerText = `${mins}:${secs}`;
+
+        if(time <= 0) {
+          clearInterval(countdown);
+          document.getElementById('timer').innerText = 'Selesai';
+        }
+
+        time--;
+
+      }, 1000);
+    }
+
+    function showAnswer() {
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+    }
+
+    function repeatVoice() {
+
+      clearInterval(countdown);
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function nextTopic() {
+
+      clearInterval(countdown);
+
+      currentTopic++;
+
+      if(currentTopic >= topics.length) {
+        currentTopic = 0;
+      }
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function randomTopic() {
+
+      clearInterval(countdown);
+
+      let randomIndex;
+
+      do {
+        randomIndex = Math.floor(Math.random() * topics.length);
+      } while(randomIndex === currentTopic && topics.length > 1);
+
+      currentTopic = randomIndex;
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Kamu suka bikin konten?", en:"Do you like making content?"},
+{id:"Platform favoritmu buat upload apa?", en:"What is your favorite platform to upload on?"},
+{id:"Kamu lebih suka TikTok atau YouTube?", en:"Do you prefer TikTok or YouTube?"},
+{id:"Konten pertama yang kamu buat apa?", en:"What was the first content you made?"},
+{id:"Kamu suka edit video?", en:"Do you like editing videos?"},
+{id:"Aplikasi edit favoritmu apa?", en:"What is your favorite editing app?"},
+{id:"Kamu pernah viral?", en:"Have you ever gone viral?"},
+{id:"Konten paling rame milikmu yang mana?", en:"Which of your content got the most attention?"},
+{id:"Kamu lebih suka bikin video pendek atau panjang?", en:"Do you prefer making short or long videos?"},
+{id:"Kamu sering upload?", en:"Do you upload often?"},
+{id:"Biasanya kamu bikin konten tentang apa?", en:"What kind of content do you usually make?"},
+{id:"Kamu suka live streaming?", en:"Do you like live streaming?"},
+{id:"Kamu pernah gugup saat rekaman?", en:"Have you ever been nervous while recording?"},
+{id:"Kamu edit video di HP atau laptop?", en:"Do you edit videos on phone or laptop?"},
+{id:"Berapa lama biasanya edit satu video?", en:"How long does it usually take to edit one video?"},
+{id:"Kamu suka bikin konten lucu?", en:"Do you like making funny content?"},
+{id:"Kamu lebih nyaman di depan kamera?", en:"Are you comfortable in front of the camera?"},
+{id:"Kamu pernah kehabisan ide konten?", en:"Have you ever run out of content ideas?"},
+{id:"Dari mana biasanya kamu dapat ide?", en:"Where do you usually get ideas from?"},
+{id:"Kamu suka bikin konten sendiri atau bareng teman?", en:"Do you prefer making content alone or with friends?"},
+{id:"Kamu suka nonton creator siapa?", en:"Which creator do you like watching?"},
+{id:"Kamu ingin jadi content creator full time?", en:"Do you want to become a full-time content creator?"},
+{id:"Konten favoritmu buat ditonton apa?", en:"What is your favorite type of content to watch?"},
+{id:"Kamu pernah bikin vlog?", en:"Have you ever made a vlog?"},
+{id:"Kamu suka bikin video random?", en:"Do you like making random videos?"},
+{id:"Kamu pernah malu saat bikin konten di tempat umum?", en:"Have you ever felt embarrassed making content in public?"},
+{id:"Kamu lebih suka kamera depan atau belakang?", en:"Do you prefer the front or back camera?"},
+{id:"Kamu suka konten gaming?", en:"Do you like gaming content?"},
+{id:"Kamu suka konten lifestyle?", en:"Do you like lifestyle content?"},
+{id:"Kamu pernah collab dengan orang lain?", en:"Have you ever collaborated with someone?"},
+{id:"Apa konten impianmu?", en:"What is your dream content?"},
+{id:"Kamu suka bikin thumbnail?", en:"Do you like making thumbnails?"},
+{id:"Kamu lebih suka konten natural atau scripted?", en:"Do you prefer natural or scripted content?"},
+{id:"Kamu pernah live lama?", en:"Have you ever streamed for a long time?"},
+{id:"Kamu suka membaca komentar penonton?", en:"Do you like reading audience comments?"},
+{id:"Komentar paling lucu yang pernah kamu dapat apa?", en:"What is the funniest comment you have received?"},
+{id:"Kamu lebih suka video santai atau energi tinggi?", en:"Do you prefer calm or high-energy videos?"},
+{id:"Kamu sering rekam ulang video?", en:"Do you often re-record videos?"},
+{id:"Kamu suka bikin konten malam hari?", en:"Do you like making content at night?"},
+{id:"Kamu pernah lupa script saat rekaman?", en:"Have you ever forgotten your script while recording?"},
+{id:"Kamu suka bikin konten trend?", en:"Do you like making trending content?"},
+{id:"Kamu lebih suka jadi streamer atau YouTuber?", en:"Do you prefer being a streamer or YouTuber?"},
+{id:"Kamu pernah capek bikin konten?", en:"Have you ever felt tired of making content?"},
+{id:"Apa bagian tersulit jadi creator?", en:"What is the hardest part of being a creator?"},
+{id:"Apa bagian paling seru jadi creator?", en:"What is the most fun part of being a creator?"},
+{id:"Kamu suka konten reaction?", en:"Do you like reaction content?"},
+{id:"Kamu pernah bikin video pakai green screen?", en:"Have you ever used a green screen in videos?"},
+{id:"Kamu lebih suka upload pagi atau malam?", en:"Do you prefer uploading in the morning or at night?"},
+{id:"Kamu sering lihat analytics?", en:"Do you often check analytics?"},
+{id:"Kamu suka bikin caption panjang?", en:"Do you like making long captions?"},
+{id:"Kamu pernah bikin video cringe?", en:"Have you ever made a cringe video?"},
+{id:"Kamu masih simpan video lama?", en:"Do you still keep your old videos?"},
+{id:"Kamu suka bikin konten spontan?", en:"Do you like making spontaneous content?"},
+{id:"Kamu pernah bikin challenge?", en:"Have you ever made a challenge video?"},
+{id:"Kamu suka bikin konten edukasi?", en:"Do you like educational content?"},
+{id:"Kamu pernah livestream sambil makan?", en:"Have you ever livestreamed while eating?"},
+{id:"Kamu suka setup sederhana atau lengkap?", en:"Do you prefer simple or full setups?"},
+{id:"Kamu pakai mic khusus?", en:"Do you use a special microphone?"},
+{id:"Kamu pernah rekaman berkali-kali?", en:"Have you ever recorded many times for one video?"},
+{id:"Kamu suka edit dengan musik?", en:"Do you like editing with music?"},
+{id:"Kamu lebih suka konten indoor atau outdoor?", en:"Do you prefer indoor or outdoor content?"},
+{id:"Kamu pernah bikin konten bareng keluarga?", en:"Have you ever made content with family?"},
+{id:"Kamu suka konten daily life?", en:"Do you like daily life content?"},
+{id:"Kamu pernah livestream game?", en:"Have you ever livestreamed games?"},
+{id:"Kamu suka bikin intro video?", en:"Do you like making video intros?"},
+{id:"Kamu lebih suka kamera HD atau natural saja?", en:"Do you prefer HD cameras or natural quality?"},
+{id:"Kamu pernah bikin konten karena bosan?", en:"Have you ever made content because you were bored?"},
+{id:"Kamu suka melihat creator luar negeri?", en:"Do you like watching foreign creators?"},
+{id:"Kamu lebih suka konten serius atau santai?", en:"Do you prefer serious or relaxed content?"},
+{id:"Kamu pernah dapat hate comment?", en:"Have you ever received hate comments?"},
+{id:"Kamu biasanya balas komentar?", en:"Do you usually reply to comments?"},
+{id:"Kamu suka bikin story harian?", en:"Do you like making daily stories?"},
+{id:"Kamu pernah livestream tengah malam?", en:"Have you ever livestreamed at midnight?"},
+{id:"Kamu lebih suka video aesthetic atau lucu?", en:"Do you prefer aesthetic or funny videos?"},
+{id:"Kamu suka bikin behind the scenes?", en:"Do you like making behind-the-scenes content?"},
+{id:"Kamu pernah kehabisan storage karena video?", en:"Have you ever run out of storage because of videos?"},
+{id:"Kamu suka edit cepat atau detail?", en:"Do you prefer fast or detailed editing?"},
+{id:"Kamu suka melihat progress channelmu?", en:"Do you like seeing your channel progress?"},
+{id:"Kamu pernah bikin konten tanpa diedit?", en:"Have you ever uploaded unedited content?"},
+{id:"Kamu suka rekam pakai tripod?", en:"Do you like recording with a tripod?"},
+{id:"Kamu pernah bikin konten di luar rumah?", en:"Have you ever made content outside?"},
+{id:"Kamu suka konten POV?", en:"Do you like POV content?"},
+{id:"Kamu pernah bikin video collab online?", en:"Have you ever made online collaboration videos?"},
+{id:"Kamu lebih suka short video atau livestream?", en:"Do you prefer short videos or livestreams?"},
+{id:"Kamu pernah bikin konten tutorial?", en:"Have you ever made tutorial content?"},
+{id:"Kamu suka bikin konten lucu bareng teman?", en:"Do you like making funny content with friends?"},
+{id:"Kamu pernah edit sampai larut malam?", en:"Have you ever edited until late at night?"},
+{id:"Kamu suka lihat komentar positif?", en:"Do you like reading positive comments?"},
+{id:"Kamu pernah bikin konten pakai filter lucu?", en:"Have you ever used funny filters in content?"},
+{id:"Kamu lebih suka video santai atau cepat?", en:"Do you prefer slow-paced or fast-paced videos?"},
+{id:"Kamu pernah bikin video gagal?", en:"Have you ever made a failed video?"},
+{id:"Kamu suka belajar editing baru?", en:"Do you like learning new editing skills?"},
+{id:"Kamu pernah bikin video tanpa suara?", en:"Have you ever made silent videos?"},
+{id:"Kamu suka lihat creator berkembang?", en:"Do you like seeing creators grow?"},
+{id:"Kamu pernah livestream sambil ngobrol?", en:"Have you ever livestreamed while chatting?"},
+{id:"Kamu suka konten yang natural?", en:"Do you like natural content?"},
+{id:"Kamu ingin punya studio sendiri?", en:"Do you want your own studio?"},
+{id:"Kamu suka bikin konten karena hobi?", en:"Do you like making content as a hobby?"},
+{id:"Kamu pernah senang banget karena views naik?", en:"Have you ever been very happy because your views increased?"},
+{id:"Kamu suka proses editing atau syuting?", en:"Do you prefer editing or filming?"},
+{id:"Kamu lebih suka kamera HP atau kamera profesional?", en:"Do you prefer phone cameras or professional cameras?"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

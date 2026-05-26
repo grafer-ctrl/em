@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Kenapa bisa begitu?", en:"Why did that happen?"},
+{id:"Terus setelah itu apa?", en:"What happened after that?"},
+{id:"Sejak kapan begitu?", en:"Since when has it been like that?"},
+{id:"Bagaimana awal mulanya?", en:"How did it start?"},
+{id:"Kamu serius soal itu?", en:"Are you serious about that?"},
+{id:"Apa yang kamu lakukan waktu itu?", en:"What did you do at that time?"},
+{id:"Lalu respon orang lain bagaimana?", en:"Then how did other people react?"},
+{id:"Apa itu sering terjadi?", en:"Does that happen often?"},
+{id:"Kamu suka bagian yang mana?", en:"Which part do you like?"},
+{id:"Apa alasan utamanya?", en:"What is the main reason?"},
+{id:"Siapa yang pertama kali bilang begitu?", en:"Who said that first?"},
+{id:"Kamu tahu dari mana?", en:"How did you know that?"},
+{id:"Apa yang bikin kamu tertarik?", en:"What made you interested?"},
+{id:"Kamu biasanya bagaimana?", en:"What do you usually do?"},
+{id:"Apa yang paling kamu ingat?", en:"What do you remember the most?"},
+{id:"Kamu pernah coba lagi?", en:"Have you tried again?"},
+{id:"Hasilnya bagaimana?", en:"How was the result?"},
+{id:"Apa itu sulit?", en:"Was it difficult?"},
+{id:"Kamu menikmatinya?", en:"Did you enjoy it?"},
+{id:"Apa yang paling seru?", en:"What was the most fun part?"},
+{id:"Apa yang paling aneh?", en:"What was the weirdest part?"},
+{id:"Kamu sering melakukan itu?", en:"Do you do that often?"},
+{id:"Apa yang bikin beda?", en:"What makes it different?"},
+{id:"Bagaimana perasaanmu waktu itu?", en:"How did you feel at that time?"},
+{id:"Apa yang terjadi selanjutnya?", en:"What happened next?"},
+{id:"Kenapa kamu memilih itu?", en:"Why did you choose that?"},
+{id:"Apa itu keputusan yang bagus?", en:"Was that a good decision?"},
+{id:"Kamu menyesal tidak?", en:"Do you regret it?"},
+{id:"Apa yang membuatmu tertawa?", en:"What made you laugh?"},
+{id:"Apa yang bikin kamu malu?", en:"What embarrassed you?"},
+{id:"Kamu belajar sesuatu dari itu?", en:"Did you learn something from that?"},
+{id:"Apa bagian tersulitnya?", en:"What was the hardest part?"},
+{id:"Apa bagian termudahnya?", en:"What was the easiest part?"},
+{id:"Kamu pernah cerita ke orang lain?", en:"Have you told other people about it?"},
+{id:"Reaksi mereka bagaimana?", en:"How did they react?"},
+{id:"Kamu ingin mengulanginya?", en:"Do you want to do it again?"},
+{id:"Apa yang bikin kamu suka itu?", en:"What makes you like that?"},
+{id:"Apa yang bikin kamu bosan?", en:"What makes you bored?"},
+{id:"Kamu biasanya lakukan kapan?", en:"When do you usually do it?"},
+{id:"Siapa yang menemanimu?", en:"Who was with you?"},
+{id:"Apa yang paling mengejutkan?", en:"What surprised you the most?"},
+{id:"Apa yang kamu pikirkan saat itu?", en:"What were you thinking at that moment?"},
+{id:"Kamu langsung percaya?", en:"Did you believe it immediately?"},
+{id:"Apa yang kamu katakan waktu itu?", en:"What did you say at that time?"},
+{id:"Kamu gugup tidak?", en:"Were you nervous?"},
+{id:"Apa yang bikin suasananya seru?", en:"What made the atmosphere fun?"},
+{id:"Kamu lebih suka yang mana?", en:"Which one do you prefer?"},
+{id:"Apa alasannya?", en:"What is the reason?"},
+{id:"Kamu pernah mengalami hal mirip?", en:"Have you experienced something similar?"},
+{id:"Apa yang paling kamu sukai dari itu?", en:"What do you like most about it?"},
+{id:"Apa yang paling tidak kamu suka?", en:"What do you dislike the most?"},
+{id:"Kamu tertarik mencoba hal baru?", en:"Are you interested in trying new things?"},
+{id:"Apa rencanamu setelah ini?", en:"What is your plan after this?"},
+{id:"Kamu biasanya bagaimana mengatasinya?", en:"How do you usually handle it?"},
+{id:"Apa yang kamu lakukan pertama kali?", en:"What did you do first?"},
+{id:"Apa yang membuat itu spesial?", en:"What makes that special?"},
+{id:"Apa pendapatmu soal itu?", en:"What do you think about that?"},
+{id:"Kamu setuju dengan itu?", en:"Do you agree with that?"},
+{id:"Apa yang membuatmu berubah pikiran?", en:"What changed your mind?"},
+{id:"Apa yang paling membuatmu penasaran?", en:"What makes you most curious?"},
+{id:"Apa yang paling kamu tunggu?", en:"What are you looking forward to the most?"},
+{id:"Apa yang membuatmu nyaman?", en:"What makes you comfortable?"},
+{id:"Apa yang membuatmu tidak nyaman?", en:"What makes you uncomfortable?"},
+{id:"Kamu lebih suka ngobrol atau mendengar?", en:"Do you prefer talking or listening?"},
+{id:"Apa yang paling sering kamu lakukan?", en:"What do you do most often?"},
+{id:"Apa yang membuat harimu bagus?", en:"What makes your day good?"},
+{id:"Apa yang biasanya bikin kamu bad mood?", en:"What usually makes you feel bad?"},
+{id:"Apa yang paling lucu dari itu?", en:"What is the funniest part of that?"},
+{id:"Apa yang paling bikin stres?", en:"What stresses you the most?"},
+{id:"Apa yang membuatmu santai?", en:"What helps you relax?"},
+{id:"Apa yang paling bikin kamu semangat?", en:"What motivates you the most?"},
+{id:"Apa yang biasanya kamu pikirkan?", en:"What do you usually think about?"},
+{id:"Apa yang ingin kamu coba suatu hari nanti?", en:"What do you want to try someday?"},
+{id:"Apa yang bikin kamu tertarik ngobrol soal itu?", en:"What makes you interested in talking about that?"},
+{id:"Kamu pernah gagal dalam hal itu?", en:"Have you ever failed at that?"},
+{id:"Apa yang kamu lakukan setelah gagal?", en:"What did you do after failing?"},
+{id:"Apa yang bikin kamu tetap lanjut?", en:"What keeps you going?"},
+{id:"Apa yang paling bikin capek?", en:"What is the most tiring part?"},
+{id:"Apa yang paling bikin senang?", en:"What makes you happiest?"},
+{id:"Apa yang ingin kamu ubah?", en:"What would you like to change?"},
+{id:"Apa yang paling kamu banggakan?", en:"What are you most proud of?"},
+{id:"Apa yang paling membuatmu takut?", en:"What scares you the most?"},
+{id:"Apa yang paling bikin kamu nyaman ngobrol?", en:"What makes you comfortable talking?"},
+{id:"Apa yang paling bikin suasana awkward?", en:"What makes the atmosphere awkward?"},
+{id:"Apa yang biasanya kamu lakukan saat bosan?", en:"What do you usually do when bored?"},
+{id:"Apa yang paling bikin kamu tertawa akhir-akhir ini?", en:"What made you laugh recently?"},
+{id:"Apa yang paling random yang pernah terjadi?", en:"What is the most random thing that happened?"},
+{id:"Apa yang bikin kamu suka topik itu?", en:"What makes you like that topic?"},
+{id:"Apa yang paling susah dijelaskan?", en:"What is the hardest thing to explain?"},
+{id:"Apa yang biasanya orang salah paham?", en:"What do people usually misunderstand?"},
+{id:"Apa yang ingin kamu pelajari lebih lanjut?", en:"What do you want to learn more about?"},
+{id:"Apa yang membuat obrolan jadi seru?", en:"What makes conversations fun?"},
+{id:"Apa yang bikin kamu nyaman sama seseorang?", en:"What makes you comfortable with someone?"},
+{id:"Apa yang paling menarik menurutmu?", en:"What do you find most interesting?"},
+{id:"Apa yang biasanya bikin kamu penasaran?", en:"What usually makes you curious?"},
+{id:"Apa yang ingin kamu tanyakan balik?", en:"What do you want to ask back?"},
+{id:"Apa yang paling bikin kamu semangat ngobrol?", en:"What makes you excited to talk?"},
+{id:"Apa yang paling unik dari pengalamanmu?", en:"What is the most unique part of your experience?"},
+{id:"Apa yang paling tidak terlupakan?", en:"What is the most unforgettable thing?"},
+{id:"Apa yang ingin kamu lakukan berikutnya?", en:"What do you want to do next?"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

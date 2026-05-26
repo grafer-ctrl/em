@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Kalau bisa pindah negara, kamu pilih ke mana?", en:"If you could move to another country, where would you go?"},
+{id:"Apa hal paling random yang pernah kamu lakukan?", en:"What is the most random thing you have ever done?"},
+{id:"Kalau punya kekuatan super, kamu mau apa?", en:"If you had a superpower, what would you want?"},
+{id:"Apa makanan yang tidak pernah bikin bosan?", en:"What food never gets boring for you?"},
+{id:"Kalau bisa mengulang satu hari, hari apa?", en:"If you could relive one day, which day would it be?"},
+{id:"Apa hal paling lucu yang pernah terjadi padamu?", en:"What is the funniest thing that ever happened to you?"},
+{id:"Kalau menang lotre, hal pertama yang kamu lakukan apa?", en:"If you won the lottery, what is the first thing you would do?"},
+{id:"Apa kebiasaan aneh yang kamu punya?", en:"What weird habit do you have?"},
+{id:"Kalau hidupmu jadi film, judulnya apa?", en:"If your life became a movie, what would the title be?"},
+{id:"Apa hal kecil yang selalu bikin kamu bahagia?", en:"What small thing always makes you happy?"},
+{id:"Kalau bisa makan satu makanan seumur hidup, pilih apa?", en:"If you could eat one food forever, what would you choose?"},
+{id:"Apa tempat impian yang ingin kamu kunjungi?", en:"What dream place do you want to visit?"},
+{id:"Kalau bisa bertemu siapa saja di dunia, siapa?", en:"If you could meet anyone in the world, who would it be?"},
+{id:"Apa lagu yang paling sering kamu putar akhir-akhir ini?", en:"What song do you play the most lately?"},
+{id:"Kalau bisa hidup di era lain, kamu pilih era apa?", en:"If you could live in another era, which era would you choose?"},
+{id:"Apa hal yang paling bikin kamu malas?", en:"What makes you the laziest?"},
+{id:"Kalau punya waktu bebas sehari penuh, kamu mau ngapain?", en:"If you had a free day, what would you do?"},
+{id:"Apa film yang bisa kamu tonton berkali-kali?", en:"What movie can you watch over and over?"},
+{id:"Kalau bisa punya skill instan, kamu mau skill apa?", en:"If you could instantly gain a skill, what would it be?"},
+{id:"Apa hal paling memalukan yang pernah kamu alami?", en:"What is the most embarrassing thing you have experienced?"},
+{id:"Kalau bisa jadi terkenal, kamu mau terkenal karena apa?", en:"If you could be famous, what would you want to be famous for?"},
+{id:"Apa aplikasi yang paling sering kamu buka?", en:"What app do you open the most?"},
+{id:"Kalau harus memilih, kamu lebih suka pagi atau malam?", en:"If you had to choose, do you prefer mornings or nights?"},
+{id:"Apa hal yang selalu bikin kamu tertawa?", en:"What always makes you laugh?"},
+{id:"Kalau bisa teleport sekarang, kamu mau ke mana?", en:"If you could teleport now, where would you go?"},
+{id:"Apa minuman favoritmu?", en:"What is your favorite drink?"},
+{id:"Kalau bisa punya hewan apa saja, kamu mau apa?", en:"If you could have any animal, what would you choose?"},
+{id:"Apa hal yang paling kamu syukuri sekarang?", en:"What are you most grateful for right now?"},
+{id:"Kalau bisa menghapus satu hal dari dunia, apa?", en:"If you could remove one thing from the world, what would it be?"},
+{id:"Apa yang biasanya kamu lakukan saat bosan?", en:"What do you usually do when bored?"},
+{id:"Kalau hidup tanpa internet sehari, kamu kuat?", en:"Could you survive a day without internet?"},
+{id:"Apa warna favoritmu dan kenapa?", en:"What is your favorite color and why?"},
+{id:"Kalau bisa jadi karakter film, kamu mau jadi siapa?", en:"If you could become a movie character, who would you be?"},
+{id:"Apa hal paling spontan yang pernah kamu lakukan?", en:"What is the most spontaneous thing you have done?"},
+{id:"Kalau bisa membaca pikiran orang, mau tidak?", en:"Would you want to read people's minds?"},
+{id:"Apa makanan yang paling kamu benci?", en:"What food do you hate the most?"},
+{id:"Kalau harus tinggal di pantai atau gunung, pilih mana?", en:"Would you rather live near the beach or mountains?"},
+{id:"Apa hal yang paling membuatmu penasaran?", en:"What makes you most curious?"},
+{id:"Kalau bisa punya satu keinginan, apa itu?", en:"If you had one wish, what would it be?"},
+{id:"Apa hal yang paling kamu takutkan?", en:"What are you most afraid of?"},
+{id:"Kalau bisa menguasai satu bahasa baru, pilih apa?", en:"If you could master a new language, which one?"},
+{id:"Apa momen paling bahagia dalam hidupmu?", en:"What is the happiest moment in your life?"},
+{id:"Kalau bisa hidup tanpa kerja tapi tetap kaya, mau?", en:"Would you live without working if you were still rich?"},
+{id:"Apa game favoritmu?", en:"What is your favorite game?"},
+{id:"Kalau bisa mengubah satu keputusan masa lalu, apa?", en:"If you could change one past decision, what would it be?"},
+{id:"Apa hal paling aneh yang pernah kamu makan?", en:"What is the weirdest thing you have eaten?"},
+{id:"Kalau bisa jadi invisible sehari, kamu mau ngapain?", en:"If you were invisible for a day, what would you do?"},
+{id:"Apa kebiasaan yang ingin kamu hilangkan?", en:"What habit do you want to stop?"},
+{id:"Kalau bisa punya mobil impian, pilih apa?", en:"If you could have your dream car, what would it be?"},
+{id:"Apa hal yang paling bikin kamu nyaman?", en:"What makes you feel most comfortable?"},
+{id:"Kalau harus memilih, kamu lebih suka hujan atau panas?", en:"Would you rather have rain or hot weather?"},
+{id:"Apa hal yang paling kamu rindukan?", en:"What do you miss the most?"},
+{id:"Kalau bisa jadi content creator, konten apa yang kamu buat?", en:"If you became a content creator, what content would you make?"},
+{id:"Apa emoji yang paling sering kamu pakai?", en:"What emoji do you use the most?"},
+{id:"Kalau bisa mengulang masa sekolah, mau tidak?", en:"Would you relive your school days?"},
+{id:"Apa hal paling konyol yang pernah kamu beli?", en:"What is the silliest thing you have bought?"},
+{id:"Kalau bisa punya rumah impian, seperti apa?", en:"What would your dream house look like?"},
+{id:"Apa yang paling bikin kamu semangat?", en:"What motivates you the most?"},
+{id:"Kalau bisa pergi ke masa depan, kamu mau lihat apa?", en:"If you could go to the future, what would you want to see?"},
+{id:"Apa hal yang paling bikin kamu overthinking?", en:"What makes you overthink the most?"},
+{id:"Kalau harus memilih satu aplikasi selamanya, pilih apa?", en:"If you could keep only one app forever, which one?"},
+{id:"Apa hal paling gokil yang pernah kamu lakukan?", en:"What is the craziest thing you have ever done?"},
+{id:"Kalau bisa jadi kaya mendadak, kamu mau tinggal di mana?", en:"If you suddenly became rich, where would you live?"},
+{id:"Apa yang paling bikin kamu malu?", en:"What embarrasses you the most?"},
+{id:"Kalau bisa punya bakat apa saja, kamu mau apa?", en:"If you could have any talent, what would it be?"},
+{id:"Apa hal yang selalu bikin kamu nostalgia?", en:"What always makes you nostalgic?"},
+{id:"Kalau bisa memilih cuaca selamanya, pilih apa?", en:"If you could choose one weather forever, what would it be?"},
+{id:"Apa hal yang paling bikin kamu ketawa akhir-akhir ini?", en:"What made you laugh the most recently?"},
+{id:"Kalau bisa punya toko sendiri, toko apa?", en:"If you had your own shop, what would it sell?"},
+{id:"Apa hal kecil yang bikin harimu bagus?", en:"What small thing makes your day better?"},
+{id:"Kalau bisa ngobrol dengan dirimu 10 tahun lalu, apa yang kamu bilang?", en:"If you could talk to yourself 10 years ago, what would you say?"},
+{id:"Apa yang paling kamu suka dari dirimu?", en:"What do you like most about yourself?"},
+{id:"Kalau bisa mencoba pekerjaan apa saja sehari, pilih apa?", en:"If you could try any job for a day, what would it be?"},
+{id:"Apa hal yang menurutmu overrated?", en:"What do you think is overrated?"},
+{id:"Kalau bisa makan malam dengan artis mana saja, pilih siapa?", en:"If you could have dinner with any celebrity, who would it be?"},
+{id:"Apa hal paling absurd yang pernah kamu dengar?", en:"What is the most absurd thing you have heard?"},
+{id:"Kalau bisa hidup tanpa satu kewajiban, apa itu?", en:"If you could live without one responsibility, what would it be?"},
+{id:"Apa hal yang paling bikin kamu nyaman di rumah?", en:"What makes you feel most comfortable at home?"},
+{id:"Kalau bisa belajar skill baru besok juga, apa?", en:"If you could learn a new skill tomorrow, what would it be?"},
+{id:"Apa hal yang paling kamu suka dari internet?", en:"What do you like most about the internet?"},
+{id:"Kalau bisa punya liburan gratis, kamu mau ke mana?", en:"If you had a free vacation, where would you go?"},
+{id:"Apa yang biasanya kamu lakukan sebelum tidur?", en:"What do you usually do before sleeping?"},
+{id:"Kalau bisa bertukar hidup sehari dengan seseorang, siapa?", en:"If you could swap lives with someone for a day, who would it be?"},
+{id:"Apa hal yang paling bikin kamu merasa hidup?", en:"What makes you feel most alive?"},
+{id:"Kalau bisa punya satu tombol ajaib, tombol apa?", en:"If you had one magic button, what would it do?"},
+{id:"Apa hal paling random yang kamu pikirkan tengah malam?", en:"What random thoughts do you have at midnight?"},
+{id:"Kalau bisa memilih umur selamanya, pilih umur berapa?", en:"If you could stay one age forever, what age would it be?"},
+{id:"Apa hal yang paling bikin kamu nyaman ngobrol sama seseorang?", en:"What makes you comfortable talking with someone?"},
+{id:"Kalau bisa menghapus rasa malas, mau tidak?", en:"Would you remove laziness forever?"},
+{id:"Apa hal paling seru yang pernah kamu coba?", en:"What is the most exciting thing you have tried?"},
+{id:"Kalau bisa punya pulau sendiri, kamu namai apa?", en:"If you had your own island, what would you name it?"},
+{id:"Apa hal yang paling bikin kamu penasaran tentang orang lain?", en:"What are you most curious about other people?"},
+{id:"Kalau bisa hidup tanpa rasa takut, apa yang ingin kamu lakukan?", en:"If you had no fear, what would you do?"},
+{id:"Apa hal yang menurutmu paling penting dalam hidup?", en:"What do you think is most important in life?"},
+{id:"Kalau bisa punya waktu tambahan 5 jam sehari, kamu pakai buat apa?", en:"If you had 5 extra hours every day, what would you use them for?"},
+{id:"Apa hal yang selalu bisa memperbaiki moodmu?", en:"What always improves your mood?"},
+{id:"Kalau bisa membuat aturan baru di dunia, apa aturannya?", en:"If you could create a new world rule, what would it be?"},
+{id:"Apa pertanyaan yang paling ingin kamu tanyakan ke seseorang?", en:"What question do you most want to ask someone?"},
+{id:"Kalau bisa punya kehidupan impian, seperti apa?", en:"If you could have your dream life, what would it look like?"},
+{id:"Apa hal paling menarik yang pernah kamu pelajari?", en:"What is the most interesting thing you have learned?"},
+{id:"Kalau bisa mengulang satu momen lucu, momen apa?", en:"If you could relive one funny moment, what would it be?"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

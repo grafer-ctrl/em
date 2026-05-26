@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tentang Kami - English Active</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-color: #3b82f6;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Navigation / Back Button */
+        .nav-back {
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .btn-back:hover {
+            color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .hero h1 span {
+            color: var(--accent-color);
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Main Content Grid */
+        .section-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+        }
+
+        .section-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-card h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background-color: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .section-card p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Comparison Box */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .comp-box {
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .comp-box.traditional {
+            background-color: #f1f5f9;
+        }
+
+        .comp-box.our-way {
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .comp-box h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .comp-box ul {
+            list-style: none;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .comp-box ul li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        /* Timeline / Roadmap */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-top: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-badge {
+            position: absolute;
+            left: -2rem;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            border: 3px solid var(--accent-color);
+        }
+
+        .timeline-item.active .timeline-badge {
+            border-color: var(--success-color);
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background-color: #0f172a;
+            color: #ffffff;
+            border-radius: 16px;
+            margin-top: 3rem;
+        }
+
+        .cta-section h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+        }
+
+        .btn-cta {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #0f172a;
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-cta:hover {
+            transform: scale(1.05);
+            background-color: #f1f5f9;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+            .section-card {
+                padding: 1.5rem;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Back Navigation -->
+        <div class="nav-back">
+            <a href="index.html" class="btn-back">
+                &larr; Back Home
+            </a>
+        </div>
+
+        <!-- Hero Section -->
+        <header class="hero">
+            <h1>Satu-Satunya Aplikasi yang Membuat Anda <span>Aktif Bicara</span></h1>
+            <p>Hentikan metode menghafal rumus yang membosankan. Kami fokus pada praktik langsung sejak hari pertama agar Anda fasih berinteraksi dalam waktu singkat.</p>
+        </header>
+
+        <!-- Main Philosophy -->
+        <section class="section-card">
+            <h2>Filosofi Kami: Praktik Dulu, Teori Belakangan</h2>
+            <p>
+                Pernahkah Anda menyadari bagaimana cara seorang anak kecil belajar berbicara? Mereka tidak pernah menghafal tabel rumus tata bahasa atau mengerjakan soal pilihan ganda. Mereka mendengarkan, menirukan, membuat kesalahan, dan langsung mempraktikkannya. Setelah mereka bisa berbicara dengan lancar, barulah mereka mempelajari aturan bahasa secara formal di sekolah.
+            </p>
+            <p>
+                Aplikasi ini dirancang dengan mengadopsi cara alami tersebut. Kami percaya bahwa hambatan terbesar dalam belajar bahasa Inggris bukanlah kurangnya pengetahuan rumus matematika bahasa, melainkan <strong>kurangnya latihan sensorik-motorik (otot mulut dan pendengaran)</strong> untuk merespons percakapan secara langsung.
+            </p>
+            <p>
+                Di sini, Anda akan diajak langsung berdialog secara interaktif. Teori tata bahasa dan struktur kalimat (seperti tenses) akan disisipkan secara mengalir setelah Anda mulai terbiasa melafalkan kata demi kata.
+            </p>
+        </section>
+
+        <!-- Comparison Table -->
+        <section class="section-card">
+            <h2>Perbandingan Metode Belajar</h2>
+            <p>Mari kita lihat mengapa metode belajar tradisional sering kali gagal membuat Anda lancar berbicara, dan bagaimana pendekatan kami menyelesaikan masalah tersebut:</p>
+            
+            <div class="comparison-container">
+                <div class="comp-box traditional">
+                    <h3 style="color: #64748b;">Metode Tradisional</h3>
+                    <ul>
+                        <li>❌ Menghafal rumus tenses secara pasif.</li>
+                        <li>❌ Takut berbicara karena cemas salah tata bahasa.</li>
+                        <li>❌ Selalu menanamkan menjawab soal dari kecil hingga besar kebiasaanya menjawab jadi orang pasif</li>
+                        <li>❌ Mengutamakan menulis daripada berbicara.</li>
+                    </ul>
+                </div>
+                <div class="comp-box our-way">
+                    <h3 style="color: var(--accent-color);">Metode English Active</h3>
+                    <ul>
+                        <li>🚀 Langsung praktik dialog sejak hari pertama.</li>
+                        <li>🚀 Membangun rasa percaya diri tanpa tekanan koreksi kaku.</li>
+                        <li>🚀 Melatih otak merespons langsung tanpa proses menerjemahkan.</li>
+                        <li>🚀 Teori dipelajari secara alami seiring lancarnya ucapan.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Goal Timeline (3 Months) -->
+        <section class="section-card">
+            <h2>Peta Jalan 3 Bulan Menuju Aktif Ngobrol</h2>
+            <p>Komitmen kami adalah membantu Anda untuk dapat melakukan percakapan aktif bahasa Inggris sehari-hari secara alami dalam waktu 3 bulan. Berikut fase perjalanan belajar Anda:</p>
+            
+            <div class="timeline">
+                <div class="timeline-item active">
+                    <div class="timeline-badge"></div>
+                    <div class="timeline-title" style="color: var(--success-color);">Bulan ke-1: Membangun Fondasi & Refleks Bicara</div>
+                    <div class="timeline-desc">
+                        Fokus utama di bulan pertama adalah mendobrak rasa canggung dan takut salah. Anda akan langsung melatih pelafalan (*pronunciation*) melalui latihan dialog pendek harian. Otak Anda akan mulai melatih refleks motorik mulut untuk mengeluarkan suara bahasa Inggris tanpa perlu berpikir panjang.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge"></div>
+                    <div class="timeline-title">Bulan ke-2: Menyusun Percakapan Mengalir & Variasi Konteks</div>
+                    <div class="timeline-desc">
+                        Di bulan kedua, Anda mulai belajar merangkai kalimat yang lebih kompleks secara intuitif. Kami membimbing Anda melalui berbagai simulasi skenario dunia nyata seperti memesan makanan, presentasi kerja, berbelanja, hingga mengobrol santai dengan teman baru. Teori pendukung mulai disisipkan perlahan di fase ini untuk memperhalus struktur bicara Anda.
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge"></div>
+                    <div class="timeline-title">Bulan ke-3: Kelancaran Otomatis & Ekspresi Diri</div>
+                    <div class="timeline-desc">
+                        Pada bulan terakhir, hambatan menerjemahkan di dalam kepala sudah mulai hilang. Anda dilatih untuk mengekspresikan opini pribadi, perasaan, serta argumen secara spontan. Di akhir bulan ini, Anda siap untuk melakukan percakapan dua arah secara lancar tanpa rasa ragu lagi.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="cta-section">
+            <h2>Siap Mulai Berbicara Hari Ini?</h2>
+            <p>Jangan tunggu sampai Anda menguasai seluruh teori untuk mulai berbicara. Mulailah praktik sekarang juga dan rasakan perubahannya dalam waktu dekat.</p>
+            <a href="#" class="btn-cta">GOAL ANDA, 3 BULAN BISA BICARA B INGGRIS</a>
+        </section>
+    </div>
+
+</body>
+</html>

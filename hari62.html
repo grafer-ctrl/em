@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+  {id:"Budaya di negaramu seperti apa?", en:"What is the culture like in your country?"},
+  {id:"Aku suka belajar budaya baru.", en:"I like learning new cultures."},
+  {id:"Setiap negara punya kebiasaan unik.", en:"Every country has unique habits."},
+  {id:"Aku penasaran dengan lifestyle di negaramu.", en:"I’m curious about the lifestyle in your country."},
+  {id:"Orang di negaramu biasanya ramah?", en:"Are people in your country usually friendly?"},
+  {id:"Di Indonesia orang suka berkumpul bersama keluarga.", en:"In Indonesia people like gathering with family."},
+  {id:"Aku suka budaya yang hangat.", en:"I like warm cultures."},
+  {id:"Keluarga sangat penting di budayaku.", en:"Family is very important in my culture."},
+  {id:"Kami sering makan bersama keluarga.", en:"We often eat together with family."},
+  {id:"Aku suka suasana keluarga besar.", en:"I like big family vibes."},
+  {id:"Di tempatku orang suka ngobrol santai.", en:"In my place people like casual conversations."},
+  {id:"Budaya nongkrong sangat populer di sini.", en:"Hangout culture is very popular here."},
+  {id:"Aku suka nongkrong di cafe.", en:"I like hanging out at cafes."},
+  {id:"Anak muda di sini suka kopi.", en:"Young people here like coffee."},
+  {id:"Lifestyle anak muda sekarang sangat modern.", en:"Young people’s lifestyle now is very modern."},
+  {id:"Tapi budaya tradisional masih penting.", en:"But traditional culture is still important."},
+  {id:"Aku suka pakaian tradisional.", en:"I like traditional clothes."},
+  {id:"Budaya tradisional terlihat indah.", en:"Traditional culture looks beautiful."},
+  {id:"Aku suka festival budaya.", en:"I like cultural festivals."},
+  {id:"Kami punya banyak hari perayaan.", en:"We have many celebrations."},
+  {id:"Aku suka musik tradisional.", en:"I like traditional music."},
+  {id:"Aku juga suka musik modern.", en:"I also like modern music."},
+  {id:"Budaya pop sekarang sangat kuat.", en:"Pop culture is very strong now."},
+  {id:"Anak muda suka mengikuti tren.", en:"Young people like following trends."},
+  {id:"Aku suka fashion simple.", en:"I like simple fashion."},
+  {id:"Style favoritmu apa?", en:"What is your favorite style?"},
+  {id:"Aku suka outfit santai.", en:"I like casual outfits."},
+  {id:"Aku suka hoodie dan sneakers.", en:"I like hoodies and sneakers."},
+  {id:"Fashion di setiap negara berbeda.", en:"Fashion is different in every country."},
+  {id:"Aku suka melihat street fashion.", en:"I like seeing street fashion."},
+  {id:"Lifestyle di kota besar sangat cepat.", en:"Lifestyle in big cities is very fast."},
+  {id:"Aku lebih suka hidup santai.", en:"I prefer a relaxed life."},
+  {id:"Aku suka suasana desa.", en:"I like village vibes."},
+  {id:"Hidup di desa terasa tenang.", en:"Life in villages feels peaceful."},
+  {id:"Kota besar kadang melelahkan.", en:"Big cities are sometimes exhausting."},
+  {id:"Aku suka tempat yang tidak terlalu ramai.", en:"I like places that aren’t too crowded."},
+  {id:"Aku suka budaya yang sopan.", en:"I like polite cultures."},
+  {id:"Di negaraku sopan santun penting.", en:"In my country manners are important."},
+  {id:"Kami diajarkan menghormati orang tua.", en:"We are taught to respect elders."},
+  {id:"Aku suka budaya saling menghargai.", en:"I like cultures that respect each other."},
+  {id:"Aku suka mendengar bahasa asing.", en:"I like hearing foreign languages."},
+  {id:"Bahasa juga bagian dari budaya.", en:"Language is also part of culture."},
+  {id:"Aku ingin belajar banyak bahasa.", en:"I want to learn many languages."},
+  {id:"Aku suka melihat cara hidup orang lain.", en:"I like seeing how other people live."},
+  {id:"Lifestyle minimalis menarik bagiku.", en:"Minimalist lifestyles are interesting to me."},
+  {id:"Aku suka kamar yang simple.", en:"I like simple rooms."},
+  {id:"Aku suka hidup tanpa terlalu banyak barang.", en:"I like living without too many things."},
+  {id:"Aku suka dekorasi aesthetic.", en:"I like aesthetic decorations."},
+  {id:"Kamu suka lifestyle modern?", en:"Do you like modern lifestyles?"},
+  {id:"Aku suka gaya hidup sehat.", en:"I like healthy lifestyles."},
+  {id:"Aku mencoba makan lebih sehat.", en:"I try to eat healthier."},
+  {id:"Aku suka olahraga ringan.", en:"I like light exercise."},
+  {id:"Aku suka jalan pagi.", en:"I like morning walks."},
+  {id:"Aku suka yoga dan relaksasi.", en:"I like yoga and relaxation."},
+  {id:"Lifestyle sehat membuat pikiran tenang.", en:"Healthy lifestyles calm the mind."},
+  {id:"Aku suka hidup yang seimbang.", en:"I like balanced lives."},
+  {id:"Kerja dan istirahat harus seimbang.", en:"Work and rest should be balanced."},
+  {id:"Banyak orang sekarang sibuk sekali.", en:"Many people are very busy nowadays."},
+  {id:"Kadang orang lupa menikmati hidup.", en:"Sometimes people forget to enjoy life."},
+  {id:"Aku suka slow living.", en:"I like slow living."},
+  {id:"Aku suka menikmati momen kecil.", en:"I like enjoying small moments."},
+  {id:"Aku suka budaya minum teh.", en:"I like tea-drinking culture."},
+  {id:"Aku suka cafe culture.", en:"I like cafe culture."},
+  {id:"Aku suka bekerja di cafe.", en:"I like working in cafes."},
+  {id:"Banyak anak muda sekarang kerja online.", en:"Many young people work online now."},
+  {id:"Lifestyle digital semakin populer.", en:"Digital lifestyles are becoming more popular."},
+  {id:"Aku suka kerja fleksibel.", en:"I like flexible work."},
+  {id:"Aku suka work from home.", en:"I like working from home."},
+  {id:"Internet mengubah lifestyle banyak orang.", en:"The internet changed many people’s lifestyles."},
+  {id:"Sekarang semua terasa lebih cepat.", en:"Now everything feels faster."},
+  {id:"Aku kadang ingin hidup lebih sederhana.", en:"Sometimes I want a simpler life."},
+  {id:"Aku suka budaya membaca buku.", en:"I like reading culture."},
+  {id:"Aku suka menghabiskan waktu sendiri.", en:"I like spending time alone."},
+  {id:"Me time itu penting.", en:"Me time is important."},
+  {id:"Aku suka menikmati ketenangan.", en:"I like enjoying peace."},
+  {id:"Lifestyle introvert cukup nyaman.", en:"Introvert lifestyles are quite comfortable."},
+  {id:"Aku suka suasana tenang.", en:"I like calm atmospheres."},
+  {id:"Aku tidak suka drama.", en:"I don’t like drama."},
+  {id:"Aku suka hidup yang damai.", en:"I like peaceful living."},
+  {id:"Aku suka budaya saling membantu.", en:"I like cultures that help each other."},
+  {id:"Di tempatku tetangga saling kenal.", en:"In my place neighbors know each other."},
+  {id:"Aku suka lingkungan yang ramah.", en:"I like friendly environments."},
+  {id:"Aku suka melihat tradisi lokal.", en:"I like seeing local traditions."},
+  {id:"Aku suka makanan khas daerah.", en:"I like regional foods."},
+  {id:"Makanan juga bagian penting budaya.", en:"Food is also an important part of culture."},
+  {id:"Aku suka mencoba makanan asing.", en:"I like trying foreign foods."},
+  {id:"Aku suka melihat pasar tradisional.", en:"I like seeing traditional markets."},
+  {id:"Budaya lokal terasa unik.", en:"Local cultures feel unique."},
+  {id:"Aku suka suasana festival malam.", en:"I like night festival vibes."},
+  {id:"Aku suka melihat lampion dan dekorasi budaya.", en:"I like seeing lanterns and cultural decorations."},
+  {id:"Aku suka mendengar cerita budaya.", en:"I like hearing cultural stories."},
+  {id:"Aku suka sejarah tradisional.", en:"I like traditional history."},
+  {id:"Setiap budaya punya filosofi menarik.", en:"Every culture has interesting philosophies."},
+  {id:"Aku suka orang yang bangga dengan budayanya.", en:"I like people who are proud of their culture."},
+  {id:"Aku bangga dengan budaya negaraku.", en:"I’m proud of my country’s culture."},
+  {id:"Budaya membuat dunia lebih berwarna.", en:"Culture makes the world more colorful."},
+  {id:"Aku suka bertukar cerita budaya.", en:"I like exchanging cultural stories."},
+  {id:"Lifestyle setiap orang memang berbeda.", en:"Everyone’s lifestyle is different."},
+  {id:"Dan itu membuat dunia menarik.", en:"And that makes the world interesting."},
+  {id:"Aku suka mengenal cara hidup baru.", en:"I like learning new ways of living."},
+  {id:"Aku suka obrolan tentang budaya.", en:"I like conversations about culture."},
+  {id:"Culture dan lifestyle selalu menarik dibahas.", en:"Culture and lifestyle are always interesting to discuss."}
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

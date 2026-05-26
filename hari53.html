@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OmeTV English Shadowing App</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: white;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+
+    .instruction {
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .setting {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .value {
+      margin-top: 5px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 15px;
+      background: white;
+      color: #4f46e5;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .topic-box {
+      background: rgba(255,255,255,0.15);
+      padding: 25px;
+      border-radius: 20px;
+      margin-top: 20px;
+      text-align: center;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .text-hidden {
+      font-size: 20px;
+      opacity: 0;
+      transition: 0.4s;
+      user-select: none;
+    }
+
+    .text-show {
+      opacity: 1;
+    }
+
+    .timer {
+      font-size: 60px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .desc {
+      margin-top: 15px;
+      font-size: 17px;
+      opacity: 0.9;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .btn-group button {
+      margin-top: 0;
+      flex: 1;
+    }
+
+    .category-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 10px 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    @media(max-width: 600px) {
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .timer {
+        font-size: 45px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- SCREEN 1 -->
+    <div id="screen1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <h1 style="margin:0;font-size:28px;">OmeTV English Practice</h1>
+      </div>
+
+      <div class="instruction">
+        <strong>Instruksi:</strong><br><br>
+        Anda cukup dengarkan suara lalu tirukan pengucapannya.
+        Fokus pada pronunciation, kecepatan bicara, dan intonasi.
+      </div>
+
+      <div class="setting">
+        <label>Volume Suara</label>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+        <div class="value" id="volumeValue">100%</div>
+      </div>
+
+      <div class="setting">
+        <label>Lamanya Timer</label>
+        <input type="range" id="timerSetting" min="1" max="10" value="5">
+        <div class="value" id="timerValue">5 Menit</div>
+      </div>
+
+      <div class="setting">
+        <label>Kecepatan Suara</label>
+        <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1">
+        <div class="value" id="speedValue">1x</div>
+      </div>
+
+      <button onclick="startPractice()">Mulai Latihan</button>
+      <button onclick="randomTopic()">Acak Topik</button>
+    </div>
+
+
+    <!-- SCREEN 2 -->
+    <div id="screen2" class="hidden">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px;flex-wrap:wrap;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <button onclick="randomTopic()" style="width:auto;padding:10px 18px;margin-top:0;">🎲 Acak</button>
+      </div>
+
+      <div class="category-badge">English Shadowing Category</div>
+
+      <h2 id="categoryTitle">Listen & Repeat</h2>
+
+      <div class="topic-box">
+
+        <div id="practiceText" class="text-hidden">
+          Hello everyone! My name is Dias.
+        </div>
+
+        <div id="translationText" class="text-hidden" style="margin-top:15px; font-size:16px; opacity:0.85;">
+          Halo semuanya! Nama saya Dias.
+        </div>
+
+        <div class="timer" id="timer">07:00</div>
+
+        <div class="desc">
+          Dengarkan dan tirukan kalimat tadi sebelum waktu habis.
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button onclick="showAnswer()">Kunci Jawaban</button>
+        <button onclick="repeatVoice()">Putar Ulang Suara</button>
+        <button onclick="nextTopic()">Next Topic</button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const topics = [
+
+  {
+    category: "1. Tentang Diri Saya",
+    en: "Hello! Let me tell you a little about myself. I’m someone who enjoys meeting new people and learning new things every day. I like spending time online, listening to music, and practicing English. I believe being friendly and positive can make conversations more enjoyable. What kind of person are you?",
+    id: "Halo! Izinkan saya menceritakan sedikit tentang diri saya. Saya adalah seseorang yang suka bertemu orang baru dan belajar hal baru setiap hari. Saya suka menghabiskan waktu online, mendengarkan musik, dan berlatih bahasa Inggris. Saya percaya bersikap ramah dan positif bisa membuat percakapan lebih menyenangkan. Kamu tipe orang seperti apa?"
+  },
+
+  {
+    category: "2. Kepribadian Saya",
+    en: "I think I am a calm and friendly person. Sometimes I can be shy when meeting someone for the first time, but after a while I become more comfortable and talkative. I enjoy having simple but meaningful conversations with people. I also like helping others when I can. How would you describe your personality?",
+    id: "Saya pikir saya adalah orang yang tenang dan ramah. Kadang saya bisa malu saat pertama kali bertemu seseorang, tetapi setelah beberapa waktu saya menjadi lebih nyaman dan banyak bicara. Saya menikmati percakapan sederhana tetapi bermakna dengan orang lain. Saya juga suka membantu orang lain jika bisa. Bagaimana kamu menggambarkan kepribadianmu?"
+  },
+
+  {
+    category: "3. Aktivitas Sehari-hari Saya",
+    en: "My daily life is usually simple but busy. I spend time studying, using my phone, watching videos, and chatting with friends online. Sometimes I feel tired, but I always try to stay motivated and productive. I believe small daily habits can improve our future little by little. What does your normal day look like?",
+    id: "Kehidupan sehari-hari saya biasanya sederhana tetapi sibuk. Saya menghabiskan waktu belajar, menggunakan ponsel, menonton video, dan mengobrol dengan teman secara online. Kadang saya merasa lelah, tetapi saya selalu mencoba tetap termotivasi dan produktif. Saya percaya kebiasaan kecil setiap hari bisa memperbaiki masa depan sedikit demi sedikit. Seperti apa hari biasanya bagimu?"
+  },
+
+  {
+    category: "4. Hobi Saya",
+    en: "I have several hobbies that help me relax and enjoy my free time. I love listening to music, watching movies, and learning English through conversations online. Sometimes I also play games or browse social media for entertainment. Hobbies are important because they make life more enjoyable and less stressful. What are your hobbies?",
+    id: "Saya punya beberapa hobi yang membantu saya rileks dan menikmati waktu luang. Saya suka mendengarkan musik, menonton film, dan belajar bahasa Inggris melalui percakapan online. Kadang saya juga bermain game atau melihat media sosial untuk hiburan. Hobi penting karena membuat hidup lebih menyenangkan dan tidak terlalu stres. Apa hobimu?"
+  },
+
+  {
+    category: "5. Hal yang Saya Sukai",
+    en: "There are many things I enjoy in life. I like peaceful places, good music, friendly people, and fun conversations. I also enjoy learning about different cultures and lifestyles from people around the world. Simple moments can sometimes become the happiest memories. What things make you happy in everyday life?",
+    id: "Ada banyak hal yang saya nikmati dalam hidup. Saya suka tempat yang tenang, musik yang bagus, orang yang ramah, dan percakapan yang menyenangkan. Saya juga suka belajar tentang budaya dan gaya hidup berbeda dari orang di seluruh dunia. Momen sederhana kadang bisa menjadi kenangan paling bahagia. Hal apa yang membuatmu bahagia dalam kehidupan sehari-hari?"
+  },
+
+  {
+    category: "6. Tujuan Hidup Saya",
+    en: "I want to become a better version of myself in the future. My goal is to improve my skills, become more confident, and achieve success step by step. I know life is not always easy, but I believe hard work and patience are important. Everyone has dreams that motivate them to keep moving forward. What goals do you have in life?",
+    id: "Saya ingin menjadi versi diri yang lebih baik di masa depan. Tujuan saya adalah meningkatkan kemampuan, menjadi lebih percaya diri, dan meraih kesuksesan sedikit demi sedikit. Saya tahu hidup tidak selalu mudah, tetapi saya percaya kerja keras dan kesabaran itu penting. Setiap orang memiliki mimpi yang memotivasi mereka untuk terus maju. Apa tujuan hidupmu?"
+  },
+
+  {
+    category: "7. Cara Saya Bersantai",
+    en: "When I feel stressed or tired, I usually try to relax by listening to music or watching funny videos online. Sometimes I just want to rest quietly and enjoy some peaceful time alone. Relaxing is important because it helps us recharge our energy and improve our mood. What do you usually do to relax?",
+    id: "Saat saya merasa stres atau lelah, saya biasanya mencoba bersantai dengan mendengarkan musik atau menonton video lucu online. Kadang saya hanya ingin beristirahat dengan tenang dan menikmati waktu sendiri. Bersantai itu penting karena membantu kita mengisi ulang energi dan memperbaiki suasana hati. Apa yang biasanya kamu lakukan untuk bersantai?"
+  },
+
+  {
+    category: "8. Kebiasaan Saya",
+    en: "I have some simple habits that I do almost every day. I often check my phone after waking up, listen to music while relaxing, and spend time chatting online. Sometimes I stay up late because I enjoy using the internet at night. I know good habits are important for a balanced life. What daily habits do you have?",
+    id: "Saya punya beberapa kebiasaan sederhana yang hampir saya lakukan setiap hari. Saya sering mengecek ponsel setelah bangun tidur, mendengarkan musik saat santai, dan menghabiskan waktu mengobrol online. Kadang saya tidur larut karena menikmati internet di malam hari. Saya tahu kebiasaan baik penting untuk kehidupan yang seimbang. Kebiasaan harian apa yang kamu punya?"
+  },
+
+  {
+    category: "9. Saya dan Bahasa Inggris",
+    en: "I am still learning English and trying to improve my speaking skills little by little. Sometimes I make mistakes, but I believe practice is the best way to learn. I enjoy talking with people online because it helps me become more confident. Learning a language can be challenging but also very rewarding. Why are you learning English?",
+    id: "Saya masih belajar bahasa Inggris dan mencoba meningkatkan kemampuan berbicara sedikit demi sedikit. Kadang saya membuat kesalahan, tetapi saya percaya latihan adalah cara terbaik untuk belajar. Saya suka berbicara dengan orang online karena membantu saya menjadi lebih percaya diri. Belajar bahasa bisa menantang tetapi juga sangat bermanfaat. Kenapa kamu belajar bahasa Inggris?"
+  },
+
+  {
+    category: "10. Hal yang Membuat Saya Bahagia",
+    en: "Simple things can make me happy. I enjoy spending time with good friends, listening to my favorite songs, and having fun conversations with people online. Sometimes even a small compliment or a kind message can improve my mood. Happiness does not always come from expensive things. What usually makes you feel happy?",
+    id: "Hal sederhana bisa membuat saya bahagia. Saya menikmati waktu bersama teman baik, mendengarkan lagu favorit, dan memiliki percakapan menyenangkan dengan orang online. Kadang bahkan pujian kecil atau pesan baik bisa memperbaiki suasana hati saya. Kebahagiaan tidak selalu datang dari hal mahal. Apa yang biasanya membuatmu merasa bahagia?"
+  },
+
+  {
+    category: "11. Saya Saat Bertemu Orang Baru",
+    en: "When I meet new people, I sometimes feel nervous at first. However, after talking for a while, I usually become more relaxed and comfortable. I think meeting different people can teach us many interesting things about life and culture. Good conversations can create positive memories. Are you shy or confident when meeting strangers?",
+    id: "Saat saya bertemu orang baru, saya kadang merasa gugup di awal. Namun setelah berbicara beberapa saat, saya biasanya menjadi lebih santai dan nyaman. Saya pikir bertemu orang berbeda bisa mengajarkan banyak hal menarik tentang kehidupan dan budaya. Percakapan yang baik bisa menciptakan kenangan positif. Apakah kamu pemalu atau percaya diri saat bertemu orang asing?"
+  },
+
+  {
+    category: "12. Makanan Favorit Saya",
+    en: "One of my favorite things is food. I really enjoy spicy food and traditional Indonesian dishes because they have rich flavors. Sometimes I also like trying snacks or drinks from other countries. Eating delicious food can make any day feel better and more enjoyable. What kind of food do you like the most?",
+    id: "Salah satu hal favorit saya adalah makanan. Saya sangat suka makanan pedas dan masakan tradisional Indonesia karena memiliki rasa yang kaya. Kadang saya juga suka mencoba camilan atau minuman dari negara lain. Makan makanan enak bisa membuat hari terasa lebih baik dan menyenangkan. Makanan seperti apa yang paling kamu sukai?"
+  },
+
+  {
+    category: "13. Saya dan Musik",
+    en: "Music is an important part of my life because it helps me relax and improves my mood. I listen to music almost every day, especially when I am bored or tired. Different songs can create different feelings and memories. Sometimes music even helps people express emotions they cannot explain easily. What songs do you like listening to?",
+    id: "Musik adalah bagian penting dalam hidup saya karena membantu saya rileks dan memperbaiki suasana hati. Saya mendengarkan musik hampir setiap hari, terutama saat bosan atau lelah. Lagu yang berbeda bisa menciptakan perasaan dan kenangan yang berbeda juga. Kadang musik bahkan membantu orang mengekspresikan emosi yang sulit dijelaskan. Lagu seperti apa yang kamu suka dengarkan?"
+  },
+
+  {
+    category: "14. Masa Depan Saya",
+    en: "I often think about my future and the kind of life I want someday. I hope to become more successful, financially stable, and confident in myself. I also want to travel and meet many interesting people around the world. Even though the future is uncertain, I try to stay positive and keep improving. What dreams do you have for your future?",
+    id: "Saya sering memikirkan masa depan dan kehidupan seperti apa yang saya inginkan nanti. Saya berharap menjadi lebih sukses, stabil secara finansial, dan percaya diri. Saya juga ingin traveling dan bertemu banyak orang menarik di seluruh dunia. Meskipun masa depan tidak pasti, saya mencoba tetap positif dan terus berkembang. Apa impianmu untuk masa depan?"
+  },
+
+  {
+    category: "15. Saya dan Internet",
+    en: "I spend quite a lot of time on the internet every day. I use it for entertainment, learning, communication, and sometimes just to relax. The internet makes it easier to connect with people from many countries and discover new ideas. However, balance is important because too much screen time can be exhausting. How often are you online?",
+    id: "Saya menghabiskan cukup banyak waktu di internet setiap hari. Saya menggunakannya untuk hiburan, belajar, komunikasi, dan kadang hanya untuk bersantai. Internet memudahkan kita terhubung dengan orang dari banyak negara dan menemukan ide baru. Namun keseimbangan penting karena terlalu lama di depan layar bisa melelahkan. Seberapa sering kamu online?"
+  },
+
+  {
+    category: "16. Saya dan Teman",
+    en: "Friendship is important to me because good friends can support us during difficult times and share happy moments together. I enjoy talking, joking, and spending time with people who are honest and positive. I think trust and respect are very important in friendship. What qualities do you look for in a friend?",
+    id: "Persahabatan penting bagi saya karena teman baik bisa mendukung kita saat masa sulit dan berbagi momen bahagia bersama. Saya suka berbicara, bercanda, dan menghabiskan waktu dengan orang yang jujur dan positif. Saya pikir kepercayaan dan rasa hormat sangat penting dalam persahabatan. Kualitas apa yang kamu cari dalam seorang teman?"
+  },
+
+  {
+    category: "17. Pengalaman yang Saya Ingat",
+    en: "There are some experiences in my life that I will always remember. Some are funny, some are embarrassing, and some taught me important lessons. I believe every experience helps us grow and understand life better. Even small moments can become unforgettable memories. What is one experience you still remember clearly?",
+    id: "Ada beberapa pengalaman dalam hidup saya yang akan selalu saya ingat. Ada yang lucu, memalukan, dan ada juga yang mengajarkan pelajaran penting. Saya percaya setiap pengalaman membantu kita tumbuh dan memahami hidup lebih baik. Bahkan momen kecil bisa menjadi kenangan yang tidak terlupakan. Apa satu pengalaman yang masih kamu ingat dengan jelas?"
+  },
+
+  {
+    category: "18. Hal yang Ingin Saya Pelajari",
+    en: "I enjoy learning new things because knowledge can open many opportunities in life. Right now, I want to improve my English and maybe learn other useful skills in the future. Learning takes time and patience, but progress feels rewarding. I think curiosity is very important for personal growth. What would you like to learn someday?",
+    id: "Saya suka mempelajari hal baru karena pengetahuan bisa membuka banyak peluang dalam hidup. Saat ini saya ingin meningkatkan bahasa Inggris dan mungkin belajar kemampuan berguna lainnya di masa depan. Belajar membutuhkan waktu dan kesabaran, tetapi perkembangan terasa memuaskan. Saya pikir rasa ingin tahu sangat penting untuk perkembangan diri. Apa yang ingin kamu pelajari suatu hari nanti?"
+  },
+
+  {
+    category: "19. Saya Saat Sendiri",
+    en: "Sometimes I enjoy spending time alone because it helps me think clearly and relax. I might listen to music, watch videos, or just rest quietly. Being alone does not always mean feeling lonely. Quiet moments can help us understand ourselves better and recharge emotionally. Do you enjoy spending time alone sometimes?",
+    id: "Kadang saya menikmati waktu sendirian karena membantu saya berpikir lebih jelas dan rileks. Saya mungkin mendengarkan musik, menonton video, atau hanya beristirahat dengan tenang. Sendirian tidak selalu berarti merasa kesepian. Momen tenang bisa membantu kita memahami diri sendiri dan mengisi ulang emosi. Apakah kamu suka menghabiskan waktu sendirian kadang-kadang?"
+  },
+
+  {
+    category: "20. Hal yang Saya Takutkan",
+    en: "Like many people, I also have fears and worries sometimes. I worry about making mistakes or failing in important situations, but I try to stay positive and keep learning from experiences. Fear is normal, and everyone faces challenges in life. I believe confidence grows slowly with practice and experience. What is something that makes you nervous?",
+    id: "Seperti banyak orang, saya juga punya rasa takut dan khawatir kadang-kadang. Saya khawatir membuat kesalahan atau gagal dalam situasi penting, tetapi saya mencoba tetap positif dan belajar dari pengalaman. Rasa takut itu normal, dan setiap orang menghadapi tantangan dalam hidup. Saya percaya rasa percaya diri tumbuh perlahan melalui latihan dan pengalaman. Apa yang membuatmu merasa gugup?"
+  },
+
+  {
+    category: "21. Saya dan Waktu Luang",
+    en: "In my free time, I usually do simple activities that make me feel relaxed and happy. I like scrolling through social media, chatting with friends, or watching random videos online. Sometimes I also enjoy thinking about future plans and goals. Free time is important because it helps us rest mentally. What do you usually do when you are bored?",
+    id: "Di waktu luang, saya biasanya melakukan aktivitas sederhana yang membuat saya rileks dan bahagia. Saya suka melihat media sosial, mengobrol dengan teman, atau menonton video random online. Kadang saya juga suka memikirkan rencana dan tujuan masa depan. Waktu luang penting karena membantu kita beristirahat secara mental. Apa yang biasanya kamu lakukan saat bosan?"
+  },
+
+  {
+    category: "22. Hal yang Membuat Saya Termotivasi",
+    en: "I try to stay motivated by thinking about my future goals and dreams. Sometimes motivation comes from family, friends, or even simple encouragement from other people. I know success takes time, so I try to improve step by step every day. Positive thinking can help us continue even when life feels difficult. What motivates you the most?",
+    id: "Saya mencoba tetap termotivasi dengan memikirkan tujuan dan mimpi masa depan saya. Kadang motivasi datang dari keluarga, teman, atau bahkan dukungan sederhana dari orang lain. Saya tahu kesuksesan membutuhkan waktu, jadi saya mencoba berkembang sedikit demi sedikit setiap hari. Pikiran positif bisa membantu kita terus berjalan meski hidup terasa sulit. Apa yang paling memotivasimu?"
+  },
+
+  {
+    category: "23. Saya dan Percakapan Online",
+    en: "I enjoy online conversations because they allow me to meet people from different backgrounds and cultures. Sometimes conversations are funny, deep, or completely random, but that is what makes them interesting. Talking online also helps improve communication skills and confidence. I think every person has a unique story to share. Why do you enjoy chatting online?",
+    id: "Saya menikmati percakapan online karena memungkinkan saya bertemu orang dari latar belakang dan budaya yang berbeda. Kadang percakapannya lucu, mendalam, atau benar-benar random, tetapi itu yang membuatnya menarik. Mengobrol online juga membantu meningkatkan kemampuan komunikasi dan rasa percaya diri. Saya pikir setiap orang punya cerita unik untuk dibagikan. Kenapa kamu suka mengobrol online?"
+  },
+
+  {
+    category: "24. Hal yang Saya Syukuri",
+    en: "There are many simple things in life that I feel grateful for. I appreciate having good health, supportive people around me, and opportunities to learn new things. Sometimes we forget to value small moments because we focus too much on problems. Gratitude can make life feel more positive and meaningful. What are you grateful for in your life?",
+    id: "Ada banyak hal sederhana dalam hidup yang saya syukuri. Saya bersyukur memiliki kesehatan yang baik, orang-orang yang mendukung di sekitar saya, dan kesempatan untuk belajar hal baru. Kadang kita lupa menghargai momen kecil karena terlalu fokus pada masalah. Rasa syukur bisa membuat hidup terasa lebih positif dan bermakna. Apa yang kamu syukuri dalam hidupmu?"
+  },
+
+  {
+    category: "25. Diri Saya di Masa Depan",
+    en: "I hope my future self will become more mature, confident, and successful. I want to continue learning, improving my skills, and building a better life step by step. Life changes constantly, so I think it is important to stay adaptable and optimistic. Even small efforts today can create a better future tomorrow. How do you imagine yourself in the future?",
+    id: "Saya berharap diri saya di masa depan menjadi lebih dewasa, percaya diri, dan sukses. Saya ingin terus belajar, meningkatkan kemampuan, dan membangun kehidupan yang lebih baik sedikit demi sedikit. Hidup terus berubah, jadi saya pikir penting untuk tetap mudah beradaptasi dan optimis. Bahkan usaha kecil hari ini bisa menciptakan masa depan yang lebih baik besok. Bagaimana kamu membayangkan dirimu di masa depan?"
+  }
+];
+
+    let currentTopic = 0;
+    let countdown;
+
+    const volumeSlider = document.getElementById('volume');
+    const timerSlider = document.getElementById('timerSetting');
+    const speedSlider = document.getElementById('speed');
+
+    volumeSlider.addEventListener('input', () => {
+      document.getElementById('volumeValue').innerText = Math.round(volumeSlider.value * 100) + '%';
+    });
+
+    timerSlider.addEventListener('input', () => {
+      document.getElementById('timerValue').innerText = timerSlider.value + ' Menit';
+    });
+
+    speedSlider.addEventListener('input', () => {
+      document.getElementById('speedValue').innerText = speedSlider.value + 'x';
+    });
+
+    function loadTopic() {
+      document.getElementById('categoryTitle').innerText = topics[currentTopic].category;
+      document.getElementById('practiceText').innerText = topics[currentTopic].en;
+      document.getElementById('translationText').innerText = topics[currentTopic].id;
+    }
+
+    function speakText() {
+
+      speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance(topics[currentTopic].en);
+
+      speech.lang = 'en-US';
+      speech.volume = volumeSlider.value;
+      speech.rate = speedSlider.value;
+
+      speech.onend = () => {
+        document.getElementById('practiceText').classList.remove('text-show');
+        document.getElementById('translationText').classList.remove('text-show');
+        startTimer();
+      };
+
+      speechSynthesis.speak(speech);
+    }
+
+    function startPractice() {
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function startTimer() {
+
+      clearInterval(countdown);
+
+      let minutes = parseInt(timerSlider.value);
+      let time = minutes * 60;
+
+      countdown = setInterval(() => {
+
+        let mins = Math.floor(time / 60);
+        let secs = time % 60;
+
+        mins = mins < 10 ? '0' + mins : mins;
+        secs = secs < 10 ? '0' + secs : secs;
+
+        document.getElementById('timer').innerText = `${mins}:${secs}`;
+
+        if(time <= 0) {
+          clearInterval(countdown);
+          document.getElementById('timer').innerText = 'Selesai';
+        }
+
+        time--;
+
+      }, 1000);
+    }
+
+    function showAnswer() {
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+    }
+
+    function repeatVoice() {
+
+      clearInterval(countdown);
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function nextTopic() {
+
+      clearInterval(countdown);
+
+      currentTopic++;
+
+      if(currentTopic >= topics.length) {
+        currentTopic = 0;
+      }
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function randomTopic() {
+
+      clearInterval(countdown);
+
+      let randomIndex;
+
+      do {
+        randomIndex = Math.floor(Math.random() * topics.length);
+      } while(randomIndex === currentTopic && topics.length > 1);
+
+      currentTopic = randomIndex;
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+  </script>
+
+</body>
+</html>

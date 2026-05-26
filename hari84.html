@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Apa impian terbesar kamu?", en:"What is your biggest dream?"},
+{id:"Kamu ingin jadi apa di masa depan?", en:"What do you want to be in the future?"},
+{id:"Apa tujuan hidupmu sekarang?", en:"What is your life goal right now?"},
+{id:"Kamu ingin tinggal di mana suatu hari nanti?", en:"Where do you want to live someday?"},
+{id:"Apa hal yang paling ingin kamu capai?", en:"What do you want to achieve the most?"},
+{id:"Kamu punya target tahun ini?", en:"Do you have goals for this year?"},
+{id:"Apa pekerjaan impianmu?", en:"What is your dream job?"},
+{id:"Kamu ingin punya bisnis sendiri?", en:"Do you want your own business?"},
+{id:"Apa yang membuatmu semangat menjalani hidup?", en:"What motivates you in life?"},
+{id:"Kamu ingin dikenal sebagai orang seperti apa?", en:"What kind of person do you want to be known as?"},
+{id:"Apa hal yang ingin kamu pelajari di masa depan?", en:"What do you want to learn in the future?"},
+{id:"Kamu ingin sukses di bidang apa?", en:"In what field do you want to succeed?"},
+{id:"Apa tujuan kecilmu bulan ini?", en:"What is your small goal this month?"},
+{id:"Kamu ingin traveling ke negara mana?", en:"Which country do you want to visit?"},
+{id:"Apa mimpi masa kecilmu?", en:"What was your childhood dream?"},
+{id:"Kamu masih mengejar mimpi itu?", en:"Are you still chasing that dream?"},
+{id:"Apa yang paling kamu takutkan tentang masa depan?", en:"What scares you most about the future?"},
+{id:"Apa yang paling kamu nantikan di masa depan?", en:"What are you looking forward to in the future?"},
+{id:"Kamu ingin hidup yang sibuk atau santai?", en:"Do you want a busy or relaxed life?"},
+{id:"Apa arti sukses menurutmu?", en:"What does success mean to you?"},
+{id:"Kamu ingin punya rumah seperti apa?", en:"What kind of house do you want?"},
+{id:"Apa gaya hidup impianmu?", en:"What is your dream lifestyle?"},
+{id:"Kamu ingin punya banyak teman atau hidup tenang?", en:"Do you want many friends or a peaceful life?"},
+{id:"Apa yang ingin kamu ubah dari hidupmu sekarang?", en:"What do you want to change in your life now?"},
+{id:"Kamu ingin lebih fokus ke karier atau kebahagiaan?", en:"Do you want to focus more on career or happiness?"},
+{id:"Apa pencapaian yang paling ingin kamu dapat?", en:"What achievement do you want the most?"},
+{id:"Kamu ingin jadi content creator terkenal?", en:"Do you want to become a famous content creator?"},
+{id:"Apa yang membuatmu terus bertahan sampai sekarang?", en:"What keeps you going until now?"},
+{id:"Kamu ingin hidup di kota besar atau desa tenang?", en:"Do you want to live in a big city or quiet village?"},
+{id:"Apa tujuan yang sedang kamu perjuangkan?", en:"What goal are you fighting for now?"},
+{id:"Kamu ingin membahagiakan siapa di masa depan?", en:"Who do you want to make happy in the future?"},
+{id:"Apa yang paling penting dalam hidupmu?", en:"What is the most important thing in your life?"},
+{id:"Kamu ingin punya pekerjaan bebas waktu?", en:"Do you want a flexible job?"},
+{id:"Apa definisi hidup bahagia menurutmu?", en:"What is your definition of a happy life?"},
+{id:"Kamu ingin punya kehidupan sederhana atau mewah?", en:"Do you want a simple or luxurious life?"},
+{id:"Apa impian yang belum pernah kamu ceritakan?", en:"What dream have you never talked about?"},
+{id:"Kamu ingin jadi lebih baik dalam hal apa?", en:"In what area do you want to improve?"},
+{id:"Apa yang paling memotivasi kamu?", en:"What motivates you the most?"},
+{id:"Kamu ingin dikenal karena apa?", en:"What do you want to be known for?"},
+{id:"Apa yang ingin kamu capai sebelum umur 30?", en:"What do you want to achieve before 30?"},
+{id:"Kamu ingin hidup bebas finansial?", en:"Do you want financial freedom?"},
+{id:"Apa langkah kecil yang sedang kamu lakukan sekarang?", en:"What small steps are you taking now?"},
+{id:"Kamu percaya mimpi bisa jadi nyata?", en:"Do you believe dreams can come true?"},
+{id:"Apa tujuan yang paling sulit kamu capai?", en:"What is the hardest goal for you to achieve?"},
+{id:"Kamu ingin punya banyak pengalaman hidup?", en:"Do you want many life experiences?"},
+{id:"Apa yang ingin kamu lakukan kalau sukses nanti?", en:"What do you want to do when you become successful?"},
+{id:"Kamu ingin membantu keluargamu?", en:"Do you want to help your family?"},
+{id:"Apa hal pertama yang ingin kamu beli kalau kaya?", en:"What is the first thing you want to buy if you become rich?"},
+{id:"Kamu ingin hidup tenang atau penuh tantangan?", en:"Do you want a calm or challenging life?"},
+{id:"Apa mimpi yang sedang kamu kejar sekarang?", en:"What dream are you chasing now?"},
+{id:"Kamu ingin bekerja dari rumah?", en:"Do you want to work from home?"},
+{id:"Apa tujuan terbesar hidupmu?", en:"What is the biggest goal of your life?"},
+{id:"Kamu ingin punya banyak waktu luang?", en:"Do you want a lot of free time?"},
+{id:"Apa yang ingin kamu capai tahun depan?", en:"What do you want to achieve next year?"},
+{id:"Kamu ingin hidup dekat pantai atau pegunungan?", en:"Do you want to live near beaches or mountains?"},
+{id:"Apa yang membuat hidup terasa berarti bagimu?", en:"What makes life meaningful to you?"},
+{id:"Kamu ingin dikenal sebagai orang sukses?", en:"Do you want to be known as successful?"},
+{id:"Apa versi terbaik dirimu menurutmu?", en:"What is the best version of yourself?"},
+{id:"Kamu ingin punya kehidupan yang damai?", en:"Do you want a peaceful life?"},
+{id:"Apa tujuan yang membuatmu terus bangun pagi?", en:"What goal makes you wake up every morning?"},
+{id:"Kamu ingin mencoba hidup di luar negeri?", en:"Do you want to try living abroad?"},
+{id:"Apa yang paling ingin kamu ubah di masa depan?", en:"What do you most want to change in the future?"},
+{id:"Kamu ingin punya pekerjaan yang kamu cintai?", en:"Do you want a job you love?"},
+{id:"Apa yang membuatmu takut gagal?", en:"What makes you afraid of failure?"},
+{id:"Kamu ingin hidup santai tanpa tekanan?", en:"Do you want a relaxed life without pressure?"},
+{id:"Apa impian yang membuatmu terus semangat?", en:"What dream keeps you motivated?"},
+{id:"Kamu ingin punya penghasilan dari hobi?", en:"Do you want income from your hobby?"},
+{id:"Apa tujuan yang belum kamu mulai?", en:"What goal have you not started yet?"},
+{id:"Kamu ingin masa depan seperti apa?", en:"What kind of future do you want?"},
+{id:"Apa yang paling penting untuk masa depanmu?", en:"What is most important for your future?"},
+{id:"Kamu ingin lebih fokus pada diri sendiri?", en:"Do you want to focus more on yourself?"},
+{id:"Apa yang ingin kamu capai lima tahun lagi?", en:"What do you want to achieve in five years?"},
+{id:"Kamu ingin hidup yang bebas?", en:"Do you want a free life?"},
+{id:"Apa hal yang paling kamu perjuangkan sekarang?", en:"What are you fighting for the most right now?"},
+{id:"Kamu ingin punya banyak pengalaman atau stabilitas?", en:"Do you want many experiences or stability?"},
+{id:"Apa mimpi yang menurutmu sulit tapi mungkin?", en:"What dream feels difficult but possible?"},
+{id:"Kamu ingin dikenal sebagai orang baik?", en:"Do you want to be known as a kind person?"},
+{id:"Apa tujuan sederhana yang membuatmu bahagia?", en:"What simple goal makes you happy?"},
+{id:"Kamu ingin hidup lebih tenang di masa depan?", en:"Do you want a calmer life in the future?"},
+{id:"Apa yang paling ingin kamu pelajari tentang hidup?", en:"What do you most want to learn about life?"},
+{id:"Kamu ingin punya rutinitas yang damai?", en:"Do you want a peaceful routine?"},
+{id:"Apa impian yang ingin kamu wujudkan untuk orang tua?", en:"What dream do you want to fulfill for your parents?"},
+{id:"Kamu ingin lebih sukses atau lebih bahagia?", en:"Do you want to be more successful or happier?"},
+{id:"Apa arti kebebasan menurutmu?", en:"What does freedom mean to you?"},
+{id:"Kamu ingin hidup sederhana tapi nyaman?", en:"Do you want a simple but comfortable life?"},
+{id:"Apa tujuan yang membuatmu paling semangat?", en:"What goal excites you the most?"},
+{id:"Kamu ingin punya banyak waktu untuk diri sendiri?", en:"Do you want more time for yourself?"},
+{id:"Apa impian yang ingin kamu capai diam-diam?", en:"What dream do you secretly want to achieve?"},
+{id:"Kamu ingin hidup tanpa penyesalan?", en:"Do you want to live without regrets?"},
+{id:"Apa hal kecil yang ingin kamu perbaiki?", en:"What small thing do you want to improve?"},
+{id:"Kamu ingin punya hidup yang seimbang?", en:"Do you want a balanced life?"},
+{id:"Apa tujuan yang paling membuatmu takut gagal?", en:"What goal are you most afraid to fail at?"},
+{id:"Kamu ingin masa depan yang tenang atau seru?", en:"Do you want a calm or exciting future?"},
+{id:"Apa impian yang membuatmu terus mencoba?", en:"What dream keeps you trying?"},
+{id:"Kamu ingin lebih menikmati hidup di masa depan?", en:"Do you want to enjoy life more in the future?"},
+{id:"Apa yang ingin kamu syukuri di masa depan?", en:"What do you want to be grateful for in the future?"},
+{id:"Kamu ingin hidup dengan damai dan bahagia?", en:"Do you want to live peacefully and happily?"},
+{id:"Apa tujuan hidup yang paling berarti bagimu?", en:"What life goal means the most to you?"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

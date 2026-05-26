@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Kamu ramah banget", en:"You are really friendly"},
+{id:"Cara bicaramu enak didengar", en:"Your way of speaking is pleasant"},
+{id:"Kamu punya vibe positif", en:"You have positive vibes"},
+{id:"Kamu lucu juga", en:"You are funny too"},
+{id:"Senyummu bagus", en:"Your smile is nice"},
+{id:"Kamu terlihat percaya diri", en:"You look confident"},
+{id:"Aku suka energimu", en:"I like your energy"},
+{id:"Kamu asik diajak ngobrol", en:"You are fun to talk to"},
+{id:"Kamu kelihatan baik", en:"You seem kind"},
+{id:"Pembawaanmu santai", en:"Your vibe is relaxed"},
+{id:"Kamu punya suara yang bagus", en:"You have a nice voice"},
+{id:"Aku suka caramu bercanda", en:"I like your sense of humor"},
+{id:"Kamu bikin suasana nyaman", en:"You make the atmosphere comfortable"},
+{id:"Kamu kelihatan pintar", en:"You look smart"},
+{id:"Kamu punya gaya yang keren", en:"You have a cool style"},
+{id:"Aku suka cara kamu ngobrol", en:"I like the way you talk"},
+{id:"Kamu kelihatan easygoing", en:"You seem easygoing"},
+{id:"Kamu bikin obrolan jadi seru", en:"You make the conversation fun"},
+{id:"Aku suka vibe santaimu", en:"I like your relaxed vibe"},
+{id:"Kamu punya tawa yang lucu", en:"You have a funny laugh"},
+{id:"Kamu kelihatan sopan", en:"You seem polite"},
+{id:"Kamu punya aura yang nyaman", en:"You have a comforting aura"},
+{id:"Aku suka cara kamu menjawab", en:"I like the way you answer"},
+{id:"Kamu terlihat natural", en:"You look natural"},
+{id:"Kamu punya energi yang bagus", en:"You have good energy"},
+{id:"Kamu terlihat menarik", en:"You look interesting"},
+{id:"Aku suka cara kamu berpikir", en:"I like the way you think"},
+{id:"Kamu punya selera humor bagus", en:"You have a good sense of humor"},
+{id:"Kamu bikin aku tidak canggung", en:"You make me feel less awkward"},
+{id:"Kamu punya ekspresi lucu", en:"You have funny expressions"},
+{id:"Aku suka pembawaanmu", en:"I like your personality"},
+{id:"Kamu kelihatan kreatif", en:"You seem creative"},
+{id:"Kamu punya gaya santai yang keren", en:"You have a cool relaxed style"},
+{id:"Kamu mudah diajak ngobrol", en:"You are easy to talk to"},
+{id:"Aku suka caramu mendengar", en:"I like how you listen"},
+{id:"Kamu punya vibe yang chill", en:"You have a chill vibe"},
+{id:"Kamu terlihat dewasa", en:"You seem mature"},
+{id:"Kamu punya wajah yang ceria", en:"You have a cheerful face"},
+{id:"Aku suka cara kamu bereaksi", en:"I like the way you react"},
+{id:"Kamu bikin suasana jadi ringan", en:"You make the atmosphere light"},
+{id:"Kamu terlihat menyenangkan", en:"You seem enjoyable"},
+{id:"Kamu punya energi happy", en:"You have happy energy"},
+{id:"Aku suka cara kamu tertawa", en:"I like your laugh"},
+{id:"Kamu terlihat jujur", en:"You seem honest"},
+{id:"Kamu punya mata yang bagus", en:"You have nice eyes"},
+{id:"Aku suka vibe ngobrol ini", en:"I like this conversation vibe"},
+{id:"Kamu bikin aku nyaman ngobrol", en:"You make me comfortable talking"},
+{id:"Kamu punya pemikiran menarik", en:"You have interesting thoughts"},
+{id:"Kamu terlihat humble", en:"You seem humble"},
+{id:"Kamu punya gaya bicara yang santai", en:"You have a relaxed way of speaking"},
+{id:"Aku suka energi positifmu", en:"I like your positive energy"},
+{id:"Kamu terlihat seru", en:"You seem fun"},
+{id:"Kamu punya cara ngobrol yang natural", en:"You have a natural way of talking"},
+{id:"Aku suka ekspresimu", en:"I like your expressions"},
+{id:"Kamu bikin obrolan terasa nyaman", en:"You make conversations feel comfortable"},
+{id:"Kamu punya vibe yang friendly", en:"You have a friendly vibe"},
+{id:"Aku suka cara kamu membawa obrolan", en:"I like how you carry conversations"},
+{id:"Kamu terlihat percaya diri banget", en:"You look very confident"},
+{id:"Kamu punya suara yang menenangkan", en:"You have a calming voice"},
+{id:"Aku suka cara kamu tersenyum", en:"I like the way you smile"},
+{id:"Kamu bikin suasana jadi hidup", en:"You make the atmosphere lively"},
+{id:"Kamu punya aura positif banget", en:"You have a very positive aura"},
+{id:"Aku suka caramu menjelaskan sesuatu", en:"I like how you explain things"},
+{id:"Kamu terlihat santai banget", en:"You look very relaxed"},
+{id:"Kamu punya energi yang nyaman", en:"You have comforting energy"},
+{id:"Aku suka obrolan sama kamu", en:"I like talking with you"},
+{id:"Kamu punya vibe yang bikin tenang", en:"You have a calming vibe"},
+{id:"Kamu terlihat tulus", en:"You seem sincere"},
+{id:"Aku suka gaya rambutmu", en:"I like your hairstyle"},
+{id:"Kamu punya pembawaan yang enak", en:"You have a pleasant personality"},
+{id:"Kamu bikin ngobrol jadi tidak membosankan", en:"You make conversations not boring"},
+{id:"Aku suka caramu berpakaian", en:"I like the way you dress"},
+{id:"Kamu punya style yang unik", en:"You have a unique style"},
+{id:"Kamu terlihat ceria", en:"You look cheerful"},
+{id:"Aku suka cara kamu menjaga obrolan", en:"I like how you keep conversations going"},
+{id:"Kamu punya wajah yang ramah", en:"You have a friendly face"},
+{id:"Kamu bikin suasana jadi chill", en:"You make the atmosphere chill"},
+{id:"Aku suka caramu berekspresi", en:"I like the way you express yourself"},
+{id:"Kamu terlihat menyenangkan diajak ngobrol", en:"You seem enjoyable to talk to"},
+{id:"Kamu punya energi santai", en:"You have relaxed energy"},
+{id:"Aku suka cara kamu menanggapi sesuatu", en:"I like how you respond to things"},
+{id:"Kamu punya vibe yang asik", en:"You have a fun vibe"},
+{id:"Kamu terlihat lucu", en:"You look cute"},
+{id:"Aku suka suasana ngobrol ini", en:"I like this conversation atmosphere"},
+{id:"Kamu punya cara bicara yang lembut", en:"You have a soft way of speaking"},
+{id:"Kamu bikin aku enjoy ngobrol", en:"You make me enjoy talking"},
+{id:"Aku suka selera humormu", en:"I like your sense of humor"},
+{id:"Kamu punya pembawaan yang hangat", en:"You have a warm personality"},
+{id:"Kamu terlihat nyaman jadi diri sendiri", en:"You seem comfortable being yourself"},
+{id:"Aku suka orang yang santai seperti kamu", en:"I like relaxed people like you"},
+{id:"Kamu punya aura yang bikin nyaman", en:"You have a comforting aura"},
+{id:"Kamu terlihat sangat easygoing", en:"You seem very easygoing"},
+{id:"Aku suka cara kamu bikin obrolan mengalir", en:"I like how you make conversations flow"},
+{id:"Kamu punya vibe yang natural", en:"You have a natural vibe"},
+{id:"Kamu terlihat punya energi baik", en:"You seem to have good energy"},
+{id:"Aku suka ngobrol panjang sama kamu", en:"I like having long conversations with you"},
+{id:"Kamu bikin suasana tidak awkward", en:"You make the atmosphere not awkward"},
+{id:"Kamu punya personality yang menarik", en:"You have an interesting personality"},
+{id:"Aku suka vibe positif dari kamu", en:"I like the positive vibes from you"},
+{id:"Kamu terlihat menyenangkan banget", en:"You seem really enjoyable"},
+{id:"Kamu punya cara ngobrol yang bikin nyaman", en:"You have a comforting way of talking"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+  {id:"Menurutku kopi lebih enak daripada teh.", en:"I think coffee is better than tea."},
+  {id:"Menurutku teh lebih menenangkan.", en:"I think tea is more relaxing."},
+  {id:"Aku lebih suka pantai daripada gunung.", en:"I prefer beaches over mountains."},
+  {id:"Gunung lebih indah menurutku.", en:"Mountains are more beautiful in my opinion."},
+  {id:"Menurutku malam lebih nyaman daripada pagi.", en:"I think nights are more comfortable than mornings."},
+  {id:"Aku lebih produktif di pagi hari.", en:"I’m more productive in the morning."},
+  {id:"Musik lama lebih bagus menurutku.", en:"Old music is better in my opinion."},
+  {id:"Aku lebih suka musik modern.", en:"I prefer modern music."},
+  {id:"Menurutku film lebih bagus daripada series.", en:"I think movies are better than series."},
+  {id:"Series lebih seru karena ceritanya panjang.", en:"Series are more exciting because the stories are longer."},
+  {id:"Aku lebih suka kucing daripada anjing.", en:"I prefer cats over dogs."},
+  {id:"Anjing lebih aktif dan menyenangkan.", en:"Dogs are more active and fun."},
+  {id:"Menurutku traveling sendiri lebih seru.", en:"I think solo traveling is more fun."},
+  {id:"Aku lebih suka traveling dengan teman.", en:"I prefer traveling with friends."},
+  {id:"Menurutku makanan pedas lebih enak.", en:"I think spicy food tastes better."},
+  {id:"Aku tidak terlalu suka makanan pedas.", en:"I don’t really like spicy food."},
+  {id:"Game online lebih seru menurutku.", en:"Online games are more fun in my opinion."},
+  {id:"Aku lebih suka game offline story mode.", en:"I prefer offline story mode games."},
+  {id:"Menurutku hidup di kota lebih nyaman.", en:"I think living in cities is more comfortable."},
+  {id:"Aku lebih suka hidup di desa.", en:"I prefer living in villages."},
+  {id:"Menurutku hujan itu menyenangkan.", en:"I think rain is enjoyable."},
+  {id:"Aku lebih suka cuaca cerah.", en:"I prefer sunny weather."},
+  {id:"Menurutku iPhone lebih bagus.", en:"I think iPhones are better."},
+  {id:"Aku lebih suka Android.", en:"I prefer Android."},
+  {id:"Menurutku tidur siang itu penting.", en:"I think naps are important."},
+  {id:"Aku malah pusing kalau tidur siang.", en:"I actually get dizzy after naps."},
+  {id:"Menurutku belajar online lebih nyaman.", en:"I think online learning is more comfortable."},
+  {id:"Belajar langsung lebih efektif menurutku.", en:"Face-to-face learning is more effective in my opinion."},
+  {id:"Aku lebih suka chat daripada telepon.", en:"I prefer texting over calling."},
+  {id:"Telepon terasa lebih personal.", en:"Calling feels more personal."},
+  {id:"Menurutku introvert lebih tenang.", en:"I think introverts are calmer."},
+  {id:"Extrovert lebih seru menurutku.", en:"Extroverts are more fun in my opinion."},
+  {id:"Aku lebih suka musim dingin.", en:"I prefer winter."},
+  {id:"Aku lebih suka musim panas.", en:"I prefer summer."},
+  {id:"Menurutku pizza lebih enak daripada burger.", en:"I think pizza is better than burgers."},
+  {id:"Burger lebih praktis menurutku.", en:"Burgers are more practical in my opinion."},
+  {id:"Aku lebih suka anime daripada film biasa.", en:"I prefer anime over regular movies."},
+  {id:"Film biasa terasa lebih realistis.", en:"Regular movies feel more realistic."},
+  {id:"Menurutku TikTok lebih menghibur.", en:"I think TikTok is more entertaining."},
+  {id:"Aku lebih suka YouTube.", en:"I prefer YouTube."},
+  {id:"Menurutku uang bisa membeli kebahagiaan.", en:"I think money can buy happiness."},
+  {id:"Kebahagiaan tidak selalu soal uang.", en:"Happiness is not always about money."},
+  {id:"Aku lebih suka nongkrong di rumah.", en:"I prefer hanging out at home."},
+  {id:"Aku lebih suka nongkrong di luar.", en:"I prefer hanging out outside."},
+  {id:"Menurutku sunset lebih indah daripada sunrise.", en:"I think sunsets are more beautiful than sunrises."},
+  {id:"Sunrise terasa lebih fresh menurutku.", en:"Sunrises feel fresher in my opinion."},
+  {id:"Aku lebih suka game kompetitif.", en:"I prefer competitive games."},
+  {id:"Aku lebih suka game santai.", en:"I prefer relaxing games."},
+  {id:"Menurutku belajar bahasa itu penting.", en:"I think learning languages is important."},
+  {id:"Menurutku skill lebih penting daripada nilai.", en:"I think skills are more important than grades."},
+  {id:"Aku lebih suka buku fisik.", en:"I prefer physical books."},
+  {id:"E-book lebih praktis menurutku.", en:"E-books are more practical in my opinion."},
+  {id:"Menurutku musik membantu fokus.", en:"I think music helps with focus."},
+  {id:"Aku malah sulit fokus kalau ada musik.", en:"I actually can’t focus with music."},
+  {id:"Aku lebih suka tinggal dekat pantai.", en:"I prefer living near beaches."},
+  {id:"Aku lebih suka tinggal dekat pegunungan.", en:"I prefer living near mountains."},
+  {id:"Menurutku mie lebih enak daripada nasi.", en:"I think noodles are better than rice."},
+  {id:"Aku tidak bisa hidup tanpa nasi.", en:"I can’t live without rice."},
+  {id:"Menurutku olahraga pagi lebih baik.", en:"I think morning exercise is better."},
+  {id:"Aku lebih suka olahraga malam.", en:"I prefer exercising at night."},
+  {id:"Menurutku hubungan jarak jauh sulit.", en:"I think long-distance relationships are difficult."},
+  {id:"Menurutku hubungan jarak jauh tetap bisa berhasil.", en:"I think long-distance relationships can still work."},
+  {id:"Aku lebih suka tinggal di apartemen.", en:"I prefer living in apartments."},
+  {id:"Rumah biasa terasa lebih nyaman.", en:"Houses feel more comfortable."},
+  {id:"Menurutku meme lama lebih lucu.", en:"I think old memes are funnier."},
+  {id:"Meme sekarang lebih random dan lucu.", en:"Current memes are more random and funny."},
+  {id:"Aku lebih suka minuman dingin.", en:"I prefer cold drinks."},
+  {id:"Aku lebih suka minuman hangat.", en:"I prefer warm drinks."},
+  {id:"Menurutku deep talk itu penting.", en:"I think deep talks are important."},
+  {id:"Aku lebih suka obrolan santai.", en:"I prefer casual conversations."},
+  {id:"Menurutku overthinking itu normal.", en:"I think overthinking is normal."},
+  {id:"Kadang kita terlalu banyak berpikir.", en:"Sometimes we think too much."},
+  {id:"Aku lebih suka hidup sederhana.", en:"I prefer simple living."},
+  {id:"Aku suka hidup yang sibuk dan aktif.", en:"I like busy and active lifestyles."},
+  {id:"Menurutku teknologi membuat hidup lebih mudah.", en:"I think technology makes life easier."},
+  {id:"Kadang teknologi bikin orang terlalu sibuk.", en:"Sometimes technology makes people too busy."},
+  {id:"Aku lebih suka chatting malam.", en:"I prefer chatting at night."},
+  {id:"Aku lebih suka tidur cepat.", en:"I prefer sleeping early."},
+  {id:"Menurutku humor receh paling lucu.", en:"I think silly humor is the funniest."},
+  {id:"Aku lebih suka humor cerdas.", en:"I prefer smart humor."},
+  {id:"Menurutku traveling lebih penting daripada barang mewah.", en:"I think traveling is more important than luxury items."},
+  {id:"Aku suka membeli barang yang berguna.", en:"I like buying useful things."},
+  {id:"Aku lebih suka suasana tenang.", en:"I prefer calm atmospheres."},
+  {id:"Aku lebih suka suasana ramai.", en:"I prefer lively atmospheres."},
+  {id:"Menurutku hidup sehat itu sulit.", en:"I think healthy living is difficult."},
+  {id:"Kalau dibiasakan jadi mudah.", en:"If you get used to it, it becomes easy."},
+  {id:"Aku lebih suka makanan rumahan.", en:"I prefer homemade food."},
+  {id:"Aku lebih suka makan di restoran.", en:"I prefer eating at restaurants."},
+  {id:"Menurutku tidur cukup sangat penting.", en:"I think getting enough sleep is very important."},
+  {id:"Kadang begadang itu menyenangkan.", en:"Sometimes staying up late is enjoyable."},
+  {id:"Aku lebih suka live music.", en:"I prefer live music."},
+  {id:"Aku lebih suka mendengar musik pakai headset.", en:"I prefer listening to music with headphones."},
+  {id:"Menurutku internet membuat dunia lebih dekat.", en:"I think the internet makes the world closer."},
+  {id:"Tapi internet juga bikin orang kecanduan.", en:"But the internet also makes people addicted."},
+  {id:"Aku lebih suka ngobrol langsung.", en:"I prefer talking face to face."},
+  {id:"Online chat lebih nyaman menurutku.", en:"Online chat is more comfortable in my opinion."},
+  {id:"Menurutku semua orang butuh liburan.", en:"I think everyone needs vacations."},
+  {id:"Kadang istirahat di rumah sudah cukup.", en:"Sometimes resting at home is enough."},
+  {id:"Aku lebih suka malam minggu santai.", en:"I prefer relaxing Saturday nights."},
+  {id:"Aku lebih suka pergi keluar saat weekend.", en:"I prefer going out on weekends."},
+  {id:"Menurutku debat santai itu seru.", en:"I think casual debates are fun."},
+  {id:"Yang penting tetap saling menghargai.", en:"The important thing is to keep respecting each other."},
+   {id:"Menurutku tidur lebih penting daripada nongkrong.", en:"I think sleep is more important than hanging out."},
+  {id:"Menurutku nongkrong juga penting untuk refreshing.", en:"I think hanging out is important for refreshing too."},
+  {id:"Aku lebih suka belajar sendiri.", en:"I prefer studying alone."},
+  {id:"Belajar bersama teman lebih seru menurutku.", en:"Studying with friends is more fun in my opinion."},
+  {id:"Menurutku hidup di kota besar lebih banyak peluang.", en:"I think big cities have more opportunities."},
+  {id:"Aku lebih suka hidup tenang jauh dari keramaian.", en:"I prefer peaceful living away from crowds."},
+  {id:"Menurutku uang tabungan lebih penting.", en:"I think saving money is more important."},
+  {id:"Menurutku pengalaman hidup lebih penting.", en:"I think life experiences are more important."},
+  {id:"Aku lebih suka naik motor.", en:"I prefer riding motorcycles."},
+  {id:"Aku lebih suka naik mobil.", en:"I prefer driving cars."},
+  {id:"Menurutku hujan cocok untuk tidur.", en:"I think rain is perfect for sleeping."},
+  {id:"Menurutku hujan cocok untuk ngopi.", en:"I think rain is perfect for drinking coffee."},
+  {id:"Aku lebih suka makanan manis.", en:"I prefer sweet foods."},
+  {id:"Aku lebih suka makanan asin.", en:"I prefer savory foods."},
+  {id:"Menurutku game mobile lebih praktis.", en:"I think mobile games are more practical."},
+  {id:"Game PC lebih seru menurutku.", en:"PC games are more exciting in my opinion."},
+  {id:"Aku lebih suka nonton di rumah.", en:"I prefer watching at home."},
+  {id:"Bioskop terasa lebih seru.", en:"Cinemas feel more exciting."},
+  {id:"Menurutku traveling lebih baik daripada shopping.", en:"I think traveling is better than shopping."},
+  {id:"Shopping juga bisa bikin bahagia.", en:"Shopping can also make people happy."},
+  {id:"Aku lebih suka tinggal dekat keluarga.", en:"I prefer living near family."},
+  {id:"Aku ingin hidup mandiri jauh dari rumah.", en:"I want to live independently far from home."},
+  {id:"Menurutku malam lebih romantis.", en:"I think nights are more romantic."},
+  {id:"Pagi terasa lebih damai menurutku.", en:"Mornings feel more peaceful in my opinion."},
+  {id:"Aku lebih suka ngobrol serius.", en:"I prefer serious conversations."},
+  {id:"Aku lebih suka obrolan lucu.", en:"I prefer funny conversations."},
+  {id:"Menurutku orang jujur lebih menarik.", en:"I think honest people are more attractive."},
+  {id:"Humor juga penting menurutku.", en:"Humor is important too in my opinion."},
+  {id:"Aku lebih suka musik pelan.", en:"I prefer slow music."},
+  {id:"Aku lebih suka musik energik.", en:"I prefer energetic music."},
+  {id:"Menurutku anime overrated.", en:"I think anime is overrated."},
+  {id:"Anime punya cerita yang dalam menurutku.", en:"Anime has deep stories in my opinion."},
+  {id:"Aku lebih suka cuaca dingin.", en:"I prefer cold weather."},
+  {id:"Aku tidak tahan cuaca dingin.", en:"I can’t stand cold weather."},
+  {id:"Menurutku hidup sederhana lebih bahagia.", en:"I think simple living is happier."},
+  {id:"Aku suka hidup modern dan praktis.", en:"I like modern and practical lifestyles."},
+  {id:"Aku lebih suka tinggal di apartemen kecil.", en:"I prefer living in small apartments."},
+  {id:"Aku lebih suka rumah besar.", en:"I prefer big houses."},
+  {id:"Menurutku media sosial terlalu toxic.", en:"I think social media is too toxic."},
+  {id:"Media sosial juga banyak manfaatnya.", en:"Social media also has many benefits."},
+  {id:"Aku lebih suka traveling tanpa rencana.", en:"I prefer traveling without plans."},
+  {id:"Aku suka semuanya terorganisir.", en:"I like everything organized."},
+  {id:"Menurutku cinta datang secara natural.", en:"I think love comes naturally."},
+  {id:"Menurutku usaha juga penting dalam hubungan.", en:"I think effort is important in relationships too."},
+  {id:"Aku lebih suka makanan rumahan.", en:"I prefer homemade food."},
+  {id:"Fast food lebih praktis menurutku.", en:"Fast food is more practical in my opinion."},
+  {id:"Menurutku kerja keras itu penting.", en:"I think hard work is important."},
+  {id:"Istirahat juga sama pentingnya.", en:"Rest is equally important."},
+  {id:"Aku lebih suka hidup santai.", en:"I prefer relaxed living."},
+  {id:"Aku suka hidup penuh target.", en:"I like goal-oriented living."},
+  {id:"Menurutku orang introvert lebih misterius.", en:"I think introverts are more mysterious."},
+  {id:"Extrovert lebih mudah diajak seru-seruan.", en:"Extroverts are easier to have fun with."},
+  {id:"Aku lebih suka nongkrong di cafe.", en:"I prefer hanging out at cafes."},
+  {id:"Aku lebih suka nongkrong di alam.", en:"I prefer hanging out in nature."},
+  {id:"Menurutku belajar dari internet lebih cepat.", en:"I think learning from the internet is faster."},
+  {id:"Guru langsung tetap lebih efektif.", en:"Real teachers are still more effective."},
+  {id:"Aku lebih suka game santai.", en:"I prefer relaxing games."},
+  {id:"Aku suka game kompetitif dan rank.", en:"I like competitive and ranked games."},
+  {id:"Menurutku fashion simple lebih keren.", en:"I think simple fashion is cooler."},
+  {id:"Aku suka style yang mencolok.", en:"I like standout styles."},
+  {id:"Aku lebih suka pantai saat sore.", en:"I prefer beaches in the afternoon."},
+  {id:"Aku lebih suka pantai saat pagi.", en:"I prefer beaches in the morning."},
+  {id:"Menurutku orang yang tenang lebih dewasa.", en:"I think calm people are more mature."},
+  {id:"Orang yang ekspresif juga menarik.", en:"Expressive people are attractive too."},
+  {id:"Aku lebih suka membaca buku fisik.", en:"I prefer reading physical books."},
+  {id:"Audiobook lebih praktis menurutku.", en:"Audiobooks are more practical in my opinion."},
+  {id:"Menurutku hidup di luar negeri menarik.", en:"I think living abroad is interesting."},
+  {id:"Aku tetap lebih nyaman di negara sendiri.", en:"I still feel more comfortable in my own country."},
+  {id:"Aku lebih suka jalan kaki.", en:"I prefer walking."},
+  {id:"Aku lebih suka naik kendaraan.", en:"I prefer using vehicles."},
+  {id:"Menurutku teknologi bikin hidup malas.", en:"I think technology makes people lazy."},
+  {id:"Teknologi juga sangat membantu hidup.", en:"Technology also helps life a lot."},
+  {id:"Aku lebih suka obrolan random.", en:"I prefer random conversations."},
+  {id:"Aku lebih suka topik yang dalam.", en:"I prefer deep topics."},
+  {id:"Menurutku punya sedikit teman lebih baik.", en:"I think having a few friends is better."},
+  {id:"Aku suka punya banyak teman.", en:"I like having many friends."},
+  {id:"Aku lebih suka malam yang tenang.", en:"I prefer quiet nights."},
+  {id:"Aku suka suasana malam yang ramai.", en:"I like lively nights."},
+  {id:"Menurutku traveling sendiri bikin lebih mandiri.", en:"I think solo traveling makes people more independent."},
+  {id:"Traveling bareng lebih seru menurutku.", en:"Traveling together is more fun in my opinion."},
+  {id:"Aku lebih suka foto candid.", en:"I prefer candid photos."},
+  {id:"Aku lebih suka foto aesthetic.", en:"I prefer aesthetic photos."},
+  {id:"Menurutku uang tidak selalu membawa kebahagiaan.", en:"I think money doesn’t always bring happiness."},
+  {id:"Tapi hidup tanpa uang juga sulit.", en:"But life without money is difficult too."},
+  {id:"Aku lebih suka hidup di dekat alam.", en:"I prefer living close to nature."},
+  {id:"Aku suka kehidupan modern di kota.", en:"I like modern city life."},
+  {id:"Menurutku semua orang butuh me time.", en:"I think everyone needs me time."},
+  {id:"Aku lebih suka menghabiskan waktu bersama orang lain.", en:"I prefer spending time with other people."},
+  {id:"Aku lebih suka hubungan santai.", en:"I prefer relaxed relationships."},
+  {id:"Aku suka hubungan yang serius.", en:"I like serious relationships."},
+  {id:"Menurutku makanan pedas bikin nagih.", en:"I think spicy food is addictive."},
+  {id:"Aku tidak kuat makan pedas.", en:"I can’t handle spicy food."},
+  {id:"Aku lebih suka liburan di alam.", en:"I prefer vacations in nature."},
+  {id:"Aku lebih suka liburan di kota besar.", en:"I prefer vacations in big cities."},
+  {id:"Menurutku hidup bahagia itu sederhana.", en:"I think happy lives are simple."},
+  {id:"Kadang manusia membuat hidup terlalu rumit.", en:"Sometimes humans make life too complicated."},
+  {id:"Aku lebih suka orang yang apa adanya.", en:"I prefer genuine people."},
+  {id:"Aku suka orang yang percaya diri.", en:"I like confident people."},
+  {id:"Menurutku debat santai bikin obrolan lebih seru.", en:"I think casual debates make conversations more fun."},
+  {id:"Yang penting jangan saling menyerang.", en:"The important thing is not attacking each other."}
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

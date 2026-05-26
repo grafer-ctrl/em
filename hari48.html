@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="secondary" onclick="prevSentence()">⬅ Prev</button>
+            <button class="success" onclick="nextSentence()">Next ➡</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Itu valid banget.", en:"That’s very valid."},
+  {id:"Aku nggak bisa relate.", en:"I can’t relate."},
+  {id:"Itu cringe sih.", en:"That’s cringe."},
+  {id:"Aku literally capek.", en:"I’m literally tired."},
+  {id:"Ini vibes-nya enak.", en:"This has good vibes."},
+  {id:"Dia terlalu over.", en:"He/She is too over."},
+  {id:"Aku nggak expect itu.", en:"I didn’t expect that."},
+  {id:"Itu sus banget.", en:"That’s very sus."},
+  {id:"Aku merasa diserang.", en:"I feel attacked."},
+  {id:"Itu wholesome banget.", en:"That’s so wholesome."},
+
+  {id:"Aku lagi healing.", en:"I’m healing right now."},
+  {id:"Dia green flag.", en:"They’re a green flag."},
+  {id:"Itu red flag sih.", en:"That’s a red flag."},
+  {id:"Aku lagi overthinking.", en:"I’m overthinking."},
+  {id:"Itu terlalu random.", en:"That’s too random."},
+  {id:"Aku nggak paham tapi lucu.", en:"I don’t get it but it’s funny."},
+  {id:"Itu chaotic banget.", en:"That’s so chaotic."},
+  {id:"Dia NPC banget.", en:"They’re such an NPC."},
+  {id:"Aku lagi mode rebahan.", en:"I’m in lazy mode."},
+  {id:"Aku lagi mager.", en:"I’m too lazy."},
+
+  {id:"Itu energy-nya beda.", en:"That has different energy."},
+  {id:"Aku nggak kuat.", en:"I can’t handle this."},
+  {id:"Itu terlalu akurat.", en:"That’s too accurate."},
+  {id:"Aku auto ketawa.", en:"I automatically laugh."},
+  {id:"Itu bikin aku speechless.", en:"That left me speechless."},
+  {id:"Aku nggak bisa stop mikir itu.", en:"I can’t stop thinking about it."},
+  {id:"Dia terlalu main character.", en:"They’re too main character."},
+  {id:"Aku cuma bisa scroll.", en:"I just scroll."},
+  {id:"Itu terlalu relate.", en:"That’s too relatable."},
+  {id:"Aku capek hidup.", en:"I’m tired of life."},
+
+  {id:"Itu literally aku.", en:"That’s literally me."},
+  {id:"Aku lagi down bad.", en:"I’m down bad."},
+  {id:"Aku lagi gabut.", en:"I’m bored."},
+  {id:"Dia savage banget.", en:"They’re so savage."},
+  {id:"Itu flex banget.", en:"That’s a flex."},
+  {id:"Aku lagi di zona nyaman.", en:"I’m in my comfort zone."},
+  {id:"Aku nggak bisa fokus.", en:"I can’t focus."},
+  {id:"Itu overpowered.", en:"That’s overpowered."},
+  {id:"Aku lagi stuck.", en:"I’m stuck."},
+  {id:"Dia auto win.", en:"They automatically win."},
+
+  {id:"Itu glitch di real life.", en:"That’s a real-life glitch."},
+  {id:"Aku lagi afk.", en:"I’m away from keyboard."},
+  {id:"Dia toxic banget.", en:"They’re very toxic."},
+  {id:"Aku lagi chill aja.", en:"I’m just chilling."},
+  {id:"Itu terlalu smooth.", en:"That’s too smooth."},
+  {id:"Aku nggak ready.", en:"I’m not ready."},
+  {id:"Dia cringe tapi lucu.", en:"They’re cringe but funny."},
+  {id:"Aku lagi scroll TikTok.", en:"I’m scrolling TikTok."},
+  {id:"Itu FYP banget.", en:"That’s so FYP."},
+  {id:"Aku lagi stuck di FYP.", en:"I’m stuck on my FYP."},
+
+  {id:"Itu aesthetic banget.", en:"That’s very aesthetic."},
+  {id:"Dia terlalu main character energy.", en:"They have main character energy."},
+  {id:"Aku lagi low energy.", en:"I have low energy."},
+  {id:"Itu peak banget.", en:"That’s peak."},
+  {id:"Aku nggak expect plot twist itu.", en:"I didn’t expect that plot twist."},
+  {id:"Itu plot twist banget.", en:"That’s a plot twist."},
+  {id:"Aku lagi doomscrolling.", en:"I’m doomscrolling."},
+  {id:"Dia terlalu confident.", en:"They’re too confident."},
+  {id:"Aku lagi in my feelings.", en:"I’m in my feelings."},
+  {id:"Itu hits different.", en:"That hits different."},
+
+  {id:"Aku lagi dead inside.", en:"I’m dead inside."},
+  {id:"Dia overacting banget.", en:"They’re overacting."},
+  {id:"Itu terlalu viral.", en:"That’s too viral."},
+  {id:"Aku lagi brainrot.", en:"I’m experiencing brainrot."},
+  {id:"Itu brainrot content.", en:"That’s brainrot content."},
+  {id:"Aku nggak bisa berhenti nonton.", en:"I can’t stop watching."},
+  {id:"Dia terlalu random energy.", en:"They have random energy."},
+  {id:"Aku lagi scroll tanpa tujuan.", en:"I’m scrolling aimlessly."},
+  {id:"Itu terlalu satisfying.", en:"That’s too satisfying."},
+  {id:"Aku lagi fokus ke vibe.", en:"I’m focusing on the vibe."},
+
+  {id:"Itu terlalu clean.", en:"That’s too clean."},
+  {id:"Dia terlalu chill.", en:"They’re too chill."},
+  {id:"Aku lagi over it.", en:"I’m over it."},
+  {id:"Itu terlalu iconic.", en:"That’s too iconic."},
+  {id:"Aku lagi soft mood.", en:"I’m in a soft mood."},
+  {id:"Dia terlalu sus energy.", en:"They give sus energy."},
+  {id:"Itu terlalu chaotic good.", en:"That’s chaotic good."},
+  {id:"Aku lagi nggak fokus.", en:"I’m not focused."},
+  {id:"Itu terlalu underrated.", en:"That’s too underrated."},
+  {id:"Aku lagi healing era.", en:"I’m in my healing era."},
+
+  {id:"Dia terlalu delulu.", en:"They’re too delulu."},
+  {id:"Aku lagi delulu mode.", en:"I’m in delulu mode."},
+  {id:"Itu terlalu niche.", en:"That’s too niche."},
+  {id:"Aku lagi scroll random.", en:"I’m scrolling randomly."},
+  {id:"Dia terlalu loud.", en:"They’re too loud."},
+  {id:"Itu terlalu real.", en:"That’s too real."},
+  {id:"Aku lagi santai aja.", en:"I’m just relaxing."},
+  {id:"Dia terlalu funny.", en:"They’re too funny."},
+  {id:"Itu bikin aku mikir.", en:"That makes me think."},
+  {id:"Aku lagi exist aja.", en:"I’m just existing."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function prevSentence(){
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aktif Bertanya - Training</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #5154d8;
+            --pink-accent: #ff1a75;
+            --bg-light: #f1f5f9;
+            --text-dark: #0f172a;
+        }
+
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        header { padding: 20px; background: white; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .app-title { font-weight: 700; color: var(--primary-blue); font-size: 1.4rem; margin: 0; }
+        .app-desc { font-size: 0.8rem; color: #64748b; margin-top: 5px; max-width: 400px; margin-left: auto; margin-right: auto; }
+
+        .screen { display: none; padding: 20px; height: calc(100vh - 160px); overflow-y: auto; }
+        .screen.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .card { background: white; border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.07); margin-bottom: 20px; text-align: center; }
+
+        .task-label { color: var(--pink-accent); font-weight: 800; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+        .btn-progress { background: #eef2ff; color: var(--primary-blue); padding: 6px 15px; border-radius: 12px; font-weight: 700; font-size: 0.75rem; margin-bottom: 10px; display: inline-block; }
+        .timer-pill { background: var(--pink-accent); color: white; padding: 8px 30px; border-radius: 50px; display: inline-block; font-weight: bold; font-size: 1.5rem; margin-bottom: 10px; }
+        
+        .challenge-box { font-size: 1.3rem; font-weight: 600; margin: 20px 0; min-height: 50px; }
+        #btn-reveal { background: var(--primary-blue); color: white; border: none; padding: 18px; border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; }
+        #btn-reveal.hidden { display: none; }
+
+        .answer-area { display: none; text-align: left; border-top: 2px dashed #e2e8f0; padding-top: 20px; margin-top: 20px; }
+        .answer-area.visible { display: block; }
+        .english-text { color: var(--primary-blue); font-size: 1.3rem; font-weight: 700; text-align: center; margin-bottom: 5px; }
+        .phonetic { color: #64748b; font-style: italic; text-align: center; margin-bottom: 15px; }
+        .edu-box { background: #f8fafc; padding: 15px; border-radius: 20px; border-left: 5px solid var(--pink-accent); font-size: 0.85rem; }
+
+        .bottom-nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: white; display: flex; justify-content: space-around; padding: 15px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); z-index: 1000; }
+        .nav-item { border: none; background: none; color: #94a3b8; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="app-title">Aktif Bertanya</h1>
+        <p class="app-desc">Pelatihan ini menghilangkan mindset lama: kebanyakan orang Indonesia lebih senang menjawab daripada bertanya.</p>
+    </header>
+
+    <div id="screen-settings" class="screen active">
+        <div class="card">
+            <h3>⚙️ Pengaturan</h3>
+            <div style="text-align: left; margin: 20px 0;">
+                <label>Volume: <span id="val-volume">240</span></label>
+                <input type="range" id="input-volume" min="0" max="300" step="1" value="240" style="width:100%">
+            </div>
+            <div style="text-align: left; margin: 20px 0;">
+                <label>Timer Jeda (Max 120s): <span id="val-timer">10</span>s</label>
+                <input type="range" id="input-timer" min="5" max="120" step="1" value="10" style="width:100%">
+            </div>
+            <button onclick="navTo('exercise')" style="width: 100%; background: var(--primary-blue); color: white; border: none; padding: 18px; border-radius: 20px; font-weight: bold; cursor: pointer;">MULAI LATIHAN</button>
+        </div>
+    </div>
+
+    <div id="screen-exercise" class="screen">
+        <div class="card">
+            <div class="task-label">Tugas kamu: terjemahkan dan ucapkan dalam B Inggris</div>
+            <div class="btn-progress" id="progress-badge">SOAL 1</div>
+            <div id="timer-display" class="timer-pill">10</div>
+            <div class="challenge-box" id="text-indo">--</div>
+            <button id="btn-reveal" onclick="revealAnswer()">LIHAT JAWABAN</button>
+
+            <div id="answer-area" class="answer-area">
+                <div class="english-text" id="text-en">--</div>
+                <div class="phonetic" id="text-phonetic">--</div>
+                <div class="edu-box"><strong id="text-explanation">--</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item" onclick="navTo('settings')">Seting</button>
+        <button class="nav-item" onclick="changeQuestion(-1)">Prev</button>
+        <button class="nav-item" onclick="changeQuestion(1)">Next</button>
+    </div>
+
+    <script>
+        const database =[
+  { indo: "Saya bangun pagi setiap hari.", en: "I wake up early every day.", phonetic: "Ai weik ap erli evri dei.", explanation: "Aktivitas bangun pagi." },
+  { indo: "Saya mencuci muka setelah bangun tidur.", en: "I wash my face after waking up.", phonetic: "Ai wosh ماي feis after weiking ap.", explanation: "Rutinitas pagi." },
+  { indo: "Saya menyikat gigi di pagi hari.", en: "I brush my teeth in the morning.", phonetic: "Ai brash ماي tith in de morning.", explanation: "Kebiasaan menjaga kebersihan." },
+  { indo: "Saya mandi setiap pagi.", en: "I take a shower every morning.", phonetic: "Ai teik e shower evri morning.", explanation: "Rutinitas mandi pagi." },
+  { indo: "Saya memakai pakaian bersih.", en: "I wear clean clothes.", phonetic: "Ai wer klin kloz.", explanation: "Aktivitas berpakaian." },
+  { indo: "Saya sarapan sebelum bekerja.", en: "I eat breakfast before work.", phonetic: "Ai it brekfast bifor werk.", explanation: "Kegiatan sarapan." },
+  { indo: "Saya minum kopi di pagi hari.", en: "I drink coffee in the morning.", phonetic: "Ai dringk kofi in de morning.", explanation: "Kebiasaan minum kopi." },
+  { indo: "Saya memeriksa ponsel saya.", en: "I check my phone.", phonetic: "Ai chek ماي fon.", explanation: "Aktivitas menggunakan ponsel." },
+  { indo: "Saya membaca pesan setiap pagi.", en: "I read messages every morning.", phonetic: "Ai rid mesijes evri morning.", explanation: "Rutinitas melihat pesan." },
+  { indo: "Saya mendengarkan musik saat pagi.", en: "I listen to music in the morning.", phonetic: "Ai lisn tu myuzik in de morning.", explanation: "Aktivitas santai pagi." },
+
+  { indo: "Saya pergi bekerja jam tujuh.", en: "I go to work at seven.", phonetic: "Ai go tu werk et seven.", explanation: "Rutinitas berangkat kerja." },
+  { indo: "Saya pergi ke sekolah setiap hari.", en: "I go to school every day.", phonetic: "Ai go tu skul evri dei.", explanation: "Rutinitas sekolah." },
+  { indo: "Saya naik motor ke kantor.", en: "I ride a motorcycle to the office.", phonetic: "Ai raid e motor-saikel tu de ofis.", explanation: "Transportasi harian." },
+  { indo: "Saya berjalan kaki ke toko.", en: "I walk to the store.", phonetic: "Ai wok tu de stor.", explanation: "Aktivitas berjalan kaki." },
+  { indo: "Saya menunggu bus setiap pagi.", en: "I wait for the bus every morning.", phonetic: "Ai weit for de bas evri morning.", explanation: "Rutinitas transportasi." },
+  { indo: "Saya mendengarkan podcast di perjalanan.", en: "I listen to podcasts on the way.", phonetic: "Ai lisn tu podkes on de wei.", explanation: "Aktivitas saat perjalanan." },
+  { indo: "Saya bekerja di depan komputer.", en: "I work in front of a computer.", phonetic: "Ai werk in front ov e komputer.", explanation: "Aktivitas kerja." },
+  { indo: "Saya belajar bahasa Inggris setiap hari.", en: "I study English every day.", phonetic: "Ai stadi ingglish evri dei.", explanation: "Rutinitas belajar." },
+  { indo: "Saya menulis catatan di kelas.", en: "I write notes in class.", phonetic: "Ai rait nots in klas.", explanation: "Aktivitas belajar." },
+  { indo: "Saya membaca buku di perpustakaan.", en: "I read books in the library.", phonetic: "Ai rid buks in de laibreri.", explanation: "Kegiatan membaca." },
+
+  { indo: "Saya makan siang jam dua belas.", en: "I eat lunch at twelve.", phonetic: "Ai it lanch et twelv.", explanation: "Rutinitas makan siang." },
+  { indo: "Saya minum air putih setiap hari.", en: "I drink water every day.", phonetic: "Ai dringk woter evri dei.", explanation: "Kebiasaan sehat." },
+  { indo: "Saya berbicara dengan teman saya.", en: "I talk with my friends.", phonetic: "Ai tok with ماي frends.", explanation: "Aktivitas sosial." },
+  { indo: "Saya menggunakan laptop untuk bekerja.", en: "I use a laptop for work.", phonetic: "Ai yuz e leptop for werk.", explanation: "Aktivitas kerja." },
+  { indo: "Saya menjawab email setiap hari.", en: "I answer emails every day.", phonetic: "Ai enser imails evri dei.", explanation: "Rutinitas pekerjaan." },
+  { indo: "Saya menghadiri rapat online.", en: "I attend online meetings.", phonetic: "Ai atend online mitings.", explanation: "Aktivitas kerja modern." },
+  { indo: "Saya belajar dari internet.", en: "I learn from the internet.", phonetic: "Ai lern from de internet.", explanation: "Aktivitas belajar online." },
+  { indo: "Saya memeriksa media sosial.", en: "I check social media.", phonetic: "Ai chek sosial media.", explanation: "Kebiasaan harian." },
+  { indo: "Saya menonton video di YouTube.", en: "I watch videos on YouTube.", phonetic: "Ai woc vidios on yutub.", explanation: "Aktivitas hiburan." },
+  { indo: "Saya mendengarkan lagu favorit saya.", en: "I listen to my favorite songs.", phonetic: "Ai lisn tu ماي feivrit songs.", explanation: "Aktivitas mendengarkan musik." },
+
+  { indo: "Saya pulang kerja sore hari.", en: "I come home in the evening.", phonetic: "Ai kam hom in de ivning.", explanation: "Rutinitas pulang kerja." },
+  { indo: "Saya beristirahat setelah bekerja.", en: "I rest after work.", phonetic: "Ai rest after werk.", explanation: "Aktivitas istirahat." },
+  { indo: "Saya makan malam dengan keluarga.", en: "I eat dinner with my family.", phonetic: "Ai it diner with ماي femili.", explanation: "Kegiatan keluarga." },
+  { indo: "Saya membantu ibu memasak.", en: "I help my mother cook.", phonetic: "Ai help ماي mader kuk.", explanation: "Aktivitas rumah." },
+  { indo: "Saya mencuci piring setelah makan.", en: "I wash the dishes after eating.", phonetic: "Ai wosh de dishes after iting.", explanation: "Pekerjaan rumah." },
+  { indo: "Saya membersihkan kamar saya.", en: "I clean my room.", phonetic: "Ai klin ماي rum.", explanation: "Aktivitas membersihkan." },
+  { indo: "Saya menyapu lantai setiap pagi.", en: "I sweep the floor every morning.", phonetic: "Ai swip de flor evri morning.", explanation: "Pekerjaan rumah." },
+  { indo: "Saya mencuci pakaian di akhir pekan.", en: "I wash clothes on weekends.", phonetic: "Ai wosh kloz on wikends.", explanation: "Rutinitas rumah." },
+  { indo: "Saya menonton televisi malam hari.", en: "I watch television at night.", phonetic: "Ai woc televijen et nait.", explanation: "Hiburan malam." },
+  { indo: "Saya bermain game setelah makan malam.", en: "I play games after dinner.", phonetic: "Ai plei geims after diner.", explanation: "Aktivitas santai." },
+
+  { indo: "Saya bermain Mobile Legends dengan teman.", en: "I play Mobile Legends with friends.", phonetic: "Ai plei mobile legends with frends.", explanation: "Aktivitas gaming." },
+  { indo: "Saya chatting dengan teman online.", en: "I chat with my friends online.", phonetic: "Ai chat with ماي frends online.", explanation: "Komunikasi online." },
+  { indo: "Saya melakukan video call malam hari.", en: "I make video calls at night.", phonetic: "Ai meik vidio kols et nait.", explanation: "Aktivitas komunikasi." },
+  { indo: "Saya belajar grammar setiap malam.", en: "I study grammar every night.", phonetic: "Ai stadi gramer evri nait.", explanation: "Rutinitas belajar." },
+  { indo: "Saya membaca artikel bahasa Inggris.", en: "I read English articles.", phonetic: "Ai rid ingglish articles.", explanation: "Aktivitas membaca." },
+  { indo: "Saya menulis diary sebelum tidur.", en: "I write a diary before sleeping.", phonetic: "Ai rait e daiari bifor sliping.", explanation: "Rutinitas malam." },
+  { indo: "Saya mendengarkan musik santai.", en: "I listen to relaxing music.", phonetic: "Ai lisn tu rilaksing myuzik.", explanation: "Aktivitas santai." },
+  { indo: "Saya menonton film di Netflix.", en: "I watch movies on Netflix.", phonetic: "Ai woc muvis on netflix.", explanation: "Hiburan malam." },
+  { indo: "Saya tidur jam sepuluh malam.", en: "I sleep at ten at night.", phonetic: "Ai slip et ten et nait.", explanation: "Rutinitas tidur." },
+  { indo: "Saya mematikan lampu sebelum tidur.", en: "I turn off the lights before sleeping.", phonetic: "Ai tern of de laits bifor sliping.", explanation: "Rutinitas sebelum tidur." },
+
+  { indo: "Saya membuka jendela di pagi hari.", en: "I open the window in the morning.", phonetic: "Ai open de window in de morning.", explanation: "Aktivitas rumah." },
+  { indo: "Saya menutup pintu sebelum pergi.", en: "I close the door before leaving.", phonetic: "Ai kloz de dor bifor living.", explanation: "Rutinitas rumah." },
+  { indo: "Saya membeli makanan di warung.", en: "I buy food at a small shop.", phonetic: "Ai bai fud et e smol shop.", explanation: "Aktivitas belanja." },
+  { indo: "Saya memasak nasi setiap hari.", en: "I cook rice every day.", phonetic: "Ai kuk rais evri dei.", explanation: "Aktivitas memasak." },
+  { indo: "Saya memotong sayur di dapur.", en: "I cut vegetables in the kitchen.", phonetic: "Ai kat vejtebels in de kitchen.", explanation: "Aktivitas dapur." },
+  { indo: "Saya membuat teh hangat.", en: "I make hot tea.", phonetic: "Ai meik hot ti.", explanation: "Aktivitas membuat minuman." },
+  { indo: "Saya menyimpan makanan di kulkas.", en: "I keep food in the refrigerator.", phonetic: "Ai kip fud in de refrigerator.", explanation: "Rutinitas rumah." },
+  { indo: "Saya pergi ke pasar setiap minggu.", en: "I go to the market every week.", phonetic: "Ai go tu de market evri wik.", explanation: "Aktivitas belanja." },
+  { indo: "Saya membeli buah untuk keluarga.", en: "I buy fruits for my family.", phonetic: "Ai bai fruts for ماي femili.", explanation: "Belanja kebutuhan." },
+  { indo: "Saya membawa tas ke kantor.", en: "I bring a bag to the office.", phonetic: "Ai bring e beg tu de ofis.", explanation: "Aktivitas harian." },
+
+  { indo: "Saya memakai sepatu hitam.", en: "I wear black shoes.", phonetic: "Ai wer blek shuz.", explanation: "Aktivitas berpakaian." },
+  { indo: "Saya memakai jaket saat hujan.", en: "I wear a jacket when it rains.", phonetic: "Ai wer e jaket wen it reinz.", explanation: "Kebiasaan saat hujan." },
+  { indo: "Saya membawa payung setiap hari.", en: "I carry an umbrella every day.", phonetic: "Ai keri an umbrella evri dei.", explanation: "Persiapan cuaca." },
+  { indo: "Saya memeriksa jadwal saya.", en: "I check my schedule.", phonetic: "Ai chek ماي skedjul.", explanation: "Rutinitas kerja." },
+  { indo: "Saya menyiapkan pekerjaan untuk besok.", en: "I prepare work for tomorrow.", phonetic: "Ai priper werk for tumoro.", explanation: "Persiapan kerja." },
+  { indo: "Saya belajar kosa kata baru.", en: "I learn new vocabulary.", phonetic: "Ai lern nyu vokabyuleri.", explanation: "Belajar bahasa." },
+  { indo: "Saya menghafal kata bahasa Inggris.", en: "I memorize English words.", phonetic: "Ai memorais ingglish words.", explanation: "Latihan bahasa." },
+  { indo: "Saya berlatih speaking setiap hari.", en: "I practice speaking every day.", phonetic: "Ai praktis spiking evri dei.", explanation: "Latihan bahasa Inggris." },
+  { indo: "Saya berbicara bahasa Inggris dengan teman.", en: "I speak English with my friends.", phonetic: "Ai spik ingglish with ماي frends.", explanation: "Latihan speaking." },
+  { indo: "Saya mendengarkan podcast bahasa Inggris.", en: "I listen to English podcasts.", phonetic: "Ai lisn tu ingglish podkes.", explanation: "Latihan listening." },
+
+  { indo: "Saya jogging setiap pagi.", en: "I jog every morning.", phonetic: "Ai jog evri morning.", explanation: "Olahraga pagi." },
+  { indo: "Saya berolahraga di gym.", en: "I exercise at the gym.", phonetic: "Ai eksersaiz et de jim.", explanation: "Aktivitas olahraga." },
+  { indo: "Saya bermain sepak bola dengan teman.", en: "I play football with friends.", phonetic: "Ai plei futbol with frends.", explanation: "Olahraga bersama." },
+  { indo: "Saya berenang di akhir pekan.", en: "I swim on weekends.", phonetic: "Ai swim on wikends.", explanation: "Aktivitas olahraga." },
+  { indo: "Saya bersepeda di sore hari.", en: "I ride a bicycle in the evening.", phonetic: "Ai raid e baisikel in de ivning.", explanation: "Aktivitas santai." },
+  { indo: "Saya pergi ke kafe bersama teman.", en: "I go to a cafe with friends.", phonetic: "Ai go tu e kafe with frends.", explanation: "Aktivitas sosial." },
+  { indo: "Saya minum kopi di kafe.", en: "I drink coffee at a cafe.", phonetic: "Ai dringk kofi et e kafe.", explanation: "Kegiatan santai." },
+  { indo: "Saya mengambil foto saat jalan-jalan.", en: "I take pictures when traveling.", phonetic: "Ai teik pikcers wen treveling.", explanation: "Aktivitas fotografi." },
+  { indo: "Saya mengunggah foto ke Instagram.", en: "I upload photos to Instagram.", phonetic: "Ai aplod fotos tu instagram.", explanation: "Aktivitas media sosial." },
+  { indo: "Saya membalas komentar teman.", en: "I reply to my friends' comments.", phonetic: "Ai rip-lai tu ماي frends koments.", explanation: "Interaksi media sosial." },
+
+  { indo: "Saya membaca berita setiap pagi.", en: "I read the news every morning.", phonetic: "Ai rid de nyuz evri morning.", explanation: "Rutinitas informasi." },
+  { indo: "Saya menonton video lucu.", en: "I watch funny videos.", phonetic: "Ai woc fani vidios.", explanation: "Aktivitas hiburan." },
+  { indo: "Saya bermain gitar di malam hari.", en: "I play guitar at night.", phonetic: "Ai plei gitar et nait.", explanation: "Hobi musik." },
+  { indo: "Saya bernyanyi saat mandi.", en: "I sing while taking a shower.", phonetic: "Ai sing wail teiking e shower.", explanation: "Aktivitas santai." },
+  { indo: "Saya menggambar di waktu luang.", en: "I draw in my free time.", phonetic: "Ai dro in ماي fri taim.", explanation: "Hobi kreatif." },
+  { indo: "Saya belajar coding setiap malam.", en: "I study coding every night.", phonetic: "Ai stadi koding evri nait.", explanation: "Belajar teknologi." },
+  { indo: "Saya menggunakan komputer untuk belajar.", en: "I use a computer to study.", phonetic: "Ai yuz e komputer tu stadi.", explanation: "Aktivitas belajar." },
+  { indo: "Saya mencari informasi di Google.", en: "I search for information on Google.", phonetic: "Ai serch for informasi-on on gugel.", explanation: "Aktivitas internet." },
+  { indo: "Saya mengirim pesan kepada teman.", en: "I send messages to my friends.", phonetic: "Ai send mesijes tu ماي frends.", explanation: "Komunikasi online." },
+  { indo: "Saya menelepon keluarga saya.", en: "I call my family.", phonetic: "Ai kol ماي femili.", explanation: "Komunikasi keluarga." },
+
+  { indo: "Saya membantu ayah di rumah.", en: "I help my father at home.", phonetic: "Ai help ماي fader et hom.", explanation: "Aktivitas keluarga." },
+  { indo: "Saya menjaga adik saya.", en: "I take care of my younger sibling.", phonetic: "Ai teik ker ov ماي younger sibling.", explanation: "Tanggung jawab keluarga." },
+  { indo: "Saya memberi makan kucing saya.", en: "I feed my cat.", phonetic: "Ai fid ماي ket.", explanation: "Merawat hewan." },
+  { indo: "Saya bermain dengan anjing saya.", en: "I play with my dog.", phonetic: "Ai plei with ماي dog.", explanation: "Aktivitas dengan hewan peliharaan." },
+  { indo: "Saya menyiram tanaman setiap sore.", en: "I water the plants every afternoon.", phonetic: "Ai woter de plants evri afternoon.", explanation: "Aktivitas rumah." },
+  { indo: "Saya duduk santai di teras.", en: "I relax on the terrace.", phonetic: "Ai rilaks on de teres.", explanation: "Aktivitas santai." },
+  { indo: "Saya menikmati udara pagi.", en: "I enjoy the morning air.", phonetic: "Ai enjoy de morning er.", explanation: "Menikmati suasana pagi." },
+  { indo: "Saya pergi tidur lebih awal.", en: "I go to bed early.", phonetic: "Ai go tu bed erli.", explanation: "Kebiasaan tidur sehat." },
+  { indo: "Saya bermimpi setiap malam.", en: "I dream every night.", phonetic: "Ai drim evri nait.", explanation: "Aktivitas saat tidur." },
+  { indo: "Saya memulai hari dengan semangat.", en: "I start my day with energy.", phonetic: "Ai start ماي dei with energi.", explanation: "Kalimat motivasi aktivitas harian." }
+];
+
+        let currentIndex = 0;
+        let timerInterval;
+        let timeLeft = 10;
+        const synth = window.speechSynthesis;
+
+        // Update display slider
+        document.getElementById('input-timer').addEventListener('input', function() {
+            document.getElementById('val-timer').innerText = this.value;
+        });
+
+        function navTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${screenId}`).classList.add('active');
+            if (screenId === 'exercise') startChallenge();
+        }
+
+        function startChallenge() {
+            clearInterval(timerInterval);
+            synth.cancel();
+            
+            const data = database[currentIndex];
+            timeLeft = parseInt(document.getElementById('input-timer').value);
+            
+            document.getElementById('progress-badge').innerText = `SOAL ${currentIndex + 1}`;
+            document.getElementById('timer-display').innerText = timeLeft;
+            document.getElementById('text-indo').innerText = data.indo;
+            document.getElementById('answer-area').classList.remove('visible');
+            document.getElementById('btn-reveal').classList.remove('hidden');
+
+            speak(data.indo, 'id-ID');
+
+            // Jalankan Timer
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-display').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    revealAnswer();
+                }
+            }, 1000);
+        }
+
+        function revealAnswer() {
+            clearInterval(timerInterval);
+            const data = database[currentIndex];
+            document.getElementById('text-en').innerText = data.en;
+            document.getElementById('text-phonetic').innerText = data.phonetic;
+            document.getElementById('text-explanation').innerText = data.explanation;
+            document.getElementById('answer-area').classList.add('visible');
+            document.getElementById('btn-reveal').classList.add('hidden');
+            speak(data.en, 'en-US');
+        }
+
+        function speak(text, lang) {
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = lang;
+            utter.volume = document.getElementById('input-volume').value / 300;
+            synth.speak(utter);
+        }
+
+        function changeQuestion(dir) {
+            currentIndex = (currentIndex + dir + database.length) % database.length;
+            startChallenge();
+        }
+    </script>
+</body>
+</html>

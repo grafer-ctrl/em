@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Film favoritmu apa?", en:"What’s your favorite movie?"},
+  {id:"Series favoritmu apa?", en:"What’s your favorite series?"},
+  {id:"Penyanyi favoritmu siapa?", en:"Who’s your favorite singer?"},
+  {id:"Band favoritmu apa?", en:"What’s your favorite band?"},
+  {id:"Lagu favoritmu akhir-akhir ini apa?", en:"What’s your favorite song lately?"},
+  {id:"Game favoritmu apa?", en:"What’s your favorite game?"},
+  {id:"Karakter game favoritmu siapa?", en:"Who’s your favorite game character?"},
+  {id:"Anime favoritmu apa?", en:"What’s your favorite anime?"},
+  {id:"Karakter anime favoritmu siapa?", en:"Who’s your favorite anime character?"},
+  {id:"Kartun favorit waktu kecil apa?", en:"What was your favorite cartoon as a kid?"},
+
+  {id:"Makanan favoritmu apa?", en:"What’s your favorite food?"},
+  {id:"Minuman favoritmu apa?", en:"What’s your favorite drink?"},
+  {id:"Snack favoritmu apa?", en:"What’s your favorite snack?"},
+  {id:"Rasa es krim favoritmu apa?", en:"What’s your favorite ice cream flavor?"},
+  {id:"Mie atau nasi?", en:"Noodles or rice?"},
+  {id:"Kopi atau teh?", en:"Coffee or tea?"},
+  {id:"Cokelat atau vanilla?", en:"Chocolate or vanilla?"},
+  {id:"Makanan pedas favoritmu apa?", en:"What’s your favorite spicy food?"},
+  {id:"Fast food favoritmu apa?", en:"What’s your favorite fast food?"},
+  {id:"Dessert favoritmu apa?", en:"What’s your favorite dessert?"},
+
+  {id:"Cuaca favoritmu apa?", en:"What’s your favorite weather?"},
+  {id:"Musim favoritmu apa?", en:"What’s your favorite season?"},
+  {id:"Kota favoritmu apa?", en:"What’s your favorite city?"},
+  {id:"Negara impian yang ingin kamu kunjungi apa?", en:"What country do you dream of visiting?"},
+  {id:"Pantai atau gunung?", en:"Beach or mountains?"},
+  {id:"Siang atau malam?", en:"Day or night?"},
+  {id:"Hujan atau cerah?", en:"Rainy or sunny weather?"},
+  {id:"Tempat favorit untuk santai apa?", en:"What’s your favorite place to relax?"},
+  {id:"Pemandangan favoritmu seperti apa?", en:"What’s your favorite kind of view?"},
+  {id:"Liburan favoritmu seperti apa?", en:"What’s your favorite kind of vacation?"},
+
+  {id:"Hobi favoritmu apa?", en:"What’s your favorite hobby?"},
+  {id:"Olahraga favoritmu apa?", en:"What’s your favorite sport?"},
+  {id:"Aktivitas favorit saat weekend apa?", en:"What’s your favorite weekend activity?"},
+  {id:"Hal favorit yang kamu lakukan saat bosan apa?", en:"What’s your favorite thing to do when bored?"},
+  {id:"Aplikasi favoritmu apa?", en:"What’s your favorite app?"},
+  {id:"Sosial media favoritmu apa?", en:"What’s your favorite social media app?"},
+  {id:"YouTuber favoritmu siapa?", en:"Who’s your favorite YouTuber?"},
+  {id:"Streamer favoritmu siapa?", en:"Who’s your favorite streamer?"},
+  {id:"Konten favorit yang sering kamu tonton apa?", en:"What type of content do you watch the most?"},
+  {id:"Emoji favoritmu apa?", en:"What’s your favorite emoji?"},
+
+  {id:"Warna favoritmu apa?", en:"What’s your favorite color?"},
+  {id:"Hewan favoritmu apa?", en:"What’s your favorite animal?"},
+  {id:"Bunga favoritmu apa?", en:"What’s your favorite flower?"},
+  {id:"Mobil favoritmu apa?", en:"What’s your favorite car?"},
+  {id:"Merek HP favoritmu apa?", en:"What’s your favorite phone brand?"},
+  {id:"Fashion style favoritmu apa?", en:"What’s your favorite fashion style?"},
+  {id:"Sepatu favoritmu apa?", en:"What’s your favorite type of shoes?"},
+  {id:"Outfit favoritmu seperti apa?", en:"What’s your favorite outfit style?"},
+  {id:"Aksesori favoritmu apa?", en:"What’s your favorite accessory?"},
+  {id:"Foto favorit di galerimu apa?", en:"What’s your favorite photo in your gallery?"},
+
+  {id:"Pelajaran favoritmu apa?", en:"What’s your favorite school subject?"},
+  {id:"Guru favoritmu seperti apa?", en:"What’s your favorite type of teacher?"},
+  {id:"Bahasa favorit yang ingin kamu pelajari apa?", en:"What language do you want to learn the most?"},
+  {id:"Kata bahasa Inggris favoritmu apa?", en:"What’s your favorite English word?"},
+  {id:"Buku favoritmu apa?", en:"What’s your favorite book?"},
+  {id:"Komik favoritmu apa?", en:"What’s your favorite comic?"},
+  {id:"Quotes favoritmu apa?", en:"What’s your favorite quote?"},
+  {id:"Mata pelajaran tersulit menurutmu apa?", en:"What’s the hardest subject for you?"},
+  {id:"Bagian favorit dari sekolah apa?", en:"What’s your favorite part about school?"},
+  {id:"Hal favorit yang pernah kamu pelajari apa?", en:"What’s your favorite thing you’ve learned?"},
+
+  {id:"Momen favorit dalam hidupmu apa?", en:"What’s your favorite memory in life?"},
+  {id:"Ulang tahun favoritmu kapan?", en:"When’s your favorite birthday memory?"},
+  {id:"Hadiah favorit yang pernah kamu terima apa?", en:"What’s your favorite gift you’ve received?"},
+  {id:"Hari favorit dalam seminggu apa?", en:"What’s your favorite day of the week?"},
+  {id:"Jam favorit untuk santai apa?", en:"What’s your favorite time to relax?"},
+  {id:"Kebiasaan favoritmu apa?", en:"What’s your favorite habit?"},
+  {id:"Hal kecil favorit yang bikin kamu bahagia apa?", en:"What small thing makes you happy the most?"},
+  {id:"Suasana favoritmu seperti apa?", en:"What’s your favorite vibe?"},
+  {id:"Kenangan sekolah favoritmu apa?", en:"What’s your favorite school memory?"},
+  {id:"Percakapan favorit yang suka kamu lakukan apa?", en:"What’s your favorite type of conversation?"},
+
+  {id:"K-drama favoritmu apa?", en:"What’s your favorite K-drama?"},
+  {id:"Idol K-pop favoritmu siapa?", en:"Who’s your favorite K-pop idol?"},
+  {id:"Member Blackpink favoritmu siapa?", en:"Who’s your favorite Blackpink member?"},
+  {id:"Member BTS favoritmu siapa?", en:"Who’s your favorite BTS member?"},
+  {id:"Genre musik favoritmu apa?", en:"What’s your favorite music genre?"},
+  {id:"Genre film favoritmu apa?", en:"What’s your favorite movie genre?"},
+  {id:"Genre game favoritmu apa?", en:"What’s your favorite game genre?"},
+  {id:"Playlist favoritmu isinya lagu apa?", en:"What kind of songs are in your favorite playlist?"},
+  {id:"Aplikasi favorit untuk dengar musik apa?", en:"What’s your favorite app for listening to music?"},
+  {id:"Lagu yang paling sering kamu putar apa?", en:"What song do you play the most?"},
+
+  {id:"Tempat favorit untuk nongkrong apa?", en:"What’s your favorite place to hang out?"},
+  {id:"Cafe favoritmu seperti apa?", en:"What’s your ideal favorite café like?"},
+  {id:"Makanan favorit saat malam apa?", en:"What’s your favorite late-night food?"},
+  {id:"Aktivitas favorit sebelum tidur apa?", en:"What’s your favorite thing to do before sleeping?"},
+  {id:"Hal favorit saat hujan apa?", en:"What’s your favorite thing about rainy days?"},
+  {id:"Hal favorit saat weekend apa?", en:"What’s your favorite thing about weekends?"},
+  {id:"Liburan favorit bersama teman atau keluarga?", en:"Do you prefer vacations with friends or family?"},
+  {id:"Tempat favorit di rumahmu apa?", en:"What’s your favorite spot in your house?"},
+  {id:"Waktu favorit untuk mendengarkan musik kapan?", en:"When’s your favorite time to listen to music?"},
+  {id:"Obrolan favorit yang suka kamu bahas apa?", en:"What’s your favorite topic to talk about?"}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

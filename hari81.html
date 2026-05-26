@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Aku pernah salah kirim pesan ke orang asing", en:"I once sent a message to the wrong person"},
+{id:"Aku pernah jatuh di depan banyak orang", en:"I once fell in front of many people"},
+{id:"Aku pernah tertawa sampai sakit perut", en:"I once laughed until my stomach hurt"},
+{id:"Aku pernah lupa hari ulang tahunku sendiri", en:"I once forgot my own birthday"},
+{id:"Aku pernah ketiduran saat kelas online", en:"I once fell asleep during an online class"},
+{id:"Aku pernah malu karena mic belum dimute", en:"I was once embarrassed because my mic was not muted"},
+{id:"Aku pernah nyasar waktu jalan-jalan", en:"I once got lost while traveling"},
+{id:"Aku pernah ketawa sendiri di tempat umum", en:"I once laughed alone in public"},
+{id:"Aku pernah salah masuk rumah orang", en:"I once entered the wrong house"},
+{id:"Aku pernah lupa nama orang setelah kenalan", en:"I once forgot someone's name after meeting them"},
+{id:"Aku pernah senang banget waktu dapat hadiah", en:"I was very happy when I got a gift"},
+{id:"Aku pernah sedih karena kehilangan barang favorit", en:"I was once sad because I lost my favorite item"},
+{id:"Aku pernah menang lomba kecil waktu sekolah", en:"I once won a small competition at school"},
+{id:"Aku pernah dimarahi karena bangun kesiangan", en:"I was once scolded for waking up late"},
+{id:"Aku pernah takut waktu listrik mati malam hari", en:"I was scared when the power went out at night"},
+{id:"Aku pernah ketawa karena salah dengar lirik lagu", en:"I once laughed because I misheard song lyrics"},
+{id:"Aku pernah bahagia waktu liburan bersama keluarga", en:"I was happy during a family vacation"},
+{id:"Aku pernah sedih waktu teman pindah rumah", en:"I was sad when my friend moved away"},
+{id:"Aku pernah lupa membawa tugas sekolah", en:"I once forgot to bring my school assignment"},
+{id:"Aku pernah ditertawakan karena salah ucap", en:"I was laughed at because I misspoke"},
+{id:"Aku pernah makan terlalu pedas sampai menangis", en:"I once ate very spicy food until I cried"},
+{id:"Aku pernah bahagia karena ketemu teman lama", en:"I was happy to meet an old friend"},
+{id:"Aku pernah sedih saat hujan di hari penting", en:"I was sad when it rained on an important day"},
+{id:"Aku pernah tertawa karena meme random", en:"I once laughed because of a random meme"},
+{id:"Aku pernah lupa menyimpan tugas", en:"I once forgot to save my assignment"},
+{id:"Aku pernah senang waktu nilai ujianku bagus", en:"I was happy when my test score was good"},
+{id:"Aku pernah sedih karena film yang menyentuh", en:"I was sad because of an emotional movie"},
+{id:"Aku pernah ketiduran di kendaraan umum", en:"I once fell asleep on public transport"},
+{id:"Aku pernah malu karena salah panggil orang", en:"I was embarrassed because I called someone the wrong name"},
+{id:"Aku pernah ketawa karena kejadian random", en:"I once laughed because of a random moment"},
+{id:"Aku pernah bahagia saat ulang tahun", en:"I was happy on my birthday"},
+{id:"Aku pernah sedih karena gagal melakukan sesuatu", en:"I was sad because I failed at something"},
+{id:"Aku pernah jatuh dari sepeda waktu kecil", en:"I once fell off a bicycle as a child"},
+{id:"Aku pernah kehilangan sandal di masjid", en:"I once lost my sandals at the mosque"},
+{id:"Aku pernah senang waktu pertama kali punya HP", en:"I was happy when I got my first phone"},
+{id:"Aku pernah sedih karena tidak bisa pergi", en:"I was sad because I could not go"},
+{id:"Aku pernah salah kirim voice note", en:"I once sent a voice note to the wrong person"},
+{id:"Aku pernah ketawa sampai menangis", en:"I once laughed until I cried"},
+{id:"Aku pernah bahagia karena dapat kejutan", en:"I was happy because I got a surprise"},
+{id:"Aku pernah sedih waktu hewan peliharaanku sakit", en:"I was sad when my pet got sick"},
+{id:"Aku pernah lupa membawa dompet", en:"I once forgot to bring my wallet"},
+{id:"Aku pernah salah masuk kelas", en:"I once entered the wrong classroom"},
+{id:"Aku pernah senang karena dipuji seseorang", en:"I was happy because someone complimented me"},
+{id:"Aku pernah sedih karena kehilangan teman", en:"I was sad because I lost a friend"},
+{id:"Aku pernah tertawa karena video lucu", en:"I once laughed because of a funny video"},
+{id:"Aku pernah malu saat presentasi", en:"I was embarrassed during a presentation"},
+{id:"Aku pernah bahagia waktu makan makanan favorit", en:"I was happy while eating my favorite food"},
+{id:"Aku pernah sedih waktu internet mati", en:"I was sad when the internet stopped working"},
+{id:"Aku pernah lupa password sendiri", en:"I once forgot my own password"},
+{id:"Aku pernah salah balas chat", en:"I once replied to the wrong chat"},
+{id:"Aku pernah senang saat diajak jalan-jalan", en:"I was happy when someone invited me out"},
+{id:"Aku pernah sedih karena cuaca buruk", en:"I was sad because of bad weather"},
+{id:"Aku pernah ketawa karena teman jatuh lucu", en:"I laughed because my friend fell funny"},
+{id:"Aku pernah malu karena kamera tiba-tiba nyala", en:"I was embarrassed because my camera suddenly turned on"},
+{id:"Aku pernah bahagia karena bisa istirahat", en:"I was happy because I could rest"},
+{id:"Aku pernah sedih karena bangun kesiangan", en:"I was sad because I woke up late"},
+{id:"Aku pernah salah memakai sepatu berbeda", en:"I once wore different shoes by mistake"},
+{id:"Aku pernah ketawa karena autocorrect", en:"I once laughed because of autocorrect"},
+{id:"Aku pernah bahagia waktu nonton konser", en:"I was happy while watching a concert"},
+{id:"Aku pernah sedih karena kehilangan file penting", en:"I was sad because I lost an important file"},
+{id:"Aku pernah jatuh saat lari", en:"I once fell while running"},
+{id:"Aku pernah tertawa karena prank teman", en:"I once laughed because of my friend's prank"},
+{id:"Aku pernah senang saat dapat makanan gratis", en:"I was happy when I got free food"},
+{id:"Aku pernah sedih karena baterai habis", en:"I was sad because my battery died"},
+{id:"Aku pernah salah duduk di kursi orang", en:"I once sat in someone else's seat"},
+{id:"Aku pernah ketawa karena mimpi aneh", en:"I once laughed because of a weird dream"},
+{id:"Aku pernah bahagia waktu akhir pekan datang", en:"I was happy when the weekend came"},
+{id:"Aku pernah sedih karena kehilangan waktu tidur", en:"I was sad because I lost sleep"},
+{id:"Aku pernah lupa mematikan mic", en:"I once forgot to mute my mic"},
+{id:"Aku pernah ketawa saat membaca komentar lucu", en:"I once laughed while reading funny comments"},
+{id:"Aku pernah bahagia karena bertemu orang baik", en:"I was happy because I met kind people"},
+{id:"Aku pernah sedih karena hujan deras", en:"I was sad because of heavy rain"},
+{id:"Aku pernah salah naik kendaraan", en:"I once took the wrong vehicle"},
+{id:"Aku pernah ketiduran sambil menonton film", en:"I once fell asleep while watching a movie"},
+{id:"Aku pernah senang saat mendapat kabar baik", en:"I was happy when I got good news"},
+{id:"Aku pernah sedih karena kehilangan charger", en:"I was sad because I lost my charger"},
+{id:"Aku pernah tertawa karena salah ketik", en:"I once laughed because of a typo"},
+{id:"Aku pernah malu karena suara perutku terdengar", en:"I was embarrassed because my stomach growled loudly"},
+{id:"Aku pernah bahagia waktu dapat libur mendadak", en:"I was happy when I got a sudden holiday"},
+{id:"Aku pernah sedih karena sakit saat liburan", en:"I was sad because I got sick during vacation"},
+{id:"Aku pernah lupa nama guru", en:"I once forgot my teacher's name"},
+{id:"Aku pernah ketawa karena filter lucu", en:"I once laughed because of funny filters"},
+{id:"Aku pernah bahagia waktu beli barang impian", en:"I was happy when I bought my dream item"},
+{id:"Aku pernah sedih karena kehilangan uang", en:"I was sad because I lost money"},
+{id:"Aku pernah jatuh karena lantai licin", en:"I once slipped because the floor was slippery"},
+{id:"Aku pernah ketawa karena suara aneh", en:"I once laughed because of a weird sound"},
+{id:"Aku pernah senang waktu bertemu keluarga", en:"I was happy when I met my family"},
+{id:"Aku pernah sedih karena tidak bisa tidur", en:"I was sad because I could not sleep"},
+{id:"Aku pernah salah memakai baju terbalik", en:"I once wore my shirt inside out"},
+{id:"Aku pernah tertawa karena candaan ayahku", en:"I once laughed because of my dad's joke"},
+{id:"Aku pernah bahagia karena dapat teman baru", en:"I was happy because I got a new friend"},
+{id:"Aku pernah sedih saat cuaca terlalu panas", en:"I was sad when the weather was too hot"},
+{id:"Aku pernah lupa mengisi baterai HP", en:"I once forgot to charge my phone"},
+{id:"Aku pernah ketawa karena ekspresi temanku", en:"I once laughed because of my friend's expression"},
+{id:"Aku pernah senang saat berhasil melakukan sesuatu", en:"I was happy when I succeeded at something"},
+{id:"Aku pernah sedih karena hari cepat berlalu", en:"I was sad because the day went by too fast"},
+{id:"Aku pernah salah kirim foto", en:"I once sent the wrong photo"},
+{id:"Aku pernah tertawa karena kejadian memalukan", en:"I once laughed because of an embarrassing moment"},
+{id:"Aku pernah bahagia karena obrolan yang menyenangkan", en:"I was happy because of a pleasant conversation"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

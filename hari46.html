@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="secondary" onclick="prevSentence()">⬅ Prev</button>
+            <button class="success" onclick="nextSentence()">Next ➡</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Aku agak gugup sekarang.", en:"I’m a bit nervous right now."},
+  {id:"Ini pertama kalinya aku ngobrol seperti ini.", en:"This is my first time talking like this."},
+  {id:"Tunggu sebentar, aku mikir dulu.", en:"Wait a second, I’m thinking."},
+  {id:"Maaf, aku agak malu.", en:"Sorry, I’m a bit shy."},
+  {id:"Aku tidak terlalu lancar bahasa Inggris.", en:"I’m not very fluent in English."},
+  {id:"Otakku blank sekarang.", en:"My mind just went blank."},
+  {id:"Aku lupa mau ngomong apa.", en:"I forgot what I wanted to say."},
+  {id:"Tolong jangan nilai aku ya.", en:"Please don’t judge me."},
+  {id:"Aku biasanya tidak se-gugup ini.", en:"I’m not usually this nervous."},
+  {id:"Ini sedikit canggung.", en:"This is a bit awkward."},
+
+  {id:"Aku harus tarik napas dulu.", en:"I need to take a breath first."},
+  {id:"Aku sedikit panik sekarang.", en:"I’m a little panicking right now."},
+  {id:"Tunggu ya, aku mikir.", en:"Wait, let me think."},
+  {id:"Aku agak grogi.", en:"I’m a bit nervous."},
+  {id:"Suara aku mungkin aneh ya.", en:"My voice might sound weird."},
+  {id:"Aku tidak terbiasa ngobrol dengan orang baru.", en:"I’m not used to talking to new people."},
+  {id:"Aku merasa deg-degan.", en:"I feel nervous."},
+  {id:"Aku takut salah ngomong.", en:"I’m afraid of saying something wrong."},
+  {id:"Tolong pelan-pelan ya ngobrolnya.", en:"Please go slow with the conversation."},
+  {id:"Aku butuh waktu untuk jawab.", en:"I need time to answer."},
+
+  {id:"Aku sedikit bingung harus jawab apa.", en:"I’m a bit confused what to answer."},
+  {id:"Ini terasa seperti interview.", en:"This feels like an interview."},
+  {id:"Aku belum siap tadi.", en:"I wasn’t ready earlier."},
+  {id:"Aku biasanya lebih santai.", en:"I’m usually more relaxed."},
+  {id:"Aku merasa aneh sekarang.", en:"I feel weird right now."},
+  {id:"Aku harap ini tidak canggung.", en:"I hope this isn’t awkward."},
+  {id:"Aku mencoba santai.", en:"I’m trying to stay calm."},
+  {id:"Jantungku agak cepat.", en:"My heart is beating fast."},
+  {id:"Aku terlalu banyak mikir.", en:"I’m overthinking too much."},
+  {id:"Aku takut salah grammar.", en:"I’m scared of making grammar mistakes."},
+
+  {id:"Maaf kalau aku diam sebentar.", en:"Sorry if I go quiet for a moment."},
+  {id:"Aku masih adaptasi.", en:"I’m still getting used to this."},
+  {id:"Aku jarang bicara dengan orang asing.", en:"I rarely talk to strangers."},
+  {id:"Aku agak kaku sekarang.", en:"I’m a bit stiff right now."},
+  {id:"Aku tidak tahu harus mulai dari mana.", en:"I don’t know where to start."},
+  {id:"Aku merasa sedikit tegang.", en:"I feel a bit tense."},
+  {id:"Aku takut percakapan jadi membosankan.", en:"I’m afraid the conversation gets boring."},
+  {id:"Aku mencoba tetap tenang.", en:"I’m trying to stay calm."},
+  {id:"Aku belum terbiasa kamera.", en:"I’m not used to the camera."},
+  {id:"Aku agak malu lihat wajah sendiri.", en:"I feel shy seeing my own face."},
+
+  {id:"Aku butuh waktu untuk berpikir jawabannya.", en:"I need time to think of an answer."},
+  {id:"Aku sering gugup di awal.", en:"I often get nervous at the beginning."},
+  {id:"Setelah ini mungkin aku lebih santai.", en:"I’ll probably be more relaxed after this."},
+  {id:"Aku tidak terlalu percaya diri.", en:"I’m not very confident."},
+  {id:"Aku takut salah paham.", en:"I’m afraid of misunderstanding."},
+  {id:"Aku mencoba berbicara pelan.", en:"I’m trying to speak slowly."},
+  {id:"Aku merasa sedikit tertekan.", en:"I feel a bit pressured."},
+  {id:"Aku tidak biasa seperti ini.", en:"I’m not used to this."},
+  {id:"Aku agak canggung berbicara.", en:"I feel awkward talking."},
+  {id:"Aku masih belajar bahasa Inggris.", en:"I’m still learning English."},
+
+  {id:"Aku takut kamu tidak mengerti aku.", en:"I’m afraid you won’t understand me."},
+  {id:"Aku mencoba menjawab sebaik mungkin.", en:"I’m trying to answer my best."},
+  {id:"Aku merasa sedikit takut salah.", en:"I feel a bit afraid of making mistakes."},
+  {id:"Aku perlu waktu untuk berpikir kata-kata.", en:"I need time to think of words."},
+  {id:"Aku agak kikuk sekarang.", en:"I’m a bit clumsy right now."},
+  {id:"Aku jarang latihan ngobrol.", en:"I rarely practice talking."},
+  {id:"Aku masih menyesuaikan diri.", en:"I’m still adjusting."},
+  {id:"Aku tidak terbiasa ngobrol random.", en:"I’m not used to random conversations."},
+  {id:"Aku sedikit gugup lihat orang baru.", en:"I get nervous seeing new people."},
+  {id:"Aku mencoba tetap positif.", en:"I’m trying to stay positive."},
+
+  {id:"Aku takut percakapan berhenti tiba-tiba.", en:"I’m afraid the conversation suddenly stops."},
+  {id:"Aku agak canggung dengan diam.", en:"I feel awkward with silence."},
+  {id:"Aku tidak pandai memulai topik.", en:"I’m not good at starting topics."},
+  {id:"Aku masih belajar berbicara natural.", en:"I’m still learning to speak naturally."},
+  {id:"Aku merasa agak tidak nyaman.", en:"I feel a bit uncomfortable."},
+  {id:"Aku mencoba tetap tersenyum.", en:"I’m trying to keep smiling."},
+  {id:"Aku sedikit gugup sekarang jujur.", en:"I’m honestly a bit nervous right now."},
+  {id:"Aku tidak tahu harus bilang apa lagi.", en:"I don’t know what else to say."},
+  {id:"Aku takut jadi membosankan.", en:"I’m afraid of being boring."},
+  {id:"Aku butuh waktu untuk terbiasa.", en:"I need time to get used to this."},
+
+  {id:"Aku akan lebih santai nanti.", en:"I’ll be more relaxed later."},
+  {id:"Aku mencoba menikmati percakapan ini.", en:"I’m trying to enjoy this conversation."},
+  {id:"Aku sedikit tegang tapi senang.", en:"I’m a bit nervous but happy."},
+  {id:"Aku masih belajar percaya diri.", en:"I’m still learning confidence."},
+  {id:"Aku merasa ini pengalaman baru.", en:"This feels like a new experience."},
+  {id:"Aku sedikit gugup tapi penasaran.", en:"I’m a bit nervous but curious."},
+  {id:"Aku tidak ingin salah bicara.", en:"I don’t want to say something wrong."},
+  {id:"Aku mencoba jadi diri sendiri.", en:"I’m trying to be myself."},
+  {id:"Aku harap kamu sabar denganku.", en:"I hope you’re patient with me."},
+  {id:"Aku akan lebih baik nanti.", en:"I’ll get better later."},
+
+  {id:"Aku merasa ini lucu juga.", en:"I think this is funny too."},
+  {id:"Aku masih adaptasi dengan suasana.", en:"I’m still adapting to the situation."},
+  {id:"Aku agak malu tapi ingin ngobrol.", en:"I’m shy but I want to talk."},
+  {id:"Aku mencoba tidak terlalu mikir.", en:"I’m trying not to overthink."},
+  {id:"Aku merasa sedikit aneh tapi oke.", en:"I feel a bit weird but okay."},
+  {id:"Aku tidak biasa berbicara seperti ini.", en:"I’m not used to talking like this."},
+  {id:"Aku butuh sedikit dorongan percaya diri.", en:"I need a little confidence boost."},
+  {id:"Aku tetap mencoba berbicara.", en:"I’m still trying to talk."},
+  {id:"Aku harap ini berjalan lancar.", en:"I hope this goes well."},
+  {id:"Aku akan belajar dari ini.", en:"I’ll learn from this experience."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function prevSentence(){
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

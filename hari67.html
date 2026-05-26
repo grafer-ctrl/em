@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+     {id:"Kita tiba-tiba jadi hening ya.", en:"We suddenly got quiet, huh."},
+  {id:"Tidak apa-apa kalau suasananya tenang.", en:"It’s okay if things get quiet."},
+  {id:"Aku kadang bingung mau ngomong apa juga.", en:"Sometimes I don’t know what to say either."},
+  {id:"Silent moment seperti ini sebenarnya nyaman.", en:"Silent moments like this are actually comfortable."},
+  {id:"Kamu lagi mikir apa?", en:"What are you thinking about?"},
+  {id:"Aku suka suasana santai seperti ini.", en:"I like calm moments like this."},
+  {id:"Obrolannya tetap nyaman kok.", en:"The conversation still feels comfortable."},
+  {id:"Kadang diam juga enak.", en:"Sometimes silence feels nice too."},
+  {id:"Jangan awkward ya wkwk.", en:"Don’t let it get awkward haha."},
+  {id:"Aku mencoba mencari topik baru.", en:"I’m trying to think of a new topic."},
+  {id:"Ngobrol santai aja tidak usah tegang.", en:"Let’s just chat casually, no pressure."},
+  {id:"Aku suka vibes tenang seperti ini.", en:"I like calm vibes like this."},
+  {id:"Kadang silent moment bikin nyaman.", en:"Sometimes silent moments feel comforting."},
+  {id:"Kamu orang yang suka deep talk?", en:"Are you someone who likes deep talks?"},
+  {id:"Btw harimu gimana tadi?", en:"By the way, how was your day?"},
+  {id:"Aku masih menikmati obrolannya kok.", en:"I’m still enjoying the conversation."},
+  {id:"Kadang obrolan random lebih seru.", en:"Sometimes random conversations are more fun."},
+  {id:"Aku suka ngobrol tanpa buru-buru.", en:"I like conversations without rushing."},
+  {id:"Santai aja, kita cari topik pelan-pelan.", en:"Relax, we’ll find topics slowly."},
+  {id:"Kamu biasanya kalau awkward ngapain?", en:"What do you usually do when things get awkward?"},
+  {id:"Aku kadang suka blank juga.", en:"Sometimes my mind goes blank too."},
+  {id:"Tidak perlu memaksa obrolan kok.", en:"There’s no need to force conversations."},
+  {id:"Vibes kamu sebenarnya nyaman.", en:"Your vibe is actually comfortable."},
+  {id:"Kadang diam itu bukan hal buruk.", en:"Sometimes silence isn’t a bad thing."},
+  {id:"Aku penasaran tentang kamu sebenarnya.", en:"I’m actually curious about you."},
+  {id:"Mau bahas topik random?", en:"Want to talk about random topics?"},
+  {id:"Kita bisa ngobrol apa aja.", en:"We can talk about anything."},
+  {id:"Aku suka orang yang tenang.", en:"I like calm people."},
+  {id:"Kadang silent moment bikin lebih natural.", en:"Sometimes silent moments feel more natural."},
+  {id:"Tidak usah merasa awkward ya.", en:"No need to feel awkward."},
+  {id:"Aku masih di sini kok.", en:"I’m still here."},
+  {id:"Kamu tipe yang suka ngobrol lama?", en:"Are you the type who likes long conversations?"},
+  {id:"Kadang aku menikmati suasana hening.", en:"Sometimes I enjoy quiet moments."},
+  {id:"Mungkin kita sama-sama lagi mikir topik.", en:"Maybe we’re both thinking of topics."},
+  {id:"Aku suka ngobrol santai seperti ini.", en:"I like relaxed conversations like this."},
+  {id:"Btw kamu suka musik?", en:"By the way, do you like music?"},
+  {id:"Aku tidak pandai memulai topik kadang.", en:"Sometimes I’m not good at starting topics."},
+  {id:"Yang penting vibes-nya nyaman.", en:"The important thing is the comfortable vibe."},
+  {id:"Kadang hening lebih baik daripada obrolan dipaksa.", en:"Sometimes silence is better than forced conversations."},
+  {id:"Aku suka orang yang bisa nyaman dalam diam.", en:"I like people who are comfortable with silence."},
+  {id:"Kamu kelihatan kalem.", en:"You seem calm."},
+  {id:"Aku suka suasana ngobrol tanpa tekanan.", en:"I like conversations without pressure."},
+  {id:"Silent moment ini malah bikin santai.", en:"This silent moment actually feels relaxing."},
+  {id:"Mau cerita sesuatu random?", en:"Want to share something random?"},
+  {id:"Aku penasaran hobi kamu apa.", en:"I’m curious about your hobbies."},
+  {id:"Kadang awkward itu lucu juga.", en:"Sometimes awkwardness is funny too."},
+  {id:"Aku tidak keberatan kalau kita diam sebentar.", en:"I don’t mind if we stay quiet for a bit."},
+  {id:"Kamu nyaman ngobrol seperti ini?", en:"Are you comfortable talking like this?"},
+  {id:"Aku suka obrolan yang natural.", en:"I like natural conversations."},
+  {id:"Kadang obrolan terbaik dimulai dari awkward moment.", en:"Sometimes the best conversations start from awkward moments."},
+  {id:"Mau bahas makanan favorit?", en:"Want to talk about favorite foods?"},
+  {id:"Aku sebenarnya orang yang cukup pemalu.", en:"I’m actually quite shy."},
+  {id:"Kadang aku terlalu banyak mikir saat ngobrol.", en:"Sometimes I overthink during conversations."},
+  {id:"Kamu kelihatan easy going.", en:"You seem easygoing."},
+  {id:"Aku suka ngobrol santai tanpa formalitas.", en:"I like casual conversations without formality."},
+  {id:"Silent moment seperti ini terasa realistis.", en:"Silent moments like this feel realistic."},
+  {id:"Kadang diam juga bagian dari komunikasi.", en:"Sometimes silence is part of communication too."},
+  {id:"Mungkin kita sama-sama introvert wkwk.", en:"Maybe we’re both introverts haha."},
+  {id:"Aku suka vibes yang tidak terlalu ramai.", en:"I like calm vibes that aren’t too loud."},
+  {id:"Btw kamu suka traveling?", en:"By the way, do you like traveling?"},
+  {id:"Aku masih menikmati moment ini.", en:"I’m still enjoying this moment."},
+  {id:"Kadang ngobrol santai lebih nyaman.", en:"Sometimes relaxed conversations feel better."},
+  {id:"Aku tidak suka obrolan yang terlalu dipaksa.", en:"I don’t like forced conversations."},
+  {id:"Kamu punya topik random?", en:"Do you have any random topics?"},
+  {id:"Aku suka suasana chill seperti ini.", en:"I like chill atmospheres like this."},
+  {id:"Tidak apa kalau kita sedikit awkward.", en:"It’s okay if we’re a little awkward."},
+  {id:"Aku lebih suka ngobrol pelan-pelan.", en:"I prefer slow conversations."},
+  {id:"Kadang suasana tenang terasa nyaman.", en:"Sometimes quiet atmospheres feel comforting."},
+  {id:"Kamu kelihatan friendly sebenarnya.", en:"You actually seem friendly."},
+  {id:"Aku suka orang yang santai saat ngobrol.", en:"I like relaxed people during conversations."},
+  {id:"Mungkin kita butuh ice breaker baru.", en:"Maybe we need a new ice breaker."},
+  {id:"Aku suka deep conversation dibanding small talk.", en:"I prefer deep conversations over small talk."},
+  {id:"Kadang hening membuat obrolan terasa natural.", en:"Sometimes silence makes conversations feel natural."},
+  {id:"Aku penasaran tentang negara kamu.", en:"I’m curious about your country."},
+  {id:"Mau bahas hal random dan lucu?", en:"Want to talk about something random and funny?"},
+  {id:"Aku suka ngobrol tanpa banyak tekanan.", en:"I like conversations without too much pressure."},
+  {id:"Kamu kelihatan orang yang tenang.", en:"You seem like a calm person."},
+  {id:"Silent moment bukan berarti obrolannya buruk.", en:"Silent moments don’t mean the conversation is bad."},
+  {id:"Aku masih nyaman kok ngobrol sama kamu.", en:"I’m still comfortable talking with you."},
+  {id:"Kadang orang nyaman justru saat tidak banyak bicara.", en:"Sometimes people feel comfortable even without many words."},
+  {id:"Aku suka suasana santai seperti ini.", en:"I like relaxed atmospheres like this."},
+  {id:"Btw kamu suka film atau musik?", en:"By the way, do you like movies or music?"},
+  {id:"Aku suka ngobrol yang flow natural.", en:"I like conversations that flow naturally."},
+  {id:"Tidak perlu buru-buru mencari topik.", en:"No need to rush finding topics."},
+  {id:"Kadang awkward moment membuat kenangan lucu.", en:"Sometimes awkward moments create funny memories."},
+  {id:"Aku suka orang yang bisa nyaman dalam diam.", en:"I like people who can be comfortable in silence."},
+  {id:"Kamu kelihatan punya vibes positif.", en:"You seem to have positive vibes."},
+  {id:"Aku menikmati suasana tenang seperti ini.", en:"I enjoy calm moments like this."},
+  {id:"Kadang diam membuat pikiran lebih santai.", en:"Sometimes silence relaxes the mind."},
+  {id:"Aku suka ngobrol yang tidak terlalu formal.", en:"I like conversations that aren’t too formal."},
+  {id:"Mau saling tanya random question?", en:"Want to ask each other random questions?"},
+  {id:"Aku masih penasaran tentang kamu sebenarnya.", en:"I’m still curious about you actually."},
+  {id:"Kadang obrolan terbaik datang tiba-tiba.", en:"Sometimes the best conversations happen unexpectedly."},
+  {id:"Aku suka vibes nyaman seperti ini.", en:"I like comfortable vibes like this."},
+  {id:"Tidak apa kalau kita diam sebentar.", en:"It’s okay if we stay quiet for a moment."},
+  {id:"Aku tidak merasa awkward sebenarnya.", en:"I don’t actually feel awkward."},
+  {id:"Kamu enak diajak ngobrol kok.", en:"You’re actually nice to talk to."},
+  {id:"Silent moment kadang terasa damai.", en:"Silent moments sometimes feel peaceful."},
+  {id:"Aku suka ngobrol santai tanpa pressure.", en:"I like relaxed conversations without pressure."},
+  {id:"Yang penting kita tetap nyaman ngobrol.", en:"The important thing is that we stay comfortable talking."},
+   {id:"Oops kita jadi hening sebentar.", en:"Oops, we got quiet for a moment."},
+  {id:"Aku masih mikir topik seru nih.", en:"I’m still thinking of fun topics."},
+  {id:"Kadang suasana tenang itu nyaman.", en:"Sometimes quiet moments feel comfortable."},
+  {id:"Tidak awkward kok menurutku.", en:"I don’t think it’s awkward."},
+  {id:"Aku suka ngobrol yang santai seperti ini.", en:"I like relaxed conversations like this."},
+  {id:"Kamu lagi capek atau santai aja?", en:"Are you tired or just relaxing?"},
+  {id:"Kadang diam juga bagian dari obrolan.", en:"Sometimes silence is part of conversations too."},
+  {id:"Aku tidak keberatan kalau kita slow talk.", en:"I don’t mind slow conversations."},
+  {id:"Vibes-nya masih nyaman kok.", en:"The vibe still feels comfortable."},
+  {id:"Aku kadang suka blank juga wkwk.", en:"Sometimes my mind goes blank too haha."},
+  {id:"Kita santai aja ya.", en:"Let’s just relax."},
+  {id:"Aku suka suasana yang tidak terlalu ramai.", en:"I like calm atmospheres."},
+  {id:"Mungkin kita butuh topik random.", en:"Maybe we need a random topic."},
+  {id:"Kadang silent moment terasa natural.", en:"Sometimes silent moments feel natural."},
+  {id:"Aku masih menikmati obrolannya.", en:"I’m still enjoying the conversation."},
+  {id:"Tidak semua hening itu awkward.", en:"Not every silence is awkward."},
+  {id:"Kamu nyaman ngobrol santai seperti ini?", en:"Are you comfortable with relaxed conversations like this?"},
+  {id:"Aku suka ngobrol tanpa tekanan.", en:"I like conversations without pressure."},
+  {id:"Kadang diam bikin suasana lebih tenang.", en:"Sometimes silence makes things calmer."},
+  {id:"Aku masih penasaran tentang kamu.", en:"I’m still curious about you."},
+  {id:"Btw kamu suka ngobrol random?", en:"By the way, do you like random talks?"},
+  {id:"Aku suka orang yang santai saat ngobrol.", en:"I like relaxed people during conversations."},
+  {id:"Kadang aku butuh waktu mikir topik.", en:"Sometimes I need time to think of topics."},
+  {id:"Tidak usah panik kalau hening wkwk.", en:"No need to panic if it gets quiet haha."},
+  {id:"Aku suka vibes tenang seperti ini.", en:"I like calm vibes like this."},
+  {id:"Kamu tipe yang nyaman dalam diam?", en:"Are you comfortable with silence?"},
+  {id:"Kadang obrolan pelan terasa lebih nyaman.", en:"Sometimes slow conversations feel more comfortable."},
+  {id:"Aku masih di sini kok santai aja.", en:"I’m still here, relax."},
+  {id:"Silent moment kadang bikin lebih dekat.", en:"Silent moments sometimes bring people closer."},
+  {id:"Aku suka suasana chill seperti ini.", en:"I like chill atmospheres like this."},
+  {id:"Mungkin kita sama-sama introvert.", en:"Maybe we’re both introverts."},
+  {id:"Aku menikmati suasana tanpa banyak drama.", en:"I enjoy peaceful vibes without drama."},
+  {id:"Kadang hening terasa damai.", en:"Sometimes silence feels peaceful."},
+  {id:"Kamu kelihatan orang yang kalem.", en:"You seem like a calm person."},
+  {id:"Aku lebih suka obrolan natural.", en:"I prefer natural conversations."},
+  {id:"Tidak perlu buru-buru ngomong sesuatu.", en:"No need to rush saying something."},
+  {id:"Aku suka orang yang tidak memaksa obrolan.", en:"I like people who don’t force conversations."},
+  {id:"Kadang suasana awkward itu lucu.", en:"Sometimes awkward moments are funny."},
+  {id:"Mau kita bahas topik random?", en:"Want to talk about random topics?"},
+  {id:"Aku penasaran musik favoritmu.", en:"I’m curious about your favorite music."},
+  {id:"Kadang diam membuat obrolan terasa realistis.", en:"Sometimes silence makes conversations feel realistic."},
+  {id:"Aku tidak merasa bosan kok.", en:"I’m not bored at all."},
+  {id:"Kamu enak diajak ngobrol sebenarnya.", en:"You’re actually nice to talk to."},
+  {id:"Aku suka suasana santai tanpa formalitas.", en:"I like relaxed atmospheres without formality."},
+  {id:"Silent moment ini masih nyaman menurutku.", en:"This silent moment still feels comfortable to me."},
+  {id:"Kadang ngobrol pelan lebih seru.", en:"Sometimes slow conversations are more enjoyable."},
+  {id:"Aku suka vibes yang tenang.", en:"I like peaceful vibes."},
+  {id:"Tidak semua obrolan harus ramai.", en:"Not every conversation has to be lively."},
+  {id:"Aku suka ngobrol yang flow-nya natural.", en:"I like conversations that flow naturally."},
+  {id:"Kamu suka deep talk atau small talk?", en:"Do you like deep talks or small talks?"},
+  {id:"Kadang aku menikmati diam bersama seseorang.", en:"Sometimes I enjoy silence with someone."},
+  {id:"Aku suka orang yang nyaman dalam hening.", en:"I like people comfortable with silence."},
+  {id:"Mungkin kita lagi sama-sama mikir.", en:"Maybe we’re both thinking."},
+  {id:"Aku suka suasana yang tidak terlalu tegang.", en:"I like atmospheres that aren’t too tense."},
+  {id:"Kadang silent moment bikin lebih santai.", en:"Sometimes silent moments make things more relaxed."},
+  {id:"Aku tidak keberatan kalau obrolannya slow.", en:"I don’t mind slow conversations."},
+  {id:"Kamu punya topik random?", en:"Do you have any random topics?"},
+  {id:"Aku suka ngobrol tanpa pressure.", en:"I like pressure-free conversations."},
+  {id:"Kadang awkward itu justru memorable.", en:"Sometimes awkwardness becomes memorable."},
+  {id:"Aku menikmati vibes sekarang.", en:"I’m enjoying the vibe right now."},
+  {id:"Tidak apa kalau kita diam sebentar.", en:"It’s okay if we stay quiet for a bit."},
+  {id:"Aku masih nyaman ngobrol kok.", en:"I’m still comfortable talking."},
+  {id:"Kadang suasana tenang lebih enak.", en:"Sometimes calm atmospheres feel better."},
+  {id:"Aku suka orang yang easy going.", en:"I like easygoing people."},
+  {id:"Kita santai aja tidak usah overthinking.", en:"Let’s relax and not overthink."},
+  {id:"Aku kadang suka menikmati hening.", en:"Sometimes I enjoy silence."},
+  {id:"Mungkin kita cocok untuk deep conversation.", en:"Maybe we’re good for deep conversations."},
+  {id:"Aku suka suasana ngobrol yang santai.", en:"I like relaxed conversation vibes."},
+  {id:"Kamu tidak perlu merasa awkward.", en:"You don’t need to feel awkward."},
+  {id:"Aku suka ngobrol tanpa harus nonstop.", en:"I like conversations that don’t need nonstop talking."},
+  {id:"Kadang diam terasa lebih tulus.", en:"Sometimes silence feels more genuine."},
+  {id:"Aku suka orang yang tenang saat ngobrol.", en:"I like calm people during conversations."},
+  {id:"Mungkin kita butuh ice breaker lucu.", en:"Maybe we need a funny ice breaker."},
+  {id:"Aku penasaran hobi kamu apa.", en:"I’m curious about your hobbies."},
+  {id:"Kadang hening membuat suasana lebih natural.", en:"Sometimes silence makes things feel more natural."},
+  {id:"Aku suka ngobrol tanpa banyak formalitas.", en:"I like conversations without too much formality."},
+  {id:"Tidak usah memaksa topik.", en:"No need to force topics."},
+  {id:"Aku masih menikmati waktunya kok.", en:"I’m still enjoying the time."},
+  {id:"Kadang obrolan santai terasa paling nyaman.", en:"Sometimes casual conversations feel the most comfortable."},
+  {id:"Aku suka orang yang chill.", en:"I like chill people."},
+  {id:"Silent moment seperti ini terasa damai.", en:"Silent moments like this feel peaceful."},
+  {id:"Aku tidak masalah kalau suasananya tenang.", en:"I don’t mind calm atmospheres."},
+  {id:"Kadang kita tidak perlu banyak bicara.", en:"Sometimes we don’t need many words."},
+  {id:"Aku suka ngobrol pelan tanpa buru-buru.", en:"I like slow conversations without rushing."},
+  {id:"Kamu punya vibes yang nyaman.", en:"You have comfortable vibes."},
+  {id:"Aku menikmati suasana sekarang.", en:"I’m enjoying the atmosphere right now."},
+  {id:"Kadang awkward moment justru bikin lucu.", en:"Sometimes awkward moments become funny."},
+  {id:"Aku suka ngobrol yang apa adanya.", en:"I like genuine conversations."},
+  {id:"Tidak semua hening harus diisi kata-kata.", en:"Not every silence needs words."},
+  {id:"Aku suka orang yang santai dan natural.", en:"I like relaxed and natural people."},
+  {id:"Kadang diam bikin suasana lebih dekat.", en:"Sometimes silence brings people closer."},
+  {id:"Aku masih penasaran tentang dirimu.", en:"I’m still curious about you."},
+  {id:"Mungkin kita sama-sama pemikir.", en:"Maybe we’re both thinkers."},
+  {id:"Aku suka suasana nyaman seperti ini.", en:"I like comfortable atmospheres like this."},
+  {id:"Tidak usah takut kalau obrolannya hening.", en:"No need to be afraid of silence in conversations."},
+  {id:"Aku lebih suka obrolan yang natural daripada dipaksa.", en:"I prefer natural conversations over forced ones."},
+  {id:"Kadang hening itu tanda nyaman.", en:"Sometimes silence is a sign of comfort."},
+  {id:"Aku suka vibes yang santai dan tenang.", en:"I like relaxed and calm vibes."},
+  {id:"Yang penting kita tetap enjoy ngobrol.", en:"The important thing is that we still enjoy talking."}
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

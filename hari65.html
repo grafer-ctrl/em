@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+    {id:"Menurutku percaya diri itu sangat penting.", en:"I think confidence is very important."},
+  {id:"Aku percaya setiap orang punya kelebihan.", en:"I believe everyone has strengths."},
+  {id:"Menurutku gagal itu bagian dari proses.", en:"I think failure is part of the process."},
+  {id:"Aku tidak takut mencoba hal baru.", en:"I’m not afraid to try new things."},
+  {id:"Menurutku semua orang bisa berkembang.", en:"I think everyone can grow."},
+  {id:"Aku percaya usaha tidak mengkhianati hasil.", en:"I believe effort never betrays results."},
+  {id:"Menurutku mindset positif itu penting.", en:"I think a positive mindset is important."},
+  {id:"Aku suka orang yang percaya diri.", en:"I like confident people."},
+  {id:"Menurutku menjadi diri sendiri lebih keren.", en:"I think being yourself is cooler."},
+  {id:"Aku tidak suka berpura-pura jadi orang lain.", en:"I don’t like pretending to be someone else."},
+  {id:"Menurutku setiap orang punya jalannya sendiri.", en:"I think everyone has their own path."},
+  {id:"Aku percaya proses setiap orang berbeda.", en:"I believe everyone’s process is different."},
+  {id:"Menurutku tidak perlu terlalu membandingkan diri.", en:"I think there’s no need to compare yourself too much."},
+  {id:"Aku lebih fokus pada perkembangan diri sendiri.", en:"I focus more on my own growth."},
+  {id:"Menurutku konsistensi lebih penting daripada motivasi.", en:"I think consistency is more important than motivation."},
+  {id:"Aku percaya disiplin bisa mengubah hidup.", en:"I believe discipline can change lives."},
+  {id:"Menurutku komunikasi adalah skill penting.", en:"I think communication is an important skill."},
+  {id:"Aku percaya semua orang bisa belajar percaya diri.", en:"I believe everyone can learn confidence."},
+  {id:"Menurutku keberanian itu menarik.", en:"I think bravery is attractive."},
+  {id:"Aku suka orang yang berani bicara.", en:"I like people who dare to speak up."},
+  {id:"Menurutku overthinking hanya membuat lelah.", en:"I think overthinking only makes people tired."},
+  {id:"Aku mencoba lebih santai menjalani hidup.", en:"I try to live more calmly."},
+  {id:"Menurutku hidup terlalu singkat untuk takut terus.", en:"I think life is too short to always be afraid."},
+  {id:"Aku percaya pengalaman adalah guru terbaik.", en:"I believe experience is the best teacher."},
+  {id:"Menurutku orang yang tenang terlihat dewasa.", en:"I think calm people look mature."},
+  {id:"Aku suka energi positif.", en:"I like positive energy."},
+  {id:"Menurutku attitude lebih penting daripada penampilan.", en:"I think attitude is more important than appearance."},
+  {id:"Aku percaya kepribadian sangat berpengaruh.", en:"I believe personality matters a lot."},
+  {id:"Menurutku semua orang punya potensi besar.", en:"I think everyone has huge potential."},
+  {id:"Aku suka belajar dari kesalahan.", en:"I like learning from mistakes."},
+  {id:"Menurutku rasa malu berlebihan menghambat perkembangan.", en:"I think excessive shyness limits growth."},
+  {id:"Aku percaya latihan membuat lebih percaya diri.", en:"I believe practice builds confidence."},
+  {id:"Menurutku berbicara bahasa Inggris perlu keberanian.", en:"I think speaking English requires courage."},
+  {id:"Aku tidak takut salah saat belajar.", en:"I’m not afraid of making mistakes while learning."},
+  {id:"Menurutku kesalahan itu normal.", en:"I think mistakes are normal."},
+  {id:"Aku percaya setiap hari adalah kesempatan baru.", en:"I believe every day is a new opportunity."},
+  {id:"Menurutku orang sukses tidak langsung hebat.", en:"I think successful people weren’t instantly great."},
+  {id:"Aku percaya proses kecil tetap berarti.", en:"I believe small progress still matters."},
+  {id:"Menurutku hidup harus dinikmati.", en:"I think life should be enjoyed."},
+  {id:"Aku percaya kebahagiaan sederhana itu cukup.", en:"I believe simple happiness is enough."},
+  {id:"Menurutku mental kuat lebih penting daripada gengsi.", en:"I think mental strength is more important than pride."},
+  {id:"Aku suka orang yang rendah hati.", en:"I like humble people."},
+  {id:"Menurutku kejujuran membuat hidup lebih tenang.", en:"I think honesty makes life more peaceful."},
+  {id:"Aku percaya kepercayaan diri datang dari diri sendiri.", en:"I believe confidence comes from within."},
+  {id:"Menurutku tidak semua kritik harus dipikirkan.", en:"I think not all criticism should be taken seriously."},
+  {id:"Aku lebih memilih fokus pada tujuan.", en:"I prefer focusing on goals."},
+  {id:"Menurutku hidup bukan perlombaan.", en:"I think life is not a race."},
+  {id:"Aku percaya semua orang punya waktunya.", en:"I believe everyone has their own timing."},
+  {id:"Menurutku orang yang terus belajar akan berkembang.", en:"I think people who keep learning will grow."},
+  {id:"Aku percaya kemampuan bisa dilatih.", en:"I believe skills can be trained."},
+  {id:"Menurutku rasa takut harus dilawan.", en:"I think fear should be faced."},
+  {id:"Aku suka mencoba keluar dari zona nyaman.", en:"I like stepping out of my comfort zone."},
+  {id:"Menurutku pengalaman lebih berharga daripada rasa takut.", en:"I think experiences are more valuable than fear."},
+  {id:"Aku percaya keberanian dimulai dari langkah kecil.", en:"I believe courage starts with small steps."},
+  {id:"Menurutku semua orang bisa jadi lebih baik.", en:"I think everyone can become better."},
+  {id:"Aku percaya perubahan dimulai dari diri sendiri.", en:"I believe change starts from yourself."},
+  {id:"Menurutku pikiran positif memengaruhi hidup.", en:"I think positive thoughts affect life."},
+  {id:"Aku suka orang yang optimis.", en:"I like optimistic people."},
+  {id:"Menurutku energi positif itu menular.", en:"I think positive energy is contagious."},
+  {id:"Aku percaya kerja keras akan terlihat hasilnya.", en:"I believe hard work will show results."},
+  {id:"Menurutku rasa percaya diri membuat hidup lebih mudah.", en:"I think confidence makes life easier."},
+  {id:"Aku tidak ingin terlalu takut dinilai orang.", en:"I don’t want to fear people’s judgments too much."},
+  {id:"Menurutku hidup harus lebih santai.", en:"I think life should be more relaxed."},
+  {id:"Aku percaya semua orang punya cerita hebat.", en:"I believe everyone has an amazing story."},
+  {id:"Menurutku berpikir besar itu penting.", en:"I think thinking big is important."},
+  {id:"Aku percaya mimpi besar tetap mungkin.", en:"I believe big dreams are still possible."},
+  {id:"Menurutku self respect sangat penting.", en:"I think self-respect is very important."},
+  {id:"Aku percaya mencintai diri sendiri itu perlu.", en:"I believe self-love is necessary."},
+  {id:"Menurutku kesehatan mental harus dijaga.", en:"I think mental health should be protected."},
+  {id:"Aku percaya istirahat bukan berarti malas.", en:"I believe resting doesn’t mean laziness."},
+  {id:"Menurutku hidup seimbang lebih baik.", en:"I think balanced living is better."},
+  {id:"Aku suka orang yang punya tujuan hidup.", en:"I like people with life goals."},
+  {id:"Menurutku semangat hidup itu menarik.", en:"I think passion for life is attractive."},
+  {id:"Aku percaya kebiasaan kecil bisa mengubah masa depan.", en:"I believe small habits can change the future."},
+  {id:"Menurutku berbicara dengan percaya diri perlu latihan.", en:"I think speaking confidently needs practice."},
+  {id:"Aku percaya komunikasi yang baik membuka peluang.", en:"I believe good communication opens opportunities."},
+  {id:"Menurutku rasa malu tidak boleh mengontrol hidup.", en:"I think shyness shouldn’t control life."},
+  {id:"Aku lebih suka mencoba daripada menyesal.", en:"I’d rather try than regret."},
+  {id:"Menurutku semua orang pantas didengar.", en:"I think everyone deserves to be heard."},
+  {id:"Aku percaya pendapat setiap orang berharga.", en:"I believe everyone’s opinions are valuable."},
+  {id:"Menurutku keberanian berbicara adalah skill penting.", en:"I think the courage to speak is an important skill."},
+  {id:"Aku suka orang yang percaya pada dirinya.", en:"I like people who believe in themselves."},
+  {id:"Menurutku ketenangan adalah bentuk kekuatan.", en:"I think calmness is a form of strength."},
+  {id:"Aku percaya kesabaran juga kekuatan.", en:"I believe patience is also strength."},
+  {id:"Menurutku berpikir terbuka itu penting.", en:"I think being open-minded is important."},
+  {id:"Aku percaya belajar tidak mengenal usia.", en:"I believe learning has no age limit."},
+  {id:"Menurutku semua pengalaman punya pelajaran.", en:"I think every experience has a lesson."},
+  {id:"Aku suka orang yang punya prinsip.", en:"I like people with principles."},
+  {id:"Menurutku percaya diri bukan berarti sombong.", en:"I think confidence doesn’t mean arrogance."},
+  {id:"Aku percaya rendah hati itu keren.", en:"I believe humility is cool."},
+  {id:"Menurutku orang yang tulus lebih menarik.", en:"I think sincere people are more attractive."},
+  {id:"Aku percaya vibes seseorang penting.", en:"I believe someone’s vibes are important."},
+  {id:"Menurutku hidup harus penuh rasa syukur.", en:"I think life should be full of gratitude."},
+  {id:"Aku percaya kebahagiaan datang dari pikiran.", en:"I believe happiness comes from the mind."},
+  {id:"Menurutku menjadi positif membuat hidup lebih ringan.", en:"I think positivity makes life lighter."},
+  {id:"Aku percaya semua orang bisa berubah menjadi lebih baik.", en:"I believe everyone can change for the better."},
+  {id:"Menurutku rasa percaya diri membuat aura seseorang berbeda.", en:"I think confidence changes someone’s aura."},
+  {id:"Aku percaya diriku bisa berkembang setiap hari.", en:"I believe I can grow every day."},
+  {id:"Menurutku masa depan ditentukan oleh tindakan hari ini.", en:"I think the future is shaped by today’s actions."},
+  {id:"Aku percaya hidup akan membaik jika terus berusaha.", en:"I believe life will improve if we keep trying."}
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

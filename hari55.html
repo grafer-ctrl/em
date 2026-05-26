@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>OME TV Speaking Trainer</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f1f5f9;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  color:#111827;
+}
+
+.app{
+  width:100%;
+  max-width:550px;
+  background:white;
+  border-radius:30px;
+  overflow:hidden;
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.08);
+}
+
+/* ================= HEADER ================= */
+
+.header{
+  background:white;
+  padding:20px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  border-bottom:1px solid #e5e7eb;
+}
+
+.home-btn{
+  width:52px;
+  height:52px;
+  min-width:52px;
+  border-radius:18px;
+  background:#f8fafc;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-decoration:none;
+  font-size:24px;
+  transition:0.2s;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.06);
+}
+
+.home-btn:hover{
+  transform:scale(1.05);
+  background:#eff6ff;
+}
+
+.header-text{
+  flex:1;
+}
+
+.header h1{
+  font-size:24px;
+  margin-bottom:5px;
+  color:#111827;
+}
+
+.header p{
+  color:#64748b;
+  font-size:14px;
+}
+
+/* ================= CHAT ================= */
+
+.chat{
+  height:500px;
+  overflow-y:auto;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  background:#f8fafc;
+}
+
+.message{
+  max-width:85%;
+  padding:15px;
+  border-radius:20px;
+  line-height:1.6;
+  animation:fade .3s ease;
+}
+
+/* AI Bubble */
+
+.ai{
+  align-self:flex-start;
+  background:white;
+  border:1px solid #e5e7eb;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.04);
+
+  color:#111827;
+}
+
+/* USER Bubble */
+
+.user{
+  align-self:flex-end;
+  background:#2563eb;
+  color:white;
+
+  box-shadow:
+    0 6px 18px rgba(37,99,235,0.25);
+}
+
+/* Translation */
+
+.translation{
+  margin-top:8px;
+  font-size:13px;
+  color:#475569;
+}
+
+.user .translation{
+  color:#dbeafe;
+}
+
+/* Answer Box */
+
+.answer-box{
+  margin-top:12px;
+  background:#f8fafc;
+  border:1px solid #e5e7eb;
+  padding:12px;
+  border-radius:14px;
+  color:#111827;
+}
+
+.answer-title{
+  color:#d97706;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.answer-content{
+  display:none;
+  color:#111827;
+  line-height:1.7;
+}
+
+/* ================= BOTTOM ================= */
+
+.bottom{
+  background:white;
+  padding:20px;
+  border-top:1px solid #e5e7eb;
+}
+
+.status{
+  text-align:center;
+  margin-bottom:15px;
+  color:#2563eb;
+  font-weight:bold;
+}
+
+.mic-area{
+  display:flex;
+  justify-content:center;
+  margin-bottom:20px;
+}
+
+.mic{
+  width:95px;
+  height:95px;
+  border-radius:50%;
+  background:#2563eb;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:42px;
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
+  box-shadow:
+    0 10px 30px rgba(37,99,235,0.3);
+}
+
+.mic:hover{
+  transform:scale(1.05);
+}
+
+.mic.active{
+  animation:pulse 1s infinite;
+}
+
+.result{
+  text-align:center;
+  min-height:40px;
+  color:#111827;
+  margin-bottom:15px;
+}
+
+.score{
+  text-align:center;
+  color:#475569;
+  margin-bottom:20px;
+}
+
+/* Buttons */
+
+.controls{
+  display:flex;
+  gap:10px;
+}
+
+button{
+  flex:1;
+  padding:15px;
+  border:none;
+  border-radius:16px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+}
+
+.show-btn{
+  background:#facc15;
+  color:#111827;
+}
+
+.next-btn{
+  background:#2563eb;
+  color:white;
+}
+
+/* ================= ANIMATION ================= */
+
+@keyframes fade{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+@keyframes pulse{
+
+  0%{
+    transform:scale(1);
+    box-shadow:0 0 0 0 rgba(37,99,235,.5);
+  }
+
+  70%{
+    transform:scale(1.08);
+    box-shadow:0 0 0 25px rgba(37,99,235,0);
+  }
+
+  100%{
+    transform:scale(1);
+  }
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+
+  <div class="header">
+
+    <a href="index.html" class="home-btn">
+      🏠
+    </a>
+
+    <div class="header-text">
+      <h1>OME TV Speaking Trainer</h1>
+      <p>Practice Real English Conversation</p>
+    </div>
+
+  </div>
+
+  <!-- CHAT -->
+
+  <div class="chat" id="chat"></div>
+
+  <!-- BOTTOM -->
+
+  <div class="bottom">
+
+    <div class="status" id="status">
+      🎤 Press microphone and answer
+    </div>
+
+    <div class="mic-area">
+
+      <div class="mic" id="micBtn">
+        🎤
+      </div>
+
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <div class="score" id="score">
+      Pronunciation Score: --
+    </div>
+
+    <div class="controls">
+
+      <button class="show-btn" onclick="showAnswer()">
+        Show Answer
+      </button>
+
+      <button class="next-btn" onclick="nextConversation()">
+        Next
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const conversations = [
+  {
+    speaker:"A",
+    en:"Hey! How’s your day going?",
+    id:"Hei! Gimana harimu?",
+    answers:[
+      "pretty good",
+      "good",
+      "great",
+      "not bad"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Pretty good! What about you?",
+    id:"Lumayan bagus! Kamu gimana?",
+    answers:[
+      "i’m good too",
+      "doing great",
+      "i’m fine",
+      "awesome"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"I’m good too. You seem really friendly.",
+    id:"Aku juga baik. Kamu kelihatannya ramah banget.",
+    answers:[
+      "thank you",
+      "you too",
+      "that’s sweet",
+      "haha thanks"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Thank you! Where are you from?",
+    id:"Makasih! Kamu dari mana?",
+    answers:[
+      "i’m from indonesia",
+      "indonesia",
+      "jakarta",
+      "central java"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"I’m from Indonesia. Nice to meet you!",
+    id:"Aku dari Indonesia. Senang kenal kamu!",
+    answers:[
+      "nice to meet you too",
+      "same here",
+      "cool",
+      "that’s nice"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Hi! I like your smile.",
+    id:"Hai! Aku suka senyummu.",
+    answers:[
+      "thank you",
+      "aww thanks",
+      "haha thank you",
+      "you’re kind"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Aww thank you!",
+    id:"Aww makasih!",
+    answers:[
+      "you’re welcome",
+      "no problem",
+      "you deserve it",
+      "haha sure"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Are you enjoying OmeTV today?",
+    id:"Kamu menikmati OmeTV hari ini?",
+    answers:[
+      "yes i am",
+      "a little",
+      "kind of",
+      "yeah it’s fun"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Yeah, I met some interesting people.",
+    id:"Iya, aku ketemu beberapa orang menarik.",
+    answers:[
+      "that’s nice",
+      "cool",
+      "same here",
+      "lucky you"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Nice! I hope I’m one of them.",
+    id:"Bagus! Semoga aku salah satunya.",
+    answers:[
+      "you are",
+      "maybe haha",
+      "of course",
+      "definitely"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Hello! You have a good vibe.",
+    id:"Halo! Kamu punya vibe yang bagus.",
+    answers:[
+      "thank you",
+      "haha thanks",
+      "you too",
+      "really?"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Haha thank you!",
+    id:"Haha makasih!",
+    answers:[
+      "you’re welcome",
+      "no worries",
+      "sure",
+      "anytime"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"So, what do you usually do for fun?",
+    id:"Jadi, biasanya kamu ngapain buat seru-seruan?",
+    answers:[
+      "i play games",
+      "watch movies",
+      "listen to music",
+      "sleep haha"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"I like music and movies.",
+    id:"Aku suka musik dan film.",
+    answers:[
+      "same",
+      "me too",
+      "nice hobbies",
+      "that’s cool"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Same! We already have something in common.",
+    id:"Sama! Kita udah punya kesamaan.",
+    answers:[
+      "true",
+      "yeah",
+      "that’s nice",
+      "haha yes"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Hey! Don’t skip me yet, I’m friendly haha.",
+    id:"Hei! Jangan skip aku dulu, aku ramah kok haha.",
+    answers:[
+      "okay haha",
+      "i won’t",
+      "relax",
+      "you seem nice"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Hahaha okay okay.",
+    id:"Hahaha oke oke.",
+    answers:[
+      "thank you",
+      "nice",
+      "cool",
+      "great"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"What’s the most fun thing that happened to you today?",
+    id:"Hal paling seru apa yang terjadi hari ini buat kamu?",
+    answers:[
+      "meeting friends",
+      "talking to you",
+      "nothing much",
+      "playing games"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Hmm… maybe talking to you now.",
+    id:"Hmm… mungkin ngobrol sama kamu sekarang.",
+    answers:[
+      "smooth answer",
+      "aww thanks",
+      "that’s cute",
+      "haha really?"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Smooth answer! I like that.",
+    id:"Jawaban yang manis! Aku suka itu.",
+    answers:[
+      "thank you",
+      "haha thanks",
+      "i try my best",
+      "glad you like it"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Hi! You look very confident.",
+    id:"Hai! Kamu kelihatan percaya diri banget.",
+    answers:[
+      "really?",
+      "thank you",
+      "haha maybe",
+      "i appreciate that"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Really? Thank you.",
+    id:"Serius? Makasih.",
+    answers:[
+      "you’re welcome",
+      "it’s true",
+      "of course",
+      "no problem"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Confidence makes people attractive.",
+    id:"Percaya diri bikin seseorang jadi menarik.",
+    answers:[
+      "that’s true",
+      "i agree",
+      "exactly",
+      "good point"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"That’s actually true.",
+    id:"Itu memang benar sih.",
+    answers:[
+      "yeah",
+      "totally",
+      "for sure",
+      "exactly"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"So tell me something interesting about yourself.",
+    id:"Jadi ceritain sesuatu yang menarik tentang dirimu.",
+    answers:[
+      "i love music",
+      "i can cook",
+      "i like traveling",
+      "i’m funny haha"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Hey! Quick question… are you always this cool?",
+    id:"Hei! Pertanyaan cepat… kamu memang selalu sekeren ini?",
+    answers:[
+      "maybe haha",
+      "sometimes",
+      "of course",
+      "i try"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Hahaha maybe.",
+    id:"Hahaha mungkin.",
+    answers:[
+      "confident",
+      "nice answer",
+      "i like that",
+      "haha cool"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Damn, confident too? Dangerous combo.",
+    id:"Wah, percaya diri juga? Kombinasi berbahaya.",
+    answers:[
+      "haha maybe",
+      "you’re funny",
+      "stop it",
+      "thank you"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"You’re funny.",
+    id:"Kamu lucu.",
+    answers:[
+      "thank you",
+      "i know haha",
+      "trying my best",
+      "glad you think so"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"I’m trying my best to survive OmeTV.",
+    id:"Aku lagi berusaha bertahan hidup di OmeTV.",
+    answers:[
+      "haha same",
+      "good luck",
+      "you’re doing well",
+      "relatable"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Hello! I hope you’re having a good day today.",
+    id:"Halo! Semoga harimu menyenangkan hari ini.",
+    answers:[
+      "thank you",
+      "you too",
+      "i am",
+      "pretty good"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Thank you, you too!",
+    id:"Makasih, kamu juga!",
+    answers:[
+      "thanks",
+      "appreciate it",
+      "haha thank you",
+      "nice"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"You seem like a positive person.",
+    id:"Kamu kelihatannya orang yang positif.",
+    answers:[
+      "i try to be",
+      "thank you",
+      "haha maybe",
+      "that’s sweet"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"I try to be.",
+    id:"Aku berusaha begitu.",
+    answers:[
+      "that’s good",
+      "keep it up",
+      "nice mindset",
+      "respect"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"That’s rare these days.",
+    id:"Itu jarang banget sekarang.",
+    answers:[
+      "true",
+      "yeah",
+      "sadly yes",
+      "i agree"
+    ]
+  }
+];
+
+let current = 0;
+
+const chat = document.getElementById("chat");
+const micBtn = document.getElementById("micBtn");
+const result = document.getElementById("result");
+const score = document.getElementById("score");
+const statusText = document.getElementById("status");
+
+function addMessage(data){
+
+  const div = document.createElement("div");
+
+  div.className =
+    data.speaker === "A"
+    ? "message ai"
+    : "message user";
+
+  div.innerHTML = `
+    <strong>${data.speaker}</strong><br>
+    ${data.en}
+
+    <div class="translation">
+      ${data.id}
+    </div>
+
+    <div class="answer-box">
+
+      <div class="answer-title">
+        ✅ Answer Key
+      </div>
+
+      <div class="answer-content">
+        ${data.answers.join("<br>")}
+      </div>
+
+    </div>
+  `;
+
+  chat.appendChild(div);
+
+  chat.scrollTop = chat.scrollHeight;
+
+}
+
+function loadConversation(){
+
+  if(current >= conversations.length){
+
+    statusText.innerHTML =
+      "🎉 Training Complete!";
+
+    result.innerHTML =
+      "Amazing Job!";
+
+    speak("Training complete");
+
+    return;
+  }
+
+  const data = conversations[current];
+
+  addMessage(data);
+
+  speak(data.en);
+
+}
+
+function speak(text){
+
+  const speech =
+    new SpeechSynthesisUtterance(text);
+
+  speech.lang = "en-US";
+
+  speech.rate = 1;
+
+  speechSynthesis.speak(speech);
+
+}
+
+function showAnswer(){
+
+  const all =
+    document.querySelectorAll(".answer-content");
+
+  if(all.length > 0){
+
+    all[all.length - 1]
+      .style.display = "block";
+
+  }
+
+}
+
+function nextConversation(){
+
+  current++;
+
+  loadConversation();
+
+}
+
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+const recognition =
+  new SpeechRecognition();
+
+recognition.lang = "en-US";
+
+recognition.continuous = false;
+
+recognition.interimResults = false;
+
+micBtn.onclick = () => {
+
+  micBtn.classList.add("active");
+
+  result.innerHTML =
+    "🎧 Listening...";
+
+  recognition.start();
+
+};
+
+recognition.onresult = (event) => {
+
+  micBtn.classList.remove("active");
+
+  const transcript =
+    event.results[0][0].transcript.toLowerCase();
+
+  result.innerHTML =
+    `🗣 You said: ${transcript}`;
+
+  checkAnswer(transcript);
+
+};
+
+recognition.onerror = () => {
+
+  micBtn.classList.remove("active");
+
+  result.innerHTML =
+    "❌ Microphone Error";
+
+};
+
+function checkAnswer(userText){
+
+  const answers =
+    conversations[current].answers;
+
+  let matched = false;
+
+  answers.forEach(answer => {
+
+    if(userText.includes(answer)){
+
+      matched = true;
+
+    }
+
+  });
+
+  if(matched){
+
+    statusText.innerHTML =
+      "✅ Excellent Answer!";
+
+    score.innerHTML =
+      "⭐ Pronunciation Score: 92%";
+
+    speak("Excellent");
+
+  }else{
+
+    statusText.innerHTML =
+      "😅 Try Again";
+
+    score.innerHTML =
+      "⭐ Pronunciation Score: 45%";
+
+    speak("Try again");
+
+  }
+
+}
+
+loadConversation();
+
+</script>
+
+</body>
+</html>

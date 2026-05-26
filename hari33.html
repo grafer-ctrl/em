@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {
+    en:"You look sleepy.",
+    id:"Kamu kelihatan ngantuk.",
+    answers:["maybe a little","yeah i am tired"]
+  },
+
+  {
+    en:"Your internet is fighting for its life.",
+    id:"Internetmu sedang berjuang untuk hidup.",
+    answers:["haha true","my wifi is bad"]
+  },
+
+  {
+    en:"Why are you so quiet?",
+    id:"Kenapa kamu diam banget?",
+    answers:["i am shy","just nervous"]
+  },
+
+  {
+    en:"You look like a gamer.",
+    id:"Kamu kelihatan seperti gamer.",
+    answers:["yes i play games","how did you know"]
+  },
+
+  {
+    en:"You have a funny laugh.",
+    id:"Kamu punya tawa yang lucu.",
+    answers:["really","haha thank you"]
+  },
+
+  {
+    en:"Your room looks clean.",
+    id:"Kamarmu terlihat rapi.",
+    answers:["thank you","i cleaned it today"]
+  },
+
+  {
+    en:"You blink so slowly.",
+    id:"Kamu berkedip lambat sekali.",
+    answers:["i am tired","haha maybe"]
+  },
+
+  {
+    en:"You look confused.",
+    id:"Kamu terlihat bingung.",
+    answers:["a little","i dont know what to say"]
+  },
+
+  {
+    en:"Are you secretly famous?",
+    id:"Apa kamu diam-diam terkenal?",
+    answers:["no haha","i wish"]
+  },
+
+  {
+    en:"Your camera quality is better than mine.",
+    id:"Kualitas kameramu lebih bagus dari punyaku.",
+    answers:["thank you","your camera is good too"]
+  },
+
+  {
+    en:"You look like you just woke up.",
+    id:"Kamu terlihat seperti baru bangun tidur.",
+    answers:["because i did","haha true"]
+  },
+
+  {
+    en:"Your background looks interesting.",
+    id:"Latar belakangmu terlihat menarik.",
+    answers:["really","thank you"]
+  },
+
+  {
+    en:"You smile like a movie character.",
+    id:"Kamu tersenyum seperti karakter film.",
+    answers:["haha no way","thank you"]
+  },
+
+  {
+    en:"Are you always this calm?",
+    id:"Apa kamu selalu setenang ini?",
+    answers:["usually yes","i think so"]
+  },
+
+  {
+    en:"You sound like a YouTuber.",
+    id:"Kamu terdengar seperti YouTuber.",
+    answers:["really","maybe i should become one"]
+  },
+
+  {
+    en:"Your voice is louder than my future.",
+    id:"Suaramu lebih keras dari masa depanku.",
+    answers:["haha what","that is funny"]
+  },
+
+  {
+    en:"You laugh at everything.",
+    id:"Kamu tertawa di semua hal.",
+    answers:["because i am happy","haha yes"]
+  },
+
+  {
+    en:"You look too serious.",
+    id:"Kamu terlihat terlalu serius.",
+    answers:["i am just shy","sorry haha"]
+  },
+
+  {
+    en:"Did I interrupt your nap?",
+    id:"Apa aku mengganggu tidurmu?",
+    answers:["maybe a little","no its okay"]
+  },
+
+  {
+    en:"You look friendly.",
+    id:"Kamu terlihat ramah.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"Your lighting is perfect.",
+    id:"Pencahayaanmu sempurna.",
+    answers:["thank you","its just my lamp"]
+  },
+
+  {
+    en:"You have good vibes.",
+    id:"Kamu punya vibe yang bagus.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You look nervous.",
+    id:"Kamu terlihat gugup.",
+    answers:["because i am","a little bit"]
+  },
+
+  {
+    en:"Your laugh is contagious.",
+    id:"Tawamu menular.",
+    answers:["haha thank you","really"]
+  },
+
+  {
+    en:"You look like you skip school.",
+    id:"Kamu terlihat seperti suka bolos sekolah.",
+    answers:["haha no","never"]
+  },
+
+  {
+    en:"Your camera froze for a second.",
+    id:"Kameramu sempat freeze tadi.",
+    answers:["my internet is bad","sorry"]
+  },
+
+  {
+    en:"You look cooler than me.",
+    id:"Kamu terlihat lebih keren dariku.",
+    answers:["no way","you are cool too"]
+  },
+
+  {
+    en:"You seem easy to talk to.",
+    id:"Kamu enak diajak ngobrol.",
+    answers:["thank you","i try my best"]
+  },
+
+  {
+    en:"You have a relaxing voice.",
+    id:"Kamu punya suara yang menenangkan.",
+    answers:["really","thank you"]
+  },
+
+  {
+    en:"You react so slowly.",
+    id:"Kamu bereaksi lambat sekali.",
+    answers:["my brain is loading","haha sorry"]
+  },
+
+  {
+    en:"You look like a TikTok user.",
+    id:"Kamu terlihat seperti pengguna TikTok.",
+    answers:["because i am","haha yes"]
+  },
+
+  {
+    en:"Why are you hiding your face?",
+    id:"Kenapa kamu menyembunyikan wajahmu?",
+    answers:["i am shy","just nervous"]
+  },
+
+  {
+    en:"You look too happy today.",
+    id:"Kamu terlihat terlalu bahagia hari ini.",
+    answers:["because today is good","haha maybe"]
+  },
+
+  {
+    en:"You look like you know memes.",
+    id:"Kamu terlihat seperti tahu banyak meme.",
+    answers:["yes i love memes","haha true"]
+  },
+
+  {
+    en:"Your room looks cozy.",
+    id:"Kamarmu terlihat nyaman.",
+    answers:["thank you","i like my room"]
+  },
+
+  {
+    en:"You look like a nice person.",
+    id:"Kamu terlihat seperti orang baik.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You speak clearly.",
+    id:"Kamu bicara dengan jelas.",
+    answers:["really","thank you"]
+  },
+
+  {
+    en:"You seem funny.",
+    id:"Kamu terlihat lucu.",
+    answers:["i try","haha thanks"]
+  },
+
+  {
+    en:"You look very confident.",
+    id:"Kamu terlihat percaya diri.",
+    answers:["not really","thank you"]
+  },
+
+  {
+    en:"You look bored already.",
+    id:"Kamu terlihat bosan sudah.",
+    answers:["a little","haha maybe"]
+  },
+
+  {
+    en:"You look younger than your age.",
+    id:"Kamu terlihat lebih muda dari umurmu.",
+    answers:["really","thank you"]
+  },
+
+  {
+    en:"You have nice hair.",
+    id:"Rambutmu bagus.",
+    answers:["thank you","i just fixed it"]
+  },
+
+  {
+    en:"Your laugh sounds funny.",
+    id:"Tawamu terdengar lucu.",
+    answers:["haha sorry","thank you"]
+  },
+
+  {
+    en:"You sound sleepy.",
+    id:"Kamu terdengar ngantuk.",
+    answers:["because i am tired","maybe a little"]
+  },
+
+  {
+    en:"You look like a good student.",
+    id:"Kamu terlihat seperti murid yang baik.",
+    answers:["haha maybe","i try"]
+  },
+
+  {
+    en:"You smile a lot.",
+    id:"Kamu sering tersenyum.",
+    answers:["because i am happy","haha yes"]
+  },
+
+  {
+    en:"You look chill.",
+    id:"Kamu terlihat santai.",
+    answers:["thank you","i am relaxed"]
+  },
+
+  {
+    en:"You seem smart.",
+    id:"Kamu terlihat pintar.",
+    answers:["thank you","not really"]
+  },
+
+  {
+    en:"You look like you love music.",
+    id:"Kamu terlihat seperti suka musik.",
+    answers:["yes i do","i love music"]
+  },
+
+  {
+    en:"You talk very fast.",
+    id:"Kamu bicara sangat cepat.",
+    answers:["sorry haha","i talk too much"]
+  },
+
+  {
+    en:"You look like an introvert.",
+    id:"Kamu terlihat seperti introvert.",
+    answers:["yes i am","maybe"]
+  },
+
+  {
+    en:"You look friendly but dangerous.",
+    id:"Kamu terlihat ramah tapi berbahaya.",
+    answers:["haha what","dangerous how"]
+  },
+
+  {
+    en:"You look too comfortable here.",
+    id:"Kamu terlihat terlalu nyaman di sini.",
+    answers:["because i like talking","haha maybe"]
+  },
+
+  {
+    en:"You have a cool hoodie.",
+    id:"Hoodiemu keren.",
+    answers:["thank you","i like this hoodie"]
+  },
+
+  {
+    en:"You look like you watch anime.",
+    id:"Kamu terlihat seperti penonton anime.",
+    answers:["yes i do","how did you know"]
+  },
+
+  {
+    en:"You seem very patient.",
+    id:"Kamu terlihat sangat sabar.",
+    answers:["thank you","i try"]
+  },
+
+  {
+    en:"You laugh before finishing the joke.",
+    id:"Kamu tertawa sebelum menyelesaikan lelucon.",
+    answers:["haha true","i cant help it"]
+  },
+
+  {
+    en:"You look like you drink coffee every day.",
+    id:"Kamu terlihat seperti minum kopi setiap hari.",
+    answers:["yes i do","haha true"]
+  },
+
+  {
+    en:"You have good energy.",
+    id:"Kamu punya energi yang bagus.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You look like you never sleep early.",
+    id:"Kamu terlihat seperti tidak pernah tidur cepat.",
+    answers:["haha true","i sleep late"]
+  },
+
+  {
+    en:"You seem very relaxed.",
+    id:"Kamu terlihat sangat santai.",
+    answers:["because i am relaxed","thank you"]
+  },
+
+  {
+    en:"You sound very friendly.",
+    id:"Kamu terdengar sangat ramah.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You look like a nice gamer.",
+    id:"Kamu terlihat seperti gamer yang baik.",
+    answers:["haha maybe","thank you"]
+  },
+
+  {
+    en:"You smile with your eyes.",
+    id:"Kamu tersenyum dengan matamu.",
+    answers:["really","haha thank you"]
+  },
+
+  {
+    en:"You look too awake for this hour.",
+    id:"Kamu terlihat terlalu segar untuk jam segini.",
+    answers:["i drank coffee","haha maybe"]
+  },
+
+  {
+    en:"You react like a cartoon character.",
+    id:"Kamu bereaksi seperti karakter kartun.",
+    answers:["haha really","funny"]
+  },
+
+  {
+    en:"You look like you enjoy late night chats.",
+    id:"Kamu terlihat suka ngobrol malam.",
+    answers:["yes i do","late night is peaceful"]
+  },
+
+  {
+    en:"You seem very kind.",
+    id:"Kamu terlihat sangat baik.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You have a funny expression.",
+    id:"Ekspresimu lucu.",
+    answers:["haha sorry","really"]
+  },
+
+  {
+    en:"You look like you tell good stories.",
+    id:"Kamu terlihat seperti suka bercerita.",
+    answers:["sometimes","maybe"]
+  },
+
+  {
+    en:"You sound very calm.",
+    id:"Kamu terdengar sangat tenang.",
+    answers:["thank you","i am relaxed"]
+  },
+
+  {
+    en:"You look like you love staying at home.",
+    id:"Kamu terlihat seperti suka di rumah.",
+    answers:["yes i do","home is comfortable"]
+  },
+
+  {
+    en:"You look like a movie fan.",
+    id:"Kamu terlihat seperti pecinta film.",
+    answers:["yes i love movies","true"]
+  },
+
+  {
+    en:"You seem easygoing.",
+    id:"Kamu terlihat santai dan mudah bergaul.",
+    answers:["thank you","i think so"]
+  },
+
+  {
+    en:"You laugh very quietly.",
+    id:"Kamu tertawa pelan sekali.",
+    answers:["haha yes","i am shy"]
+  },
+
+  {
+    en:"You look like a good friend.",
+    id:"Kamu terlihat seperti teman yang baik.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You look comfortable on camera.",
+    id:"Kamu terlihat nyaman di kamera.",
+    answers:["not really","thank you"]
+  },
+
+  {
+    en:"You seem fun to hang out with.",
+    id:"Kamu terlihat seru diajak nongkrong.",
+    answers:["haha thank you","maybe"]
+  },
+
+  {
+    en:"You look very positive.",
+    id:"Kamu terlihat sangat positif.",
+    answers:["thank you","i try"]
+  },
+
+  {
+    en:"You sound like a podcast host.",
+    id:"Kamu terdengar seperti host podcast.",
+    answers:["really","haha nice"]
+  },
+
+  {
+    en:"You seem very honest.",
+    id:"Kamu terlihat sangat jujur.",
+    answers:["i try to be","thank you"]
+  },
+
+  {
+    en:"You look like someone who likes memes.",
+    id:"Kamu terlihat seperti suka meme.",
+    answers:["yes i do","haha true"]
+  },
+
+  {
+    en:"You smile a lot when talking.",
+    id:"Kamu banyak tersenyum saat bicara.",
+    answers:["because i am happy","haha yes"]
+  },
+
+  {
+    en:"You seem very chill today.",
+    id:"Kamu terlihat sangat santai hari ini.",
+    answers:["yes i am relaxed","thank you"]
+  },
+
+  {
+    en:"You have a relaxing room.",
+    id:"Kamarmu terasa menenangkan.",
+    answers:["thank you","i like my room"]
+  },
+
+  {
+    en:"You look like a kind person.",
+    id:"Kamu terlihat seperti orang baik.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You seem good at making friends.",
+    id:"Kamu terlihat pandai berteman.",
+    answers:["maybe","i like meeting people"]
+  },
+
+  {
+    en:"You look like you stay up too late.",
+    id:"Kamu terlihat seperti suka begadang.",
+    answers:["haha true","yes sometimes"]
+  },
+
+  {
+    en:"You have a cool vibe.",
+    id:"Kamu punya vibe keren.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You seem comfortable talking to strangers.",
+    id:"Kamu terlihat nyaman ngobrol dengan orang asing.",
+    answers:["a little","sometimes"]
+  },
+
+  {
+    en:"You look like you know funny videos.",
+    id:"Kamu terlihat seperti tahu video lucu.",
+    answers:["yes i watch many","haha true"]
+  },
+
+  {
+    en:"You seem very relaxed tonight.",
+    id:"Kamu terlihat sangat santai malam ini.",
+    answers:["yes i am","thank you"]
+  },
+
+  {
+    en:"You look like a coffee person.",
+    id:"Kamu terlihat seperti pecinta kopi.",
+    answers:["yes i love coffee","haha true"]
+  },
+
+  {
+    en:"You look happier now.",
+    id:"Kamu terlihat lebih bahagia sekarang.",
+    answers:["because this chat is fun","haha yes"]
+  },
+
+  {
+    en:"You look like you enjoy talking.",
+    id:"Kamu terlihat suka ngobrol.",
+    answers:["yes i do","talking is fun"]
+  },
+
+  {
+    en:"You sound nicer than most people here.",
+    id:"Kamu terdengar lebih baik daripada kebanyakan orang di sini.",
+    answers:["thank you","that is sweet"]
+  },
+
+  {
+    en:"You look like a fun person to chat with.",
+    id:"Kamu terlihat seperti orang yang seru diajak ngobrol.",
+    answers:["thank you","you too"]
+  },
+
+  {
+    en:"You have good conversation skills.",
+    id:"Kamu punya kemampuan ngobrol yang bagus.",
+    answers:["really","thank you"]
+  },
+
+  {
+    en:"You look very comfortable now.",
+    id:"Kamu terlihat sangat nyaman sekarang.",
+    answers:["yes i feel relaxed","thank you"]
+  },
+
+  {
+    en:"You seem happier after laughing.",
+    id:"Kamu terlihat lebih bahagia setelah tertawa.",
+    answers:["haha true","yes"]
+  },
+
+  {
+    en:"You look like you could talk for hours.",
+    id:"Kamu terlihat seperti bisa ngobrol berjam-jam.",
+    answers:["maybe haha","yes sometimes"]
+  },
+
+  {
+    en:"You have a funny personality.",
+    id:"Kamu punya kepribadian yang lucu.",
+    answers:["thank you","haha maybe"]
+  },
+
+  {
+    en:"You seem like a fun friend.",
+    id:"Kamu terlihat seperti teman yang seru.",
+    answers:["thank you","you too"]
+  }
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Aku setuju.", en:"I agree."},
+  {id:"Aku sangat setuju.", en:"I totally agree."},
+  {id:"Iya, benar.", en:"Yeah, that’s true."},
+  {id:"Aku juga berpikir begitu.", en:"I think so too."},
+  {id:"Aku punya pendapat yang sama.", en:"I have the same opinion."},
+  {id:"Itu masuk akal.", en:"That makes sense."},
+  {id:"Benar juga.", en:"That’s actually true."},
+  {id:"Aku mengerti maksudmu.", en:"I understand your point."},
+  {id:"Aku setuju denganmu.", en:"I agree with you."},
+  {id:"Kamu benar.", en:"You’re right."},
+
+  {id:"Aku rasa begitu juga.", en:"I think so too."},
+  {id:"Iya, aku suka ide itu.", en:"Yeah, I like that idea."},
+  {id:"Aku tidak masalah dengan itu.", en:"I don’t mind that."},
+  {id:"Aku mendukung itu.", en:"I support that."},
+  {id:"Aku rasa itu ide bagus.", en:"I think that’s a good idea."},
+  {id:"Aku suka cara berpikirmu.", en:"I like your way of thinking."},
+  {id:"Aku setuju seratus persen.", en:"I agree one hundred percent."},
+  {id:"Aku juga akan melakukan hal yang sama.", en:"I would do the same thing too."},
+  {id:"Aku rasa itu pilihan yang bagus.", en:"I think that’s a good choice."},
+  {id:"Aku bisa memahami itu.", en:"I can understand that."},
+
+  {id:"Mungkin kamu benar.", en:"Maybe you’re right."},
+  {id:"Kurasa iya.", en:"I guess so."},
+  {id:"Bisa jadi.", en:"Could be."},
+  {id:"Mungkin saja.", en:"Maybe."},
+  {id:"Aku tidak yakin, tapi mungkin.", en:"I’m not sure, but maybe."},
+  {id:"Ada kemungkinan.", en:"There’s a possibility."},
+  {id:"Mungkin itu benar.", en:"Maybe that’s true."},
+  {id:"Aku rasa itu mungkin terjadi.", en:"I think that could happen."},
+  {id:"Mungkin suatu hari nanti.", en:"Maybe someday."},
+  {id:"Siapa tahu?", en:"Who knows?"},
+
+  {id:"Aku tidak terlalu setuju.", en:"I don’t really agree."},
+  {id:"Aku rasa tidak begitu.", en:"I don’t think so."},
+  {id:"Menurutku tidak.", en:"I don’t think that’s true."},
+  {id:"Aku punya pendapat berbeda.", en:"I have a different opinion."},
+  {id:"Aku melihatnya dengan cara berbeda.", en:"I see it differently."},
+  {id:"Kurasa itu tidak benar.", en:"I think that’s not true."},
+  {id:"Aku kurang setuju soal itu.", en:"I kind of disagree with that."},
+  {id:"Aku tidak yakin tentang itu.", en:"I’m not sure about that."},
+  {id:"Menurutku itu agak berlebihan.", en:"I think that’s a bit too much."},
+  {id:"Aku rasa itu tergantung situasi.", en:"I think it depends on the situation."},
+
+  {id:"Tidak selalu begitu.", en:"Not always."},
+  {id:"Aku rasa itu tidak sesederhana itu.", en:"I don’t think it’s that simple."},
+  {id:"Aku mengerti pendapatmu, tapi aku beda pendapat.", en:"I understand your opinion, but I disagree."},
+  {id:"Aku kurang yakin dengan itu.", en:"I’m not really convinced about that."},
+  {id:"Kurasa ada cara lain melihatnya.", en:"I think there’s another way to see it."},
+  {id:"Aku rasa orang punya pendapat berbeda.", en:"I think people have different opinions."},
+  {id:"Aku tidak sepenuhnya setuju.", en:"I don’t completely agree."},
+  {id:"Aku rasa itu tidak cocok untuk semua orang.", en:"I don’t think that works for everyone."},
+  {id:"Menurutku itu terlalu sulit.", en:"I think that’s too difficult."},
+  {id:"Kurasa aku tidak akan melakukan itu.", en:"I don’t think I would do that."},
+
+  {id:"Tapi bagaimana kalau sebaliknya?", en:"But what if it’s the opposite?"},
+  {id:"Tapi bukankah itu berisiko?", en:"But isn’t that risky?"},
+  {id:"Tapi itu bisa jadi masalah.", en:"But that could be a problem."},
+  {id:"Aku rasa itu belum tentu berhasil.", en:"I don’t think that would always work."},
+  {id:"Bagaimana kalau itu gagal?", en:"What if it fails?"},
+  {id:"Tapi tidak semua orang seperti itu.", en:"But not everyone is like that."},
+  {id:"Aku rasa itu terlalu cepat disimpulkan.", en:"I think that conclusion is too fast."},
+  {id:"Mungkin ada alasan lain.", en:"Maybe there’s another reason."},
+  {id:"Aku rasa situasinya berbeda.", en:"I think the situation is different."},
+  {id:"Aku tidak melihatnya seperti itu.", en:"I don’t see it that way."},
+
+  {id:"Kurasa itu tergantung orangnya.", en:"I think it depends on the person."},
+  {id:"Menurutku semua orang berbeda.", en:"I think everyone is different."},
+  {id:"Mungkin untuk sebagian orang iya.", en:"Maybe for some people, yes."},
+  {id:"Aku bisa mengerti kedua sisi.", en:"I can understand both sides."},
+  {id:"Aku netral soal itu.", en:"I’m neutral about that."},
+  {id:"Aku belum punya pendapat pasti.", en:"I don’t have a strong opinion yet."},
+  {id:"Aku masih memikirkannya.", en:"I’m still thinking about it."},
+  {id:"Aku belum pernah mengalami itu.", en:"I’ve never experienced that before."},
+  {id:"Aku rasa itu tergantung pengalaman.", en:"I think it depends on experience."},
+  {id:"Aku rasa waktunya juga penting.", en:"I think timing matters too."},
+
+  {id:"Aku rasa kamu ada benarnya.", en:"I think you have a point."},
+  {id:"Aku bisa memahami kenapa kamu berpikir begitu.", en:"I can understand why you think that."},
+  {id:"Aku menghargai pendapatmu.", en:"I respect your opinion."},
+  {id:"Pendapatmu menarik.", en:"Your opinion is interesting."},
+  {id:"Aku belum pernah memikirkan itu sebelumnya.", en:"I never thought about that before."},
+  {id:"Itu cara berpikir yang menarik.", en:"That’s an interesting way to think about it."},
+  {id:"Aku bisa setuju sebagian.", en:"I can partly agree."},
+  {id:"Aku rasa kita punya sudut pandang berbeda.", en:"I think we have different perspectives."},
+  {id:"Aku rasa tidak ada jawaban yang benar.", en:"I don’t think there’s a right answer."},
+  {id:"Mungkin kita bisa setuju untuk tidak setuju.", en:"Maybe we can agree to disagree."},
+
+  {id:"Aku rasa itu ide yang buruk.", en:"I think that’s a bad idea."},
+  {id:"Aku tidak akan melakukan itu.", en:"I wouldn’t do that."},
+  {id:"Kurasa itu terlalu berbahaya.", en:"I think that’s too dangerous."},
+  {id:"Aku rasa itu tidak realistis.", en:"I don’t think that’s realistic."},
+  {id:"Aku rasa itu terlalu mahal.", en:"I think that’s too expensive."},
+  {id:"Aku rasa itu membosankan.", en:"I think that’s boring."},
+  {id:"Aku rasa itu terlalu rumit.", en:"I think that’s too complicated."},
+  {id:"Aku rasa itu terlalu berlebihan.", en:"I think that’s too extreme."},
+  {id:"Kurasa aku lebih memilih yang lain.", en:"I think I’d prefer something else."},
+  {id:"Aku rasa ada pilihan yang lebih baik.", en:"I think there’s a better option."},
+
+  {id:"Kalau menurutmu bagaimana?", en:"What do you think?"},
+  {id:"Apa kamu setuju denganku?", en:"Do you agree with me?"},
+  {id:"Apa kamu punya pendapat berbeda?", en:"Do you have a different opinion?"},
+  {id:"Menurutmu itu benar?", en:"Do you think that’s true?"},
+  {id:"Apa kamu yakin?", en:"Are you sure?"},
+  {id:"Kenapa kamu berpikir begitu?", en:"Why do you think that?"},
+  {id:"Apa alasannya?", en:"What’s the reason?"},
+  {id:"Apa kamu serius?", en:"Are you serious?"},
+  {id:"Benarkah begitu?", en:"Is that really true?"},
+  {id:"Apa itu pernah terjadi padamu?", en:"Has that ever happened to you?"}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

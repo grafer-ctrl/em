@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+ { id:"Masa sih?", en:"Really?" },
+  { id:"Serius?", en:"Seriously?" },
+  { id:"Apa benar?", en:"Is that true?" },
+  { id:"Oh begitu.", en:"Oh, I see." },
+  { id:"Oh jadi begitu.", en:"Oh, so that's how it is." },
+  { id:"Tidak mungkin!", en:"No way!" },
+  { id:"Wah keren banget!", en:"Wow, that's so cool!" },
+  { id:"Lucu banget!", en:"That's so funny!" },
+  { id:"Aku baru tahu.", en:"I just found out." },
+  { id:"Beneran nih?", en:"Are you for real?" },
+
+  { id:"Kamu bercanda kan?", en:"You're joking, right?" },
+  { id:"Astaga!", en:"Oh my gosh!" },
+  { id:"Gila sih.", en:"That's crazy." },
+  { id:"Parah banget.", en:"That's so bad." },
+  { id:"Aku ngakak.", en:"I'm laughing so hard." },
+  { id:"Itu lucu banget sumpah.", en:"That is seriously funny." },
+  { id:"Aku tidak menyangka.", en:"I didn't expect that." },
+  { id:"Oh pantesan.", en:"Oh, that makes sense." },
+  { id:"Aku paham sekarang.", en:"I get it now." },
+  { id:"Oh ternyata begitu.", en:"Oh, so that's what happened." },
+
+  { id:"Aku setuju.", en:"I agree." },
+  { id:"Aku juga begitu.", en:"I'm like that too." },
+  { id:"Sama banget!", en:"Exactly the same!" },
+  { id:"Relate banget.", en:"That's so relatable." },
+  { id:"Aku pernah juga.", en:"I've experienced that too." },
+  { id:"Aku ngerti perasaan itu.", en:"I understand that feeling." },
+  { id:"Itu masuk akal.", en:"That makes sense." },
+  { id:"Kedengarannya seru.", en:"That sounds fun." },
+  { id:"Kedengarannya sulit.", en:"That sounds difficult." },
+  { id:"Kedengarannya menarik.", en:"That sounds interesting." },
+
+  { id:"Wah hebat.", en:"Wow, impressive." },
+  { id:"Kamu keren juga ya.", en:"You're actually cool." },
+  { id:"Aku suka ceritamu.", en:"I like your story." },
+  { id:"Itu pengalaman yang bagus.", en:"That's a great experience." },
+  { id:"Aku salut sama kamu.", en:"I respect you for that." },
+  { id:"Wah kamu berani juga.", en:"Wow, you're brave." },
+  { id:"Aku jadi penasaran.", en:"Now I'm curious." },
+  { id:"Terus gimana?", en:"Then what happened?" },
+  { id:"Lalu apa yang terjadi?", en:"What happened next?" },
+  { id:"Jadi akhirnya bagaimana?", en:"So how did it end?" },
+
+  { id:"Hah? Aku kurang dengar.", en:"Huh? I didn't hear that." },
+  { id:"Bisa ulang sekali lagi?", en:"Can you repeat that one more time?" },
+  { id:"Tunggu sebentar.", en:"Wait a second." },
+  { id:"Pelan-pelan dong.", en:"Slow down a little." },
+  { id:"Aku sedang berpikir.", en:"I'm thinking." },
+  { id:"Oh oke oke.", en:"Oh okay, okay." },
+  { id:"Aku mengerti sekarang.", en:"I understand now." },
+  { id:"Oh jadi itu maksudmu.", en:"Oh, so that's what you mean." },
+  { id:"Aku kira berbeda.", en:"I thought it was different." },
+  { id:"Aku salah paham tadi.", en:"I misunderstood earlier." },
+
+  { id:"Itu random banget.", en:"That's so random." },
+  { id:"Kenapa bisa begitu?", en:"How did that happen?" },
+  { id:"Aku bingung.", en:"I'm confused." },
+  { id:"Aku tidak tahu harus jawab apa.", en:"I don't know what to say." },
+  { id:"Jawabanmu lucu juga.", en:"Your answer is funny too." },
+  { id:"Kamu orang yang seru.", en:"You're a fun person." },
+  { id:"Aku suka energimu.", en:"I like your energy." },
+  { id:"Vibes kamu positif banget.", en:"Your vibes are really positive." },
+  { id:"Obrolan ini seru.", en:"This conversation is fun." },
+  { id:"Aku nyaman ngobrol sama kamu.", en:"I feel comfortable talking with you." },
+
+  { id:"Wah kebetulan banget.", en:"What a coincidence." },
+  { id:"Aku juga suka itu.", en:"I like that too." },
+  { id:"Serius kamu juga?", en:"Seriously, you too?" },
+  { id:"Kita mirip ternyata.", en:"We're actually similar." },
+  { id:"Itu favoritku juga.", en:"That's my favorite too." },
+  { id:"Aku tidak percaya.", en:"I can't believe it." },
+  { id:"Kamu membuatku tertawa.", en:"You made me laugh." },
+  { id:"Aku suka sense of humor kamu.", en:"I like your sense of humor." },
+  { id:"Kamu lucu tanpa sadar.", en:"You're unintentionally funny." },
+  { id:"Aku suka cara kamu bicara.", en:"I like the way you talk." },
+
+  { id:"Aduh malu banget.", en:"That's so embarrassing." },
+  { id:"Aku bakal malu kalau jadi kamu.", en:"I would be embarrassed if I were you." },
+  { id:"Untung tidak terjadi padaku.", en:"Good thing that didn't happen to me." },
+  { id:"Itu pasti canggung.", en:"That must have been awkward." },
+  { id:"Aku bisa membayangkannya.", en:"I can imagine that." },
+  { id:"Aku ikut sedih dengarnya.", en:"That makes me sad too." },
+  { id:"Semoga sekarang lebih baik.", en:"I hope it's better now." },
+  { id:"Kamu kuat juga ya.", en:"You're pretty strong." },
+  { id:"Tetap semangat ya.", en:"Keep your spirit up." },
+  { id:"Aku mendukungmu.", en:"I support you." },
+
+  { id:"Wah cepat banget.", en:"Wow, that was fast." },
+  { id:"Lama juga ya.", en:"That took quite a while." },
+  { id:"Aku tidak menyangka itu terjadi.", en:"I didn't expect that to happen." },
+  { id:"Plot twist banget.", en:"What a plot twist." },
+  { id:"Itu di luar dugaan.", en:"That was unexpected." },
+  { id:"Aku suka cerita seperti itu.", en:"I like stories like that." },
+  { id:"Aku jadi ingin mencoba.", en:"Now I want to try it." },
+  { id:"Kelihatannya menyenangkan.", en:"It looks enjoyable." },
+  { id:"Aku iri sedikit.", en:"I'm a little jealous." },
+  { id:"Beruntung banget kamu.", en:"You're really lucky." },
+
+  { id:"Aku tidak bisa berhenti tertawa.", en:"I can't stop laughing." },
+  { id:"Sumpah itu lucu.", en:"Seriously, that's funny." },
+  { id:"Aku suka reaksimu.", en:"I like your reaction." },
+  { id:"Ekspresimu lucu.", en:"Your expression is funny." },
+  { id:"Aku menikmati obrolan ini.", en:"I'm enjoying this conversation." },
+  { id:"Aku harap kita bisa ngobrol lagi.", en:"I hope we can talk again." },
+  { id:"Waktu terasa cepat ya.", en:"Time goes by fast, huh?" },
+  { id:"Aku senang ketemu kamu.", en:"I'm happy to meet you." },
+  { id:"Obrolan ini membuat hariku lebih baik.", en:"This conversation made my day better." },
+  { id:"Terima kasih sudah cerita.", en:"Thanks for sharing your story." },
+  { id:"Oh iya juga ya.", en:"Oh yeah, that's true." },
+  { id:"Aku baru sadar.", en:"I just realized that." },
+  { id:"Wah masuk akal sih.", en:"Wow, that actually makes sense." },
+  { id:"Aku tidak kepikiran tadi.", en:"I didn't think about that earlier." },
+  { id:"Kok bisa begitu ya?", en:"How could that happen?" },
+  { id:"Aneh tapi lucu.", en:"Weird but funny." },
+  { id:"Itu unik banget.", en:"That's really unique." },
+  { id:"Aku belum pernah dengar itu.", en:"I've never heard that before." },
+  { id:"Oh jadi kamu seperti itu.", en:"Oh, so you're like that." },
+  { id:"Aku suka cara berpikirmu.", en:"I like your way of thinking." },
+
+  { id:"Jawabanmu tidak terduga.", en:"Your answer was unexpected." },
+  { id:"Aku tidak siap dengar itu.", en:"I wasn't ready to hear that." },
+  { id:"Itu mengejutkan.", en:"That's surprising." },
+  { id:"Wah dramatis juga.", en:"Wow, that's dramatic." },
+  { id:"Kamu pintar ngomong ya.", en:"You're good at talking." },
+  { id:"Aku suka topik ini.", en:"I like this topic." },
+  { id:"Seru banget ngobrol begini.", en:"Talking like this is really fun." },
+  { id:"Aku jadi semangat ngobrol.", en:"Now I'm excited to talk." },
+  { id:"Aku penasaran sama ceritanya.", en:"I'm curious about the story." },
+  { id:"Ceritakan lebih banyak.", en:"Tell me more." },
+
+  { id:"Aku bisa relate banget.", en:"I can totally relate." },
+  { id:"Aku pernah merasakan itu.", en:"I've felt that before." },
+  { id:"Itu sering terjadi padaku.", en:"That happens to me often." },
+  { id:"Aku mengerti situasinya.", en:"I understand the situation." },
+  { id:"Aku tahu rasanya.", en:"I know how it feels." },
+  { id:"Itu pasti menyenangkan.", en:"That must be fun." },
+  { id:"Itu pasti melelahkan.", en:"That must be tiring." },
+  { id:"Aku ikut senang dengarnya.", en:"I'm happy to hear that too." },
+  { id:"Wah akhirnya bagus juga.", en:"Wow, it ended well." },
+  { id:"Syukurlah.", en:"Thank goodness." },
+
+  { id:"Untung semuanya baik-baik saja.", en:"Good thing everything is okay." },
+  { id:"Aku hampir tidak percaya.", en:"I can hardly believe it." },
+  { id:"Kamu serius ngomong begitu?", en:"Are you serious saying that?" },
+  { id:"Aku sampai kaget.", en:"I was shocked." },
+  { id:"Wah plot twist lagi.", en:"Wow, another plot twist." },
+  { id:"Cerita kamu menarik.", en:"Your story is interesting." },
+  { id:"Aku tidak bosan dengarnya.", en:"I'm not bored listening to it." },
+  { id:"Kamu pandai bercerita.", en:"You're good at storytelling." },
+  { id:"Cara kamu cerita seru.", en:"The way you tell stories is fun." },
+  { id:"Aku bisa membayangkannya dengan jelas.", en:"I can imagine it clearly." },
+
+  { id:"Aku malah jadi malu.", en:"Now I'm getting embarrassed." },
+  { id:"Itu bikin aku salting.", en:"That makes me flustered." },
+  { id:"Kamu bikin suasana jadi seru.", en:"You make the atmosphere fun." },
+  { id:"Aku suka energimu hari ini.", en:"I like your energy today." },
+  { id:"Kamu kelihatan bahagia.", en:"You look happy." },
+  { id:"Aku ikut ketawa jadinya.", en:"Now I'm laughing too." },
+  { id:"Aku suka reaksimu tadi.", en:"I liked your reaction earlier." },
+  { id:"Ekspresimu priceless.", en:"Your expression is priceless." },
+  { id:"Itu spontan banget.", en:"That was so spontaneous." },
+  { id:"Aku tidak bisa berhenti senyum.", en:"I can't stop smiling." },
+
+  { id:"Wah kamu ramah banget.", en:"Wow, you're really friendly." },
+  { id:"Aku nyaman ngobrol denganmu.", en:"I feel comfortable talking with you." },
+  { id:"Kamu mudah diajak ngobrol.", en:"You're easy to talk to." },
+  { id:"Aku suka vibe obrolan ini.", en:"I like the vibe of this conversation." },
+  { id:"Rasanya seperti ngobrol sama teman lama.", en:"It feels like talking to an old friend." },
+  { id:"Aku tidak sadar waktu berjalan cepat.", en:"I didn't realize time went by so fast." },
+  { id:"Obrolan ini tidak membosankan.", en:"This conversation isn't boring." },
+  { id:"Aku jadi ingin lanjut ngobrol.", en:"Now I want to keep talking." },
+  { id:"Aku harap koneksi tidak putus.", en:"I hope the connection doesn't disconnect." },
+  { id:"Jangan skip aku ya.", en:"Don't skip me, okay?" },
+
+  { id:"Aku senang kamu muncul di sini.", en:"I'm glad you appeared here." },
+  { id:"Ini random tapi menyenangkan.", en:"This is random but fun." },
+  { id:"Aku suka momen seperti ini.", en:"I like moments like this." },
+  { id:"Kadang OmeTV memang seru.", en:"Sometimes OmeTV is really fun." },
+  { id:"Aku tidak menyangka bakal ngobrol selama ini.", en:"I didn't expect we'd talk this long." },
+  { id:"Awalnya aku malu.", en:"At first I was shy." },
+  { id:"Sekarang aku jadi santai.", en:"Now I feel relaxed." },
+  { id:"Kamu membuat suasana tidak canggung.", en:"You make things less awkward." },
+  { id:"Aku suka orang yang bisa diajak bercanda.", en:"I like people who can joke around." },
+  { id:"Humormu bagus juga.", en:"Your humor is pretty good." },
+
+  { id:"Aku tidak kuat kalau ketawa terus.", en:"I can't handle laughing nonstop." },
+  { id:"Perutku sakit karena tertawa.", en:"My stomach hurts from laughing." },
+  { id:"Itu lucu parah.", en:"That was extremely funny." },
+  { id:"Aku bakal ingat cerita itu.", en:"I'll remember that story." },
+  { id:"Kamu punya cerita random lain?", en:"Do you have another random story?" },
+  { id:"Aku penasaran sama pengalamanmu.", en:"I'm curious about your experiences." },
+  { id:"Wah hidupmu seru juga.", en:"Wow, your life sounds fun." },
+  { id:"Aku jadi iri sedikit.", en:"Now I'm a little jealous." },
+  { id:"Aku harap aku bisa mencoba itu juga.", en:"I hope I can try that too." },
+  { id:"Itu terdengar menyenangkan banget.", en:"That sounds really enjoyable." },
+
+  { id:"Aku suka cara kamu menjelaskan.", en:"I like the way you explain things." },
+  { id:"Sekarang aku mengerti.", en:"Now I understand." },
+  { id:"Oh jadi seperti itu ceritanya.", en:"Oh, so that's the story." },
+  { id:"Aku akhirnya paham.", en:"I finally understand." },
+  { id:"Ternyata tidak sesulit itu.", en:"Turns out it's not that difficult." },
+  { id:"Aku kira bakal berbeda.", en:"I thought it would be different." },
+  { id:"Jawabanmu menarik.", en:"Your answer is interesting." },
+  { id:"Aku suka pendapatmu.", en:"I like your opinion." },
+  { id:"Cara pandangmu bagus.", en:"Your perspective is good." },
+  { id:"Aku belajar sesuatu hari ini.", en:"I learned something today." },
+
+  { id:"Aku senang mendengarnya.", en:"I'm happy to hear that." },
+  { id:"Semoga semuanya berjalan lancar.", en:"I hope everything goes smoothly." },
+  { id:"Semoga harimu menyenangkan.", en:"Hope you have a nice day." },
+  { id:"Jaga dirimu baik-baik ya.", en:"Take good care of yourself." },
+  { id:"Terima kasih sudah ngobrol denganku.", en:"Thanks for talking with me." },
+  { id:"Aku menikmati setiap momennya.", en:"I enjoyed every moment of it." },
+  { id:"Aku harap kita bertemu lagi.", en:"I hope we meet again." },
+  { id:"Sampai jumpa lagi mungkin.", en:"Maybe see you again someday." },
+  { id:"Aku senang bisa kenal kamu.", en:"I'm happy to know you." },
+  { id:"Obrolan ini sangat menyenangkan.", en:"This conversation was really enjoyable." }
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

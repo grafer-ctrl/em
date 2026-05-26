@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Senyummu sangat cantik.", en:"Your smile is really beautiful."},
+  {id:"Kamu terlihat sangat ramah.", en:"You look really friendly."},
+  {id:"Bahasa Inggrismu bagus sekali.", en:"Your English is really good."},
+  {id:"Kamu punya suara yang menenangkan.", en:"You have a calming voice."},
+  {id:"Kameramu terlihat jernih sekali.", en:"Your camera looks really clear."},
+  {id:"Gayamu keren.", en:"Your style is cool."},
+
+  {id:"Kamu terlihat percaya diri.", en:"You look confident."},
+
+  {id:"Kamu lucu banget.", en:"You are really funny."},
+
+  {id:"Aku suka cara kamu berbicara.", en:"I like the way you talk."},
+
+  {id:"Energi kamu positif banget.", en:"Your energy is very positive."},
+
+  {id:"Kamu terlihat pintar.", en:"You look smart."},
+
+  {id:"Kamu enak diajak ngobrol.", en:"You are easy to talk to."},
+
+  {id:"Matamu indah.", en:"Your eyes are beautiful."},
+
+  {id:"Kamu punya selera musik yang bagus.", en:"You have good taste in music."},
+
+  {id:"Kamu terlihat sangat baik hati.", en:"You seem very kind."},
+
+  {id:"Aku suka tawamu.", en:"I like your laugh."},
+
+  {id:"Kamu punya vibe yang nyaman.", en:"You have a comfortable vibe."},
+
+  {id:"Rambutmu keren.", en:"Your hair looks cool."},
+
+  {id:"Kamu terlihat sangat santai.", en:"You look very relaxed."},
+
+  {id:"Aku suka kepribadianmu.", en:"I like your personality."},
+
+  {id:"Kamu terlihat seperti orang yang menyenangkan.", en:"You look like a fun person."},
+
+  {id:"Cara bicaramu lucu.", en:"The way you talk is cute."},
+
+  {id:"Kamu terlihat lebih muda dari umurmu.", en:"You look younger than your age."},
+
+  {id:"Kamarmu terlihat bagus.", en:"Your room looks nice."},
+
+  {id:"Kamu punya senyum yang manis.", en:"You have a sweet smile."},
+
+  {id:"Aku suka logatmu.", en:"I like your accent."},
+
+  {id:"Kamu terlihat sangat tenang.", en:"You look very calm."},
+
+  {id:"Kamu punya humor yang bagus.", en:"You have a good sense of humor."},
+
+  {id:"Kamu membuat percakapan jadi seru.", en:"You make the conversation fun."},
+
+  {id:"Aku suka gaya rambutmu.", en:"I like your hairstyle."},
+
+  {id:"Kamu terlihat sangat sopan.", en:"You look very polite."},
+
+  {id:"Wajahmu fotogenik.", en:"Your face is photogenic."},
+
+  {id:"Kamu punya mata yang lucu.", en:"You have cute eyes."},
+
+  {id:"Kamu terdengar sangat percaya diri.", en:"You sound very confident."},
+
+  {id:"Aku suka cara kamu tersenyum.", en:"I like the way you smile."},
+
+  {id:"Kamu terlihat seperti orang yang baik.", en:"You look like a good person."},
+
+  {id:"Kamu punya aura yang positif.", en:"You have a positive aura."},
+
+  {id:"Kamu terlihat sangat menarik.", en:"You look very attractive."},
+
+  {id:"Aku suka caramu bercanda.", en:"I like your jokes."},
+
+  {id:"Kamu membuatku nyaman ngobrol.", en:"You make me feel comfortable talking."},
+
+  {id:"Suaramu terdengar lembut.", en:"Your voice sounds soft."},
+
+  {id:"Kamu terlihat sangat stylish.", en:"You look very stylish."},
+
+  {id:"Aku suka ekspresimu.", en:"I like your expressions."},
+
+  {id:"Kamu punya senyum yang menenangkan.", en:"You have a calming smile."},
+
+  {id:"Kamu terlihat sangat ceria.", en:"You look very cheerful."},
+
+  {id:"Kamu punya energi yang bagus.", en:"You have great energy."},
+
+  {id:"Aku suka cara kamu tertawa.", en:"I like the way you laugh."},
+
+  {id:"Kamu terlihat sangat cool.", en:"You look really cool."},
+
+  {id:"Aku senang ngobrol denganmu.", en:"I enjoy talking with you."},
+   {id:"Kamu terlalu cantik untuk di-skip.", en:"You’re too beautiful to skip."},
+
+  {id:"Aku lupa mau ngomong apa setelah lihat kamu.", en:"I forgot what I wanted to say after seeing you."},
+
+  {id:"Senyummu bikin jantungku error.", en:"Your smile makes my heart glitch."},
+
+  {id:"Kamu bikin Ometv jadi lebih menarik.", en:"You make Ometv more interesting."},
+
+  {id:"Kalau aku ketemu kamu lebih cepat, mungkin aku nggak bakal bosan di sini.", en:"If I met you earlier, maybe I wouldn’t be bored here."},
+
+  {id:"Aku suka cara kamu melihat kamera.", en:"I like the way you look at the camera."},
+
+  {id:"Kamu punya mata yang bikin susah fokus.", en:"You have eyes that make it hard to focus."},
+
+  {id:"Kamu kelihatan seperti karakter utama di film romantis.", en:"You look like the main character in a romantic movie."},
+
+  {id:"Aku rasa algoritma Ometv sedang berpihak padaku hari ini.", en:"I think the Ometv algorithm is on my side today."},
+
+  {id:"Kalau senyummu dijual, aku bakal bangkrut.", en:"If your smile was for sale, I’d go broke."},
+
+  {id:"Kamu bikin suasana jadi lebih hangat.", en:"You make the atmosphere feel warmer."},
+
+  {id:"Aku nggak nyangka bisa ketemu orang semanis kamu di sini.", en:"I didn’t expect to meet someone this sweet here."},
+
+  {id:"Wajahmu cocok jadi wallpaper.", en:"Your face deserves to be a wallpaper."},
+
+  {id:"Kamu punya vibe yang bikin candu.", en:"You have an addictive vibe."},
+
+  {id:"Jujur, aku berharap kamu nggak skip aku.", en:"Honestly, I hope you don’t skip me."},
+
+  {id:"Kalau aku jadi penyair, mungkin aku bakal nulis tentang kamu.", en:"If I were a poet, I’d probably write about you."},
+
+  {id:"Kamu bikin aku senyum sendiri.", en:"You make me smile for no reason."},
+
+  {id:"Aku rasa kamu tahu kalau kamu menarik.", en:"I think you know you’re attractive."},
+
+  {id:"Suaramu enak banget didengar.", en:"Your voice is really nice to listen to."},
+
+  {id:"Aku bisa ngobrol sama kamu semalaman.", en:"I could talk to you all night."},
+
+  {id:"Kamu terlihat seperti tipe orang yang bikin orang susah move on.", en:"You look like the type of person people can’t move on from."},
+
+  {id:"Aku suka cara kamu tertawa.", en:"I like the way you laugh."},
+
+  {id:"Kalau kamu senyum lagi, aku bisa salting.", en:"If you smile again, I might get nervous."},
+
+  {id:"Kamu punya mata yang berbahaya.", en:"You have dangerous eyes."},
+
+  {id:"Aku baru beberapa menit ngobrol, tapi udah nyaman.", en:"We’ve only talked for a few minutes, but I already feel comfortable."},
+
+  {id:"Kamu terlalu manis untuk online jam segini.", en:"You’re too sweet to be online this late."},
+
+  {id:"Aku rasa aku beruntung ketemu kamu malam ini.", en:"I think I’m lucky to meet you tonight."},
+
+  {id:"Kamu kelihatan lebih menarik saat tersenyum.", en:"You look even more attractive when you smile."},
+
+  {id:"Aku suka energimu.", en:"I like your energy."},
+
+  {id:"Jangan salahin aku kalau aku jadi penasaran sama kamu.", en:"Don’t blame me if I get curious about you."},
+
+  {id:"Kamu kelihatan seperti orang yang bikin nyaman.", en:"You look like someone who makes people feel comfortable."},
+
+  {id:"Aku rasa kamera nggak bisa nunjukin secantik apa kamu sebenarnya.", en:"I think the camera can’t show how beautiful you really are."},
+
+  {id:"Kalau ngobrol sama kamu, waktu terasa cepat.", en:"Time goes fast when talking to you."},
+
+  {id:"Aku suka cara kamu berekspresi.", en:"I like your expressions."},
+
+  {id:"Kamu punya pesona yang sulit dijelaskan.", en:"You have a charm that’s hard to explain."},
+
+  {id:"Kamu bikin aku lupa kalau aku tadi bosan.", en:"You made me forget that I was bored."},
+
+  {id:"Aku rasa kamu pasti sering dipuji.", en:"I think people compliment you a lot."},
+
+  {id:"Kamu kelihatan sangat manis malam ini.", en:"You look really sweet tonight."},
+
+  {id:"Aku nggak nyangka obrolan random bisa seseru ini.", en:"I didn’t expect a random chat to be this fun."},
+
+  {id:"Kalau aku boleh jujur, kamu cantik banget.", en:"If I’m being honest, you’re really beautiful."},
+
+  {id:"Aku suka caramu ngomong.", en:"I like the way you talk."},
+
+  {id:"Kamu bikin aku pengen belajar bahasa Inggris lebih serius.", en:"You make me want to learn English more seriously."},
+
+  {id:"Senyummu bikin suasana jadi lebih baik.", en:"Your smile makes everything feel better."},
+
+  {id:"Aku harap koneksi kita nggak lag.", en:"I hope our connection doesn’t lag."},
+
+  {id:"Kamu terlihat seperti orang yang susah dilupakan.", en:"You look like someone hard to forget."},
+
+  {id:"Aku rasa aku bakal ingat obrolan ini.", en:"I think I’ll remember this conversation."},
+
+  {id:"Kamu punya kombinasi cantik dan lucu sekaligus.", en:"You have the perfect mix of beauty and humor."},
+
+  {id:"Aku suka ngobrol sama orang sepositif kamu.", en:"I like talking to positive people like you."},
+
+  {id:"Kamu bikin malam ini jadi nggak membosankan.", en:"You made tonight less boring."},
+
+  {id:"Kamu orang yang menyenangkan.", en:"You are a pleasant person."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

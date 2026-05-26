@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Menurutku itu bagus.", en:"I think that’s good."},
+  {id:"Menurutku itu keren.", en:"I think that’s cool."},
+  {id:"Menurutku itu lucu.", en:"I think that’s funny."},
+  {id:"Menurutku itu menarik.", en:"I think that’s interesting."},
+  {id:"Menurutku itu ide yang bagus.", en:"I think that’s a good idea."},
+  {id:"Menurutku kamu benar.", en:"I think you’re right."},
+  {id:"Menurutku itu masuk akal.", en:"I think that makes sense."},
+  {id:"Kalau menurutku sih iya.", en:"In my opinion, yes."},
+  {id:"Menurutku itu tidak terlalu buruk.", en:"I don’t think it’s that bad."},
+  {id:"Menurutku itu cukup bagus.", en:"I think it’s pretty good."},
+
+  {id:"Aku rasa itu sulit.", en:"I think that’s difficult."},
+  {id:"Aku rasa itu mudah.", en:"I think that’s easy."},
+  {id:"Menurutku cuacanya enak.", en:"I think the weather feels nice."},
+  {id:"Menurutku film itu seru.", en:"I think that movie is fun."},
+  {id:"Menurutku lagu itu santai.", en:"I think that song is relaxing."},
+  {id:"Menurutku game itu membosankan.", en:"I think that game is boring."},
+  {id:"Menurutku makanan itu enak.", en:"I think that food tastes good."},
+  {id:"Menurutku kota ini ramai.", en:"I think this city is crowded."},
+  {id:"Menurutku tempat itu indah.", en:"I think that place is beautiful."},
+  {id:"Menurutku malam lebih tenang.", en:"I think nights are calmer."},
+
+  {id:"Sejujurnya aku suka itu.", en:"Honestly, I like that."},
+  {id:"Sejujurnya aku tidak suka itu.", en:"Honestly, I don’t like that."},
+  {id:"Kalau jujur, aku setuju.", en:"To be honest, I agree."},
+  {id:"Kalau jujur, aku tidak yakin.", en:"To be honest, I’m not sure."},
+  {id:"Menurutku itu terlalu mahal.", en:"I think it’s too expensive."},
+  {id:"Menurutku itu terlalu sulit.", en:"I think it’s too hard."},
+  {id:"Menurutku itu sangat menyenangkan.", en:"I think it’s really fun."},
+  {id:"Menurutku itu agak aneh.", en:"I think it’s a little weird."},
+  {id:"Menurutku itu normal.", en:"I think that’s normal."},
+  {id:"Menurutku itu lucu banget.", en:"I think that’s really funny."},
+
+  {id:"Aku rasa kamu orang yang ramah.", en:"I think you’re a friendly person."},
+  {id:"Menurutku kamu lucu.", en:"I think you’re funny."},
+  {id:"Menurutku kamu pintar.", en:"I think you’re smart."},
+  {id:"Menurutku kamu mudah diajak ngobrol.", en:"I think you’re easy to talk to."},
+  {id:"Menurutku kamu punya selera musik bagus.", en:"I think you have good music taste."},
+  {id:"Menurutku kamu baik.", en:"I think you’re kind."},
+  {id:"Menurutku kamu percaya diri.", en:"I think you’re confident."},
+  {id:"Menurutku kamu santai.", en:"I think you’re chill."},
+  {id:"Menurutku kamu lucu saat malu.", en:"I think you’re funny when you’re shy."},
+  {id:"Menurutku suaramu bagus.", en:"I think your voice sounds nice."},
+
+  {id:"Menurutku belajar bahasa Inggris itu penting.", en:"I think learning English is important."},
+  {id:"Menurutku traveling itu menyenangkan.", en:"I think traveling is fun."},
+  {id:"Menurutku tidur itu penting.", en:"I think sleep is important."},
+  {id:"Menurutku hujan itu menenangkan.", en:"I think rain is calming."},
+  {id:"Menurutku kopi lebih enak daripada teh.", en:"I think coffee is better than tea."},
+  {id:"Menurutku musik bisa memperbaiki mood.", en:"I think music can improve your mood."},
+  {id:"Menurutku game lebih seru dengan teman.", en:"I think games are more fun with friends."},
+  {id:"Menurutku malam hari lebih nyaman.", en:"I think nighttime feels more comfortable."},
+  {id:"Menurutku pantai lebih bagus daripada gunung.", en:"I think beaches are better than mountains."},
+  {id:"Menurutku cuaca dingin lebih enak.", en:"I think cold weather feels better."},
+
+  {id:"Kurasa begitu.", en:"I guess so."},
+  {id:"Mungkin iya.", en:"Maybe yes."},
+  {id:"Mungkin tidak.", en:"Maybe not."},
+  {id:"Aku rasa iya.", en:"I think so."},
+  {id:"Aku rasa tidak.", en:"I don’t think so."},
+  {id:"Menurutku itu tergantung.", en:"I think it depends."},
+  {id:"Kurasa itu ide bagus.", en:"I guess that’s a good idea."},
+  {id:"Kurasa itu bisa berhasil.", en:"I think that could work."},
+  {id:"Menurutku itu cukup adil.", en:"I think that’s fair enough."},
+  {id:"Kurasa aku setuju denganmu.", en:"I guess I agree with you."},
+
+  {id:"Menurutku itu terlalu ramai.", en:"I think it’s too crowded."},
+  {id:"Menurutku tempat ini nyaman.", en:"I think this place feels comfortable."},
+  {id:"Menurutku film lama lebih bagus.", en:"I think old movies are better."},
+  {id:"Menurutku lagu lama punya vibe berbeda.", en:"I think old songs have a different vibe."},
+  {id:"Menurutku anime itu bagus.", en:"I think anime is good."},
+  {id:"Menurutku olahraga itu penting.", en:"I think sports are important."},
+  {id:"Menurutku membaca buku itu santai.", en:"I think reading books is relaxing."},
+  {id:"Menurutku belajar online lebih fleksibel.", en:"I think online learning is more flexible."},
+  {id:"Menurutku kota kecil lebih tenang.", en:"I think small towns are calmer."},
+  {id:"Menurutku kota besar lebih seru.", en:"I think big cities are more exciting."},
+
+  {id:"Menurutku itu keputusan yang bagus.", en:"I think that’s a good decision."},
+  {id:"Menurutku itu pilihan yang tepat.", en:"I think that’s the right choice."},
+  {id:"Menurutku kamu harus mencobanya.", en:"I think you should try it."},
+  {id:"Menurutku itu layak dicoba.", en:"I think it’s worth trying."},
+  {id:"Menurutku itu terlalu berlebihan.", en:"I think that’s too much."},
+  {id:"Menurutku itu sangat membantu.", en:"I think that’s really helpful."},
+  {id:"Menurutku itu terdengar seru.", en:"I think that sounds fun."},
+  {id:"Menurutku itu terdengar sulit.", en:"I think that sounds difficult."},
+  {id:"Menurutku itu terdengar menarik.", en:"I think that sounds interesting."},
+  {id:"Menurutku itu terdengar santai.", en:"I think that sounds relaxing."},
+
+  {id:"Menurutku orang-orang di sini ramah.", en:"I think people here are friendly."},
+  {id:"Menurutku negara itu indah.", en:"I think that country is beautiful."},
+  {id:"Menurutku makanan Asia sangat enak.", en:"I think Asian food is really delicious."},
+  {id:"Menurutku traveling sendirian seru.", en:"I think solo traveling is fun."},
+  {id:"Menurutku Ometv bagus untuk latihan bahasa Inggris.", en:"I think Ometv is good for practicing English."},
+  {id:"Menurutku ngobrol dengan orang asing itu menarik.", en:"I think talking to strangers is interesting."},
+  {id:"Menurutku semua orang punya kepribadian unik.", en:"I think everyone has a unique personality."},
+  {id:"Menurutku malam hujan cocok untuk dengar musik.", en:"I think rainy nights are perfect for listening to music."},
+  {id:"Menurutku suara hujan bikin tenang.", en:"I think rain sounds are calming."},
+  {id:"Menurutku ngobrol santai seperti ini menyenangkan.", en:"I think casual conversations like this are fun."},
+
+  {id:"Menurutku kamu punya energi positif.", en:"I think you have positive energy."},
+  {id:"Menurutku vibe kamu bagus.", en:"I think your vibe is nice."},
+  {id:"Menurutku kamu orang yang asik.", en:"I think you’re a fun person."},
+  {id:"Menurutku kamu orang yang baik.", en:"I think you’re a good person."},
+  {id:"Menurutku kamu gampang membuat orang nyaman.", en:"I think you make people feel comfortable easily."},
+  {id:"Menurutku kita punya banyak kesamaan.", en:"I think we have a lot in common."},
+  {id:"Menurutku ngobrol denganmu tidak membosankan.", en:"I think talking with you isn’t boring."},
+  {id:"Menurutku kamu punya selera yang bagus.", en:"I think you have good taste."},
+  {id:"Menurutku kamu terdengar pintar.", en:"I think you sound smart."},
+  {id:"Menurutku ini obrolan yang menyenangkan.", en:"I think this is a fun conversation."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

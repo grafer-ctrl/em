@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Kamu masih sekolah?", en:"Are you still in school?"},
+  {id:"Kamu sekolah di mana?", en:"Where do you study?"},
+  {id:"Kamu kelas berapa?", en:"What grade are you in?"},
+  {id:"Pelajaran favoritmu apa?", en:"What is your favorite subject?"},
+  {id:"Kamu suka matematika?", en:"Do you like math?"},
+  {id:"Bahasa Inggris sulit buatmu?", en:"Is English difficult for you?"},
+  {id:"Guru favoritmu siapa?", en:"Who is your favorite teacher?"},
+  {id:"Kamu sering dapat PR?", en:"Do you get a lot of homework?"},
+  {id:"Kamu biasanya belajar malam atau pagi?", en:"Do you usually study at night or in the morning?"},
+  {id:"Kamu suka sekolah online atau offline?", en:"Do you prefer online or offline school?"},
+  {id:"Kamu punya banyak teman di sekolah?", en:"Do you have many friends at school?"},
+  {id:"Pelajaran paling sulit apa buatmu?", en:"What is the hardest subject for you?"},
+  {id:"Kamu suka presentasi di kelas?", en:"Do you like giving presentations in class?"},
+  {id:"Kamu sering telat sekolah?", en:"Are you often late for school?"},
+  {id:"Kamu bawa bekal ke sekolah?", en:"Do you bring lunch to school?"},
+  {id:"Jam berapa kamu biasanya berangkat sekolah?", en:"What time do you usually go to school?"},
+  {id:"Kamu naik apa ke sekolah?", en:"How do you go to school?"},
+  {id:"Sekolahmu jauh dari rumah?", en:"Is your school far from your house?"},
+  {id:"Kamu suka olahraga di sekolah?", en:"Do you like sports at school?"},
+  {id:"Kamu ikut klub di sekolah?", en:"Are you in any school clubs?"},
+  {id:"Kamu pernah dihukum guru?", en:"Have you ever been punished by a teacher?"},
+  {id:"Kamu suka suasana kelasmu?", en:"Do you like your classroom atmosphere?"},
+  {id:"Kamu punya sahabat di sekolah?", en:"Do you have a best friend at school?"},
+  {id:"Apa cita-citamu?", en:"What is your dream job?"},
+  {id:"Kamu mau kuliah nanti?", en:"Do you want to go to college later?"},
+  {id:"Jurusan apa yang kamu inginkan?", en:"What major do you want to take?"},
+  {id:"Kamu suka belajar bahasa asing?", en:"Do you like learning foreign languages?"},
+  {id:"Ujian membuatmu stres?", en:"Do exams stress you out?"},
+  {id:"Kamu lebih suka belajar sendiri atau kelompok?", en:"Do you prefer studying alone or in groups?"},
+  {id:"Kamu biasanya belajar berapa jam sehari?", en:"How many hours do you study per day?"},
+  {id:"Apa yang kamu lakukan saat istirahat sekolah?", en:"What do you do during school breaks?"},
+  {id:"Kamu suka kantin sekolah?", en:"Do you like your school cafeteria?"},
+  {id:"Makanan favorit di sekolahmu apa?", en:"What is your favorite food at school?"},
+  {id:"Kamu sering main dengan teman setelah sekolah?", en:"Do you hang out with friends after school?"},
+  {id:"Hari sekolah favoritmu hari apa?", en:"What is your favorite school day?"},
+  {id:"Kamu suka seragam sekolahmu?", en:"Do you like your school uniform?"},
+  {id:"Kamu pernah tidur di kelas?", en:"Have you ever slept in class?"},
+  {id:"Pelajaran apa yang paling membosankan?", en:"What is the most boring subject?"},
+  {id:"Kamu suka tugas kelompok?", en:"Do you like group projects?"},
+  {id:"Kamu ingin sekolah di luar negeri?", en:"Do you want to study abroad?"},
+
+  {id:"Kamu kerja atau sekolah?", en:"Do you work or study?"},
+  {id:"Apa pekerjaanmu?", en:"What is your job?"},
+  {id:"Kamu kerja full-time atau part-time?", en:"Do you work full-time or part-time?"},
+  {id:"Kamu kerja di mana?", en:"Where do you work?"},
+  {id:"Kamu suka pekerjaanmu?", en:"Do you like your job?"},
+  {id:"Pekerjaanmu sibuk?", en:"Is your job busy?"},
+  {id:"Jam kerja kamu bagaimana?", en:"What are your working hours like?"},
+  {id:"Kamu kerja dari rumah?", en:"Do you work from home?"},
+  {id:"Pekerjaanmu sulit?", en:"Is your job difficult?"},
+  {id:"Apa bagian paling menyenangkan dari pekerjaanmu?", en:"What is the most fun part of your job?"},
+  {id:"Apa bagian paling melelahkan dari pekerjaanmu?", en:"What is the most tiring part of your job?"},
+  {id:"Kamu punya rekan kerja yang baik?", en:"Do you have nice coworkers?"},
+  {id:"Kamu sering lembur?", en:"Do you often work overtime?"},
+  {id:"Kamu kerja pagi atau malam?", en:"Do you work in the morning or at night?"},
+  {id:"Kamu suka suasana tempat kerjamu?", en:"Do you like your workplace atmosphere?"},
+  {id:"Kamu kerja sambil kuliah?", en:"Do you work while studying?"},
+  {id:"Pekerjaan impianmu apa?", en:"What is your dream job?"},
+  {id:"Kamu ingin jadi bos suatu hari nanti?", en:"Do you want to be a boss someday?"},
+  {id:"Kamu capek setelah kerja?", en:"Do you feel tired after work?"},
+  {id:"Kamu biasanya pulang kerja jam berapa?", en:"What time do you usually get home from work?"},
+  {id:"Kamu minum kopi saat kerja?", en:"Do you drink coffee while working?"},
+  {id:"Kamu pernah kerja sambil ngantuk?", en:"Have you ever worked while sleepy?"},
+  {id:"Kamu suka ngobrol dengan rekan kerja?", en:"Do you like talking with coworkers?"},
+  {id:"Pekerjaanmu membutuhkan bahasa Inggris?", en:"Does your job require English?"},
+  {id:"Kamu ingin ganti pekerjaan?", en:"Do you want to change jobs?"},
+  {id:"Kamu kerja menggunakan laptop?", en:"Do you work using a laptop?"},
+  {id:"Kamu kerja di kantor atau luar ruangan?", en:"Do you work in an office or outdoors?"},
+  {id:"Kamu suka akhir pekan karena libur kerja?", en:"Do you like weekends because of work breaks?"},
+  {id:"Apa pekerjaan yang ingin kamu coba?", en:"What job would you like to try?"},
+  {id:"Kamu pernah kerja part-time?", en:"Have you ever had a part-time job?"},
+
+  {id:"Kamu lebih suka sekolah atau kerja?", en:"Do you prefer school or work?"},
+  {id:"Menurutmu sekolah penting?", en:"Do you think school is important?"},
+  {id:"Menurutmu pengalaman kerja penting?", en:"Do you think work experience is important?"},
+  {id:"Kamu ingin punya bisnis sendiri?", en:"Do you want to have your own business?"},
+  {id:"Kamu suka belajar hal baru?", en:"Do you like learning new things?"},
+  {id:"Kamu pernah presentasi di kantor atau sekolah?", en:"Have you ever given a presentation at work or school?"},
+  {id:"Kamu lebih suka kerja sendiri atau tim?", en:"Do you prefer working alone or in a team?"},
+  {id:"Kamu lebih suka tugas mudah atau menantang?", en:"Do you prefer easy or challenging tasks?"},
+  {id:"Kamu ingin pekerjaan dengan gaji tinggi?", en:"Do you want a high-paying job?"},
+  {id:"Kamu suka bangun pagi untuk sekolah atau kerja?", en:"Do you like waking up early for school or work?"},
+  {id:"Kamu pernah bolos sekolah atau kerja?", en:"Have you ever skipped school or work?"},
+  {id:"Kamu lebih suka belajar online atau langsung?", en:"Do you prefer online or face-to-face learning?"},
+  {id:"Kamu pernah merasa malas sekolah atau kerja?", en:"Have you ever felt lazy about school or work?"},
+  {id:"Kamu punya target untuk masa depan?", en:"Do you have goals for the future?"},
+  {id:"Kamu ingin kerja di luar negeri?", en:"Do you want to work abroad?"},
+  {id:"Kamu suka lingkungan sekolahmu?", en:"Do you like your school environment?"},
+  {id:"Kamu suka lingkungan kerjamu?", en:"Do you like your work environment?"},
+  {id:"Kamu lebih suka belajar teori atau praktik?", en:"Do you prefer theory or practice?"},
+  {id:"Kamu ingin jadi sukses di umur muda?", en:"Do you want to be successful at a young age?"},
+  {id:"Kamu pernah gugup saat presentasi?", en:"Have you ever been nervous during a presentation?"},
+  {id:"Kamu suka memakai seragam sekolah atau kerja?", en:"Do you like wearing school or work uniforms?"},
+  {id:"Kamu punya teman dekat di tempat kerja?", en:"Do you have close friends at work?"},
+  {id:"Kamu punya teman dekat di sekolah?", en:"Do you have close friends at school?"},
+  {id:"Kamu suka belajar sambil dengar musik?", en:"Do you like studying while listening to music?"},
+  {id:"Kamu biasanya istirahat jam berapa di sekolah atau kerja?", en:"What time is your break at school or work?"},
+  {id:"Kamu pernah lupa tugas sekolah atau kerja?", en:"Have you ever forgotten school or work tasks?"},
+  {id:"Kamu lebih suka hari sekolah atau hari libur?", en:"Do you prefer school days or holidays?"},
+  {id:"Kamu lebih suka kerja pagi atau malam?", en:"Do you prefer working in the morning or at night?"},
+  {id:"Kamu suka suasana kantor yang tenang?", en:"Do you like a quiet office atmosphere?"},
+  {id:"Kamu ingin pekerjaan yang santai atau sibuk?", en:"Do you want a relaxing or busy job?"}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

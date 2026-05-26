@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+     {id:"Kamu suka traveling?", en:"Do you like traveling?"},
+  {id:"Aku suka jalan-jalan.", en:"I like traveling around."},
+  {id:"Negara impianmu apa?", en:"What is your dream country?"},
+  {id:"Aku ingin pergi ke Jepang.", en:"I want to go to Japan."},
+  {id:"Aku ingin ke Korea suatu hari nanti.", en:"I want to go to Korea someday."},
+  {id:"Kamu pernah ke luar negeri?", en:"Have you ever been abroad?"},
+  {id:"Aku belum pernah naik pesawat.", en:"I have never been on a plane."},
+  {id:"Aku suka melihat tempat baru.", en:"I like seeing new places."},
+  {id:"Traveling membuatku bahagia.", en:"Traveling makes me happy."},
+  {id:"Aku suka suasana bandara.", en:"I like airport vibes."},
+  {id:"Kamu suka traveling sendirian?", en:"Do you like solo traveling?"},
+  {id:"Aku ingin solo traveling.", en:"I want to solo travel."},
+  {id:"Aku suka road trip.", en:"I like road trips."},
+  {id:"Perjalanan jauh terasa seru.", en:"Long trips feel exciting."},
+  {id:"Aku suka naik kereta.", en:"I like riding trains."},
+  {id:"Aku suka melihat pemandangan dari jendela.", en:"I like looking at the scenery from the window."},
+  {id:"Tempat favoritmu apa?", en:"What is your favorite place?"},
+  {id:"Aku suka pantai.", en:"I like beaches."},
+  {id:"Aku suka gunung.", en:"I like mountains."},
+  {id:"Aku suka suasana alam.", en:"I like nature vibes."},
+  {id:"Aku suka udara dingin.", en:"I like cold weather."},
+  {id:"Aku suka kota yang tenang.", en:"I like quiet cities."},
+  {id:"Aku suka kota besar juga.", en:"I also like big cities."},
+  {id:"Kamu suka wisata alam?", en:"Do you like nature tourism?"},
+  {id:"Aku suka melihat sunset.", en:"I like watching sunsets."},
+  {id:"Aku suka sunrise di gunung.", en:"I like mountain sunrises."},
+  {id:"Traveling bikin pikiran segar.", en:"Traveling refreshes the mind."},
+  {id:"Aku suka mencoba makanan lokal.", en:"I like trying local food."},
+  {id:"Makanan lokal selalu menarik.", en:"Local food is always interesting."},
+  {id:"Aku suka street food.", en:"I like street food."},
+  {id:"Kamu suka kuliner saat traveling?", en:"Do you like food while traveling?"},
+  {id:"Aku suka mencoba minuman baru.", en:"I like trying new drinks."},
+  {id:"Aku suka berjalan di kota baru.", en:"I like walking in new cities."},
+  {id:"Aku suka mengambil foto saat traveling.", en:"I like taking photos while traveling."},
+  {id:"Kamu suka fotografi?", en:"Do you like photography?"},
+  {id:"Aku suka mengabadikan momen.", en:"I like capturing moments."},
+  {id:"Aku suka melihat tempat bersejarah.", en:"I like visiting historical places."},
+  {id:"Aku suka museum.", en:"I like museums."},
+  {id:"Aku suka budaya baru.", en:"I like new cultures."},
+  {id:"Traveling membuatku belajar banyak hal.", en:"Traveling teaches me many things."},
+  {id:"Aku suka bertemu orang baru saat traveling.", en:"I like meeting new people while traveling."},
+  {id:"Aku suka suasana kota malam.", en:"I like city night vibes."},
+  {id:"Aku suka jalan malam saat traveling.", en:"I like night walks while traveling."},
+  {id:"Aku suka melihat lampu kota.", en:"I like looking at city lights."},
+  {id:"Kamu lebih suka pantai atau gunung?", en:"Do you prefer beaches or mountains?"},
+  {id:"Aku suka tempat yang damai.", en:"I like peaceful places."},
+  {id:"Aku suka tempat yang ramai juga.", en:"I also like crowded places."},
+  {id:"Aku ingin traveling keliling dunia.", en:"I want to travel around the world."},
+  {id:"Aku ingin backpacking.", en:"I want to go backpacking."},
+  {id:"Aku suka perjalanan spontan.", en:"I like spontaneous trips."},
+  {id:"Kadang rencana dadakan lebih seru.", en:"Sometimes sudden plans are more fun."},
+  {id:"Aku suka menjelajah tempat baru.", en:"I like exploring new places."},
+  {id:"Traveling membuat hidup lebih seru.", en:"Traveling makes life more exciting."},
+  {id:"Aku suka hotel dengan pemandangan bagus.", en:"I like hotels with good views."},
+  {id:"Aku suka staycation juga.", en:"I also like staycations."},
+  {id:"Aku suka suasana hotel.", en:"I like hotel vibes."},
+  {id:"Aku suka berenang saat liburan.", en:"I like swimming during vacations."},
+  {id:"Aku suka laut biru.", en:"I like blue oceans."},
+  {id:"Aku suka pasir putih.", en:"I like white sand."},
+  {id:"Aku suka camping.", en:"I like camping."},
+  {id:"Aku suka api unggun.", en:"I like campfires."},
+  {id:"Aku suka melihat bintang saat camping.", en:"I like watching stars while camping."},
+  {id:"Kamu suka hiking?", en:"Do you like hiking?"},
+  {id:"Aku ingin mendaki gunung suatu hari.", en:"I want to climb a mountain someday."},
+  {id:"Aku suka udara segar.", en:"I like fresh air."},
+  {id:"Traveling membuat stres hilang.", en:"Traveling removes stress."},
+  {id:"Aku suka mendengar suara ombak.", en:"I like hearing the sound of waves."},
+  {id:"Aku suka suasana santai saat liburan.", en:"I like relaxing vacation vibes."},
+  {id:"Aku ingin pergi ke Eropa.", en:"I want to go to Europe."},
+  {id:"Aku ingin melihat salju.", en:"I want to see snow."},
+  {id:"Aku suka cuaca musim dingin.", en:"I like winter weather."},
+  {id:"Aku suka membeli oleh-oleh.", en:"I like buying souvenirs."},
+  {id:"Aku suka mengumpulkan foto traveling.", en:"I like collecting travel photos."},
+  {id:"Aku suka membuat vlog traveling.", en:"I like making travel vlogs."},
+  {id:"Aku suka naik kapal.", en:"I like riding boats."},
+  {id:"Aku suka melihat pulau kecil.", en:"I like seeing small islands."},
+  {id:"Aku suka tempat tersembunyi.", en:"I like hidden places."},
+  {id:"Aku suka tempat yang aesthetic.", en:"I like aesthetic places."},
+  {id:"Traveling memberi banyak kenangan.", en:"Traveling creates many memories."},
+  {id:"Aku suka perjalanan panjang.", en:"I like long journeys."},
+  {id:"Aku suka mendengar cerita traveling orang lain.", en:"I like hearing other people’s travel stories."},
+  {id:"Kamu pernah tersesat saat traveling?", en:"Have you ever gotten lost while traveling?"},
+  {id:"Kadang tersesat malah jadi pengalaman lucu.", en:"Sometimes getting lost becomes a funny experience."},
+  {id:"Aku suka petualangan random.", en:"I like random adventures."},
+  {id:"Aku suka mencoba transportasi umum.", en:"I like trying public transportation."},
+  {id:"Aku suka melihat kehidupan lokal.", en:"I like seeing local life."},
+  {id:"Aku suka pasar tradisional.", en:"I like traditional markets."},
+  {id:"Aku suka suasana pagi di kota baru.", en:"I like mornings in new cities."},
+  {id:"Aku suka cafe unik saat traveling.", en:"I like unique cafes while traveling."},
+  {id:"Aku suka nongkrong sambil melihat pemandangan.", en:"I like hanging out while enjoying the view."},
+  {id:"Aku suka traveling dengan teman.", en:"I like traveling with friends."},
+  {id:"Aku juga suka traveling sendiri.", en:"I also like traveling alone."},
+  {id:"Kadang traveling sendiri terasa damai.", en:"Sometimes solo traveling feels peaceful."},
+  {id:"Aku ingin lebih sering traveling.", en:"I want to travel more often."},
+  {id:"Traveling adalah hobiku.", en:"Traveling is my hobby."},
+  {id:"Aku suka merencanakan liburan.", en:"I like planning vacations."},
+  {id:"Aku suka mencari tempat hidden gem.", en:"I like finding hidden gems."},
+  {id:"Aku suka suasana liburan.", en:"I like vacation vibes."},
+  {id:"Aku ingin melihat dunia lebih banyak.", en:"I want to see more of the world."},
+  {id:"Traveling membuat hidup terasa bebas.", en:"Traveling makes life feel free."},
+  {id:"Aku harap bisa traveling tahun ini.", en:"I hope I can travel this year."},
+  {id:"Kita harus traveling suatu hari nanti.", en:"We should travel someday."},
+  {id:"Aku suka naik pesawat malam.", en:"I like taking night flights."},
+  {id:"Bandara selalu terasa menarik bagiku.", en:"Airports always feel interesting to me."},
+  {id:"Aku suka melihat orang bepergian.", en:"I like watching people travel."},
+  {id:"Traveling membuatku merasa hidup.", en:"Traveling makes me feel alive."},
+  {id:"Aku suka mendengar suara hujan saat traveling.", en:"I like hearing rain while traveling."},
+  {id:"Aku suka duduk dekat jendela di pesawat.", en:"I like sitting near the window on airplanes."},
+  {id:"Pemandangan dari atas awan sangat indah.", en:"The view above the clouds is beautiful."},
+  {id:"Aku suka perjalanan pagi.", en:"I like morning trips."},
+  {id:"Aku suka suasana stasiun kereta.", en:"I like train station vibes."},
+  {id:"Aku suka perjalanan tanpa jadwal ketat.", en:"I like trips without strict schedules."},
+  {id:"Aku suka spontanitas saat traveling.", en:"I like spontaneity while traveling."},
+  {id:"Aku suka mencari hidden cafe.", en:"I like looking for hidden cafes."},
+  {id:"Aku suka jalan kaki di kota baru.", en:"I like walking in new cities."},
+  {id:"Aku suka melihat arsitektur unik.", en:"I like seeing unique architecture."},
+  {id:"Aku suka bangunan tua.", en:"I like old buildings."},
+  {id:"Aku suka suasana kota klasik.", en:"I like classic city vibes."},
+  {id:"Aku suka melihat jalan kecil yang aesthetic.", en:"I like seeing aesthetic small streets."},
+  {id:"Aku suka naik bus saat traveling.", en:"I like riding buses while traveling."},
+  {id:"Aku suka perjalanan panjang dengan musik.", en:"I like long trips with music."},
+  {id:"Playlist traveling penting banget.", en:"Travel playlists are really important."},
+  {id:"Aku suka lagu yang cocok untuk road trip.", en:"I like songs that fit road trips."},
+  {id:"Aku suka melihat sunrise dari perjalanan.", en:"I like watching sunrises during trips."},
+  {id:"Aku suka suasana pagi di bandara.", en:"I like morning airport vibes."},
+  {id:"Aku suka check-in hotel.", en:"I like checking into hotels."},
+  {id:"Aku suka mencoba makanan hotel.", en:"I like trying hotel food."},
+  {id:"Aku suka kamar hotel yang nyaman.", en:"I like comfortable hotel rooms."},
+  {id:"Aku suka balkon dengan pemandangan bagus.", en:"I like balconies with good views."},
+  {id:"Aku suka tempat dengan udara segar.", en:"I like places with fresh air."},
+  {id:"Aku suka tempat yang tidak terlalu ramai.", en:"I like places that aren’t too crowded."},
+  {id:"Aku suka desa wisata.", en:"I like tourist villages."},
+  {id:"Aku suka budaya tradisional.", en:"I like traditional culture."},
+  {id:"Aku suka festival lokal.", en:"I like local festivals."},
+  {id:"Aku suka mencoba pakaian tradisional.", en:"I like trying traditional clothes."},
+  {id:"Aku suka belajar bahasa baru saat traveling.", en:"I like learning new languages while traveling."},
+  {id:"Aku suka mendengar aksen berbeda.", en:"I like hearing different accents."},
+  {id:"Traveling membuat pikiranku terbuka.", en:"Traveling opens my mind."},
+  {id:"Aku suka bertemu traveler lain.", en:"I like meeting other travelers."},
+  {id:"Aku suka mendengar cerita perjalanan orang.", en:"I like hearing people’s travel stories."},
+  {id:"Aku suka perjalanan mendadak.", en:"I like sudden trips."},
+  {id:"Kadang trip terbaik tidak direncanakan.", en:"Sometimes the best trips are unplanned."},
+  {id:"Aku suka mengejar sunset.", en:"I like chasing sunsets."},
+  {id:"Aku suka tempat romantis.", en:"I like romantic places."},
+  {id:"Aku suka cafe dengan view bagus.", en:"I like cafes with good views."},
+  {id:"Aku suka rooftop cafe.", en:"I like rooftop cafes."},
+  {id:"Aku suka suasana kota di malam hari.", en:"I like city vibes at night."},
+  {id:"Aku suka lampu kota saat hujan.", en:"I like city lights during rain."},
+  {id:"Aku suka jalan santai di malam hari.", en:"I like slow walks at night."},
+  {id:"Aku suka melihat laut saat malam.", en:"I like looking at the sea at night."},
+  {id:"Aku suka suara ombak sebelum tidur.", en:"I like the sound of waves before sleeping."},
+  {id:"Aku suka vila dekat pantai.", en:"I like villas near the beach."},
+  {id:"Aku suka resort yang tenang.", en:"I like peaceful resorts."},
+  {id:"Aku suka tempat healing.", en:"I like healing places."},
+  {id:"Traveling membuatku lebih rileks.", en:"Traveling makes me more relaxed."},
+  {id:"Aku suka staycation akhir pekan.", en:"I like weekend staycations."},
+  {id:"Aku suka liburan singkat.", en:"I like short vacations."},
+  {id:"Aku suka city tour.", en:"I like city tours."},
+  {id:"Aku suka tempat yang Instagramable.", en:"I like Instagrammable places."},
+  {id:"Aku suka mengambil foto candid.", en:"I like taking candid photos."},
+  {id:"Aku suka membuat kenangan saat traveling.", en:"I like making memories while traveling."},
+  {id:"Aku suka menyimpan tiket perjalanan.", en:"I like keeping travel tickets."},
+  {id:"Aku suka membeli magnet kulkas dari tempat wisata.", en:"I like buying fridge magnets from tourist spots."},
+  {id:"Aku suka mengoleksi postcard.", en:"I like collecting postcards."},
+  {id:"Aku suka melihat peta perjalanan.", en:"I like looking at travel maps."},
+  {id:"Aku suka merencanakan trip berikutnya.", en:"I like planning my next trip."},
+  {id:"Aku suka menonton vlog traveling.", en:"I like watching travel vlogs."},
+  {id:"Aku suka konten backpacker.", en:"I like backpacker content."},
+  {id:"Aku suka traveling dengan budget hemat.", en:"I like budget traveling."},
+  {id:"Aku suka berburu tiket murah.", en:"I like hunting for cheap tickets."},
+  {id:"Aku suka promo hotel.", en:"I like hotel promotions."},
+  {id:"Aku suka liburan low budget.", en:"I like low-budget vacations."},
+  {id:"Yang penting pengalaman.", en:"The important thing is the experience."},
+  {id:"Aku suka tempat yang belum terlalu terkenal.", en:"I like places that aren’t too famous yet."},
+  {id:"Aku suka hidden gem.", en:"I like hidden gems."},
+  {id:"Aku suka suasana alami.", en:"I like natural atmospheres."},
+  {id:"Aku suka tempat tanpa banyak turis.", en:"I like places without many tourists."},
+  {id:"Aku suka udara pegunungan.", en:"I like mountain air."},
+  {id:"Aku suka kabut pagi di gunung.", en:"I like morning fog in the mountains."},
+  {id:"Aku suka suara alam.", en:"I like nature sounds."},
+  {id:"Aku suka tempat yang sunyi.", en:"I like quiet places."},
+  {id:"Kadang ketenangan itu mahal.", en:"Sometimes peace is valuable."},
+  {id:"Aku suka traveling untuk mencari ketenangan.", en:"I like traveling to find peace."},
+  {id:"Aku suka perjalanan yang santai.", en:"I like relaxed trips."},
+  {id:"Aku tidak suka terburu-buru saat liburan.", en:"I don’t like rushing during vacations."},
+  {id:"Aku suka menikmati setiap momen.", en:"I like enjoying every moment."},
+  {id:"Aku suka melihat kehidupan lokal.", en:"I like seeing local life."},
+  {id:"Aku suka ngobrol dengan warga lokal.", en:"I like talking with locals."},
+  {id:"Aku suka belajar kebiasaan baru.", en:"I like learning new habits."},
+  {id:"Traveling membuatku lebih bersyukur.", en:"Traveling makes me more grateful."},
+  {id:"Aku suka mencoba hal baru saat traveling.", en:"I like trying new things while traveling."},
+  {id:"Aku suka tantangan kecil selama perjalanan.", en:"I like small challenges during trips."},
+  {id:"Aku suka pengalaman pertama.", en:"I like first-time experiences."},
+  {id:"Aku suka membuat cerita baru.", en:"I like creating new stories."},
+  {id:"Aku suka perjalanan yang penuh kejutan.", en:"I like trips full of surprises."},
+  {id:"Aku suka momen random saat traveling.", en:"I like random moments while traveling."},
+  {id:"Traveling membuat hidup lebih berwarna.", en:"Traveling makes life more colorful."},
+  {id:"Aku ingin traveling lebih sering.", en:"I want to travel more often."},
+  {id:"Aku ingin melihat lebih banyak tempat indah.", en:"I want to see more beautiful places."},
+  {id:"Aku ingin menjelajah dunia.", en:"I want to explore the world."},
+  {id:"Aku harap bisa traveling tahun depan.", en:"I hope I can travel next year."},
+  {id:"Traveling adalah bentuk kebebasan bagiku.", en:"Traveling is a form of freedom for me."},
+  {id:"Aku suka hidup penuh petualangan.", en:"I like a life full of adventure."},
+  {id:"Semoga kita bisa traveling suatu hari nanti.", en:"I hope we can travel someday."}
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

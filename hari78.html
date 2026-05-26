@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{ id:"Kamu cantik banget.", en:"You are really beautiful." },
+  { id:"Senyummu manis.", en:"Your smile is sweet." },
+  { id:"Matamu indah banget.", en:"Your eyes are so beautiful." },
+  { id:"Kamu kelihatan imut.", en:"You look cute." },
+  { id:"Aura kamu positif banget.", en:"Your aura is really positive." },
+  { id:"Kamu kelihatan ramah.", en:"You look friendly." },
+  { id:"Aku suka caramu tersenyum.", en:"I like the way you smile." },
+  { id:"Wajahmu enak dilihat.", en:"Your face is pleasant to look at." },
+  { id:"Kamu punya vibe yang nyaman.", en:"You have a comforting vibe." },
+  { id:"Suaramu bagus banget.", en:"Your voice is really nice." },
+
+  { id:"Aku suka cara kamu bicara.", en:"I like the way you talk." },
+  { id:"Tawamu lucu.", en:"Your laugh is cute." },
+  { id:"Kamu kelihatan elegan.", en:"You look elegant." },
+  { id:"Kamu kelihatan percaya diri.", en:"You look confident." },
+  { id:"Kamu punya energi yang bagus.", en:"You have good energy." },
+  { id:"Aku suka gaya rambutmu.", en:"I like your hairstyle." },
+  { id:"Style kamu keren.", en:"Your style is cool." },
+  { id:"Kamu kelihatan glowing.", en:"You look glowing." },
+  { id:"Kamu fotogenik banget.", en:"You are very photogenic." },
+  { id:"Kamu bikin suasana jadi nyaman.", en:"You make the atmosphere comfortable." },
+
+  { id:"Aku suka ekspresimu.", en:"I like your expressions." },
+  { id:"Kamu kelihatan pintar.", en:"You look smart." },
+  { id:"Cara berpikirmu menarik.", en:"Your way of thinking is interesting." },
+  { id:"Kamu asik diajak ngobrol.", en:"You're fun to talk to." },
+  { id:"Aku betah ngobrol sama kamu.", en:"I enjoy talking with you." },
+  { id:"Kamu punya senyum yang bikin tenang.", en:"You have a calming smile." },
+  { id:"Aku suka matamu waktu kamu tertawa.", en:"I like your eyes when you laugh." },
+  { id:"Kamu kelihatan baik hati.", en:"You look kind-hearted." },
+  { id:"Kamu punya wajah yang manis.", en:"You have a sweet face." },
+  { id:"Kamu punya pesona alami.", en:"You have natural charm." },
+
+  { id:"Kamu cantik tanpa berlebihan.", en:"You're beautiful in a natural way." },
+  { id:"Kamu bikin orang nyaman.", en:"You make people feel comfortable." },
+  { id:"Aku suka energimu hari ini.", en:"I like your energy today." },
+  { id:"Kamu kelihatan ceria.", en:"You look cheerful." },
+  { id:"Kamu punya vibe yang mahal.", en:"You have an elegant vibe." },
+  { id:"Aku suka caramu mendengarkan.", en:"I like the way you listen." },
+  { id:"Kamu punya suara yang menenangkan.", en:"You have a calming voice." },
+  { id:"Kamu bikin aku senyum sendiri.", en:"You make me smile by myself." },
+  { id:"Aku suka cara kamu tertawa.", en:"I like the way you laugh." },
+  { id:"Kamu terlihat sangat menarik.", en:"You look very attractive." },
+
+  { id:"Kalau aku jadi kamera, aku bakal fokus terus ke kamu.", en:"If I were a camera, I'd keep focusing on you." },
+  { id:"Kayaknya senyummu bisa bikin hari orang jadi lebih baik.", en:"I think your smile can make someone's day better." },
+  { id:"Kamu seperti mood booster.", en:"You're like a mood booster." },
+  { id:"Aku lupa mau ngomong apa gara-gara lihat kamu.", en:"I forgot what I wanted to say because of you." },
+  { id:"Kamu punya mata yang susah diabaikan.", en:"You have eyes that are hard to ignore." },
+  { id:"Aku rasa banyak orang suka ngobrol sama kamu.", en:"I think many people like talking to you." },
+  { id:"Kamu punya senyum yang bikin candu.", en:"You have an addictive smile." },
+  { id:"Kamu terlalu manis buat di-skip.", en:"You're too sweet to skip." },
+  { id:"Aku suka cara kamu bereaksi.", en:"I like the way you react." },
+  { id:"Kamu kelihatan sangat tulus.", en:"You look very sincere." },
+
+  { id:"Aku yakin kamu sering dipuji.", en:"I'm sure people compliment you often." },
+  { id:"Kamu seperti karakter di film romantis.", en:"You're like a character in a romantic movie." },
+  { id:"Kamu punya senyum favorit baru buatku.", en:"You have my new favorite smile." },
+  { id:"Aku suka melihat kamu tersenyum.", en:"I like seeing you smile." },
+  { id:"Kamu punya wajah yang bikin orang betah melihat.", en:"You have a face people enjoy looking at." },
+  { id:"Kamu bikin obrolan random jadi spesial.", en:"You make random conversations feel special." },
+  { id:"Kamu punya pesona yang sulit dijelaskan.", en:"You have charm that's hard to explain." },
+  { id:"Aku suka vibe lembut dari kamu.", en:"I like your soft vibe." },
+  { id:"Kamu terlihat seperti orang yang hangat.", en:"You look like a warm person." },
+  { id:"Aku merasa nyaman ngobrol denganmu.", en:"I feel comfortable talking with you." },
+
+  { id:"Kalau ngobrol sama kamu, waktu terasa cepat.", en:"Time goes fast when talking to you." },
+  { id:"Kamu punya senyum yang bikin lupa masalah.", en:"You have a smile that makes problems disappear." },
+  { id:"Aku suka caramu menatap kamera.", en:"I like the way you look at the camera." },
+  { id:"Kamu punya wajah yang menenangkan.", en:"You have a calming face." },
+  { id:"Aku suka kepribadianmu.", en:"I like your personality." },
+  { id:"Kamu kelihatan dewasa tapi tetap lucu.", en:"You look mature but still cute." },
+  { id:"Kamu punya energi yang bikin nyaman.", en:"You have comforting energy." },
+  { id:"Aku suka orang yang bisa bikin suasana santai seperti kamu.", en:"I like people who can make things relaxed like you." },
+  { id:"Kamu kelihatan natural banget.", en:"You look very natural." },
+  { id:"Kamu punya cara bicara yang menarik.", en:"You have an interesting way of speaking." },
+
+  { id:"Aku suka kombinasi senyum dan matamu.", en:"I like the combination of your smile and eyes." },
+  { id:"Kamu terlihat lebih cantik saat tertawa.", en:"You look even prettier when you laugh." },
+  { id:"Aku rasa kameramu tidak cukup menangkap kecantikanmu.", en:"I think your camera can't fully capture your beauty." },
+  { id:"Kamu bikin suasana jadi lebih hidup.", en:"You make the atmosphere more lively." },
+  { id:"Aku suka energi positifmu.", en:"I like your positive energy." },
+  { id:"Kamu punya wajah yang memorable.", en:"You have a memorable face." },
+  { id:"Kamu kelihatan seperti orang yang menyenangkan.", en:"You look like a fun person." },
+  { id:"Aku suka gaya santaimu.", en:"I like your relaxed style." },
+  { id:"Kamu kelihatan sangat natural di kamera.", en:"You look very natural on camera." },
+  { id:"Aku suka cara kamu merespons.", en:"I like the way you respond." },
+
+  { id:"Aku rasa kamu mudah bikin orang jatuh hati.", en:"I think you can easily make people fall for you." },
+  { id:"Kamu punya pesona yang tenang.", en:"You have calm charm." },
+  { id:"Aku suka melihat ekspresimu waktu tertawa.", en:"I like your expression when you laugh." },
+  { id:"Kamu bikin obrolan ini jadi seru.", en:"You make this conversation fun." },
+  { id:"Aku suka cara kamu membawa diri.", en:"I like the way you carry yourself." },
+  { id:"Kamu terlihat sangat manis hari ini.", en:"You look very sweet today." },
+  { id:"Kamu seperti sunshine kecil.", en:"You're like a little sunshine." },
+  { id:"Aku rasa hariku jadi lebih baik setelah ngobrol sama kamu.", en:"I think my day got better after talking to you." },
+  { id:"Aku suka matamu saat kamu fokus.", en:"I like your eyes when you focus." },
+  { id:"Kamu punya senyum yang tulus.", en:"You have a sincere smile." },
+
+  { id:"Kalau aku jujur, kamu menarik banget.", en:"Honestly, you're very attractive." },
+  { id:"Aku suka chemistry obrolan ini.", en:"I like the chemistry in this conversation." },
+  { id:"Kamu punya cara bicara yang bikin nyaman.", en:"You have a comforting way of speaking." },
+  { id:"Aku suka melihat kamu bahagia.", en:"I like seeing you happy." },
+  { id:"Kamu kelihatan seperti orang baik.", en:"You look like a good person." },
+  { id:"Aku rasa kamu punya hati yang lembut.", en:"I think you have a gentle heart." },
+  { id:"Kamu cantik dari cara bicaramu juga.", en:"Your beauty also shows in the way you speak." },
+  { id:"Aku suka semua ekspresimu.", en:"I like all your expressions." },
+  { id:"Kamu bikin aku ingin lanjut ngobrol.", en:"You make me want to keep talking." },
+  { id:"Senang bisa ketemu kamu di sini.", en:"I'm happy to meet you here." },
+   { id:"Kayaknya kamera kamu kalah cantik dibanding aslinya.", en:"I think your camera can't capture how beautiful you really are." },
+  { id:"Senyummu bahaya juga ya.", en:"Your smile is dangerously charming." },
+  { id:"Kalau lihat kamu terus, aku bisa lupa skip.", en:"If I keep looking at you, I might forget to skip." },
+  { id:"Kamu seperti lagu favorit, bikin ingin diulang terus.", en:"You're like a favorite song, I want to replay you again and again." },
+  { id:"Aku baru sadar ternyata cantik bisa muncul random di OmeTV.", en:"I just realized beauty can randomly appear on OmeTV." },
+  { id:"Kamu bikin aku mendadak salah tingkah.", en:"You suddenly make me awkward." },
+  { id:"Kalau semua orang secantik kamu, OmeTV pasti rame terus.", en:"If everyone were as pretty as you, OmeTV would always be crowded." },
+  { id:"Matamu seperti magnet.", en:"Your eyes are like magnets." },
+  { id:"Aku jadi lupa pertanyaan gara-gara lihat kamu.", en:"I forgot my question because of you." },
+  { id:"Kamu punya senyum yang bikin candu.", en:"You have an addictive smile." },
+
+  { id:"Kalau cantik itu lomba, kamu juaranya.", en:"If beauty were a competition, you'd win." },
+  { id:"Kamu kelihatan seperti orang yang susah dilupakan.", en:"You look like someone hard to forget." },
+  { id:"Aku rasa kamu lebih manis dari kopi.", en:"I think you're sweeter than coffee." },
+  { id:"Wajahmu cocok jadi alasan orang senyum.", en:"Your face could be someone's reason to smile." },
+  { id:"Aku curiga kamu sering bikin orang salting.", en:"I suspect you make people flustered often." },
+  { id:"Senyummu seperti auto heal.", en:"Your smile feels like automatic healing." },
+  { id:"Aku belum pernah lihat senyum seadem itu.", en:"I've never seen such a calming smile." },
+  { id:"Kamu cantik dengan cara yang sederhana.", en:"You're beautiful in a simple way." },
+  { id:"Kamu punya mata yang bikin orang nyaman.", en:"You have eyes that make people feel comfortable." },
+  { id:"Kalau ngobrol sama kamu, rasanya tenang.", en:"Talking to you feels peaceful." },
+
+  { id:"Kamu seperti wifi, bikin aku nyambung terus.", en:"You're like WiFi, I keep connecting to you." },
+  { id:"Aku rasa kamu punya superpower bikin orang senyum.", en:"I think you have a superpower to make people smile." },
+  { id:"Aku suka cara kamu tertawa kecil.", en:"I like the way you giggle." },
+  { id:"Kamu terlalu menarik buat cuma lewat.", en:"You're too attractive to just pass by." },
+  { id:"Aku berharap koneksi kita tidak putus.", en:"I hope our connection doesn't disconnect." },
+  { id:"Kamu bikin obrolan random terasa spesial.", en:"You make random conversations feel special." },
+  { id:"Aku rasa kamu lebih cerah dari lampu kamar.", en:"I think you're brighter than your room light." },
+  { id:"Kamu punya vibe yang bikin candu ngobrol.", en:"You have a vibe that makes talking addictive." },
+  { id:"Aku suka cara kamu melihat kamera.", en:"I like the way you look at the camera." },
+  { id:"Aku bisa dengar senyum dari suaramu.", en:"I can hear your smile through your voice." },
+
+  { id:"Kamu cantik tanpa perlu berusaha keras.", en:"You're beautiful without trying too hard." },
+  { id:"Aku rasa filter tidak dibutuhkan kalau sudah seperti kamu.", en:"I think filters aren't needed when someone looks like you." },
+  { id:"Kamu bikin aku lupa kalau ini cuma OmeTV.", en:"You make me forget this is just OmeTV." },
+  { id:"Kamu seperti sunshine di layar.", en:"You're like sunshine on the screen." },
+  { id:"Aku suka energi lembut dari kamu.", en:"I like your soft energy." },
+  { id:"Kalau aku jadi lagu, aku mau diputar sama kamu.", en:"If I were a song, I'd want you to play me." },
+  { id:"Kamu bikin suasana jadi hangat.", en:"You make the atmosphere warm." },
+  { id:"Aku rasa banyak orang betah ngobrol sama kamu.", en:"I think many people enjoy talking with you." },
+  { id:"Kamu punya wajah yang bikin tenang.", en:"You have a calming face." },
+  { id:"Aku suka kombinasi senyum dan tatapanmu.", en:"I like the combination of your smile and gaze." },
+
+  { id:"Kamu seperti mimpi yang tiba-tiba muncul di layar.", en:"You're like a dream suddenly appearing on screen." },
+  { id:"Aku rasa hariku jadi lebih baik sekarang.", en:"I think my day became better now." },
+  { id:"Suaramu bikin nyaman didengar.", en:"Your voice is comforting to hear." },
+  { id:"Aku suka cara kamu bereaksi.", en:"I like the way you react." },
+  { id:"Kamu punya pesona yang santai.", en:"You have a relaxed charm." },
+  { id:"Aku rasa kamu tipe orang yang bikin kangen.", en:"I think you're the type of person people miss." },
+  { id:"Kamu kelihatan seperti orang yang baik hati.", en:"You look like a kind-hearted person." },
+  { id:"Aku suka ekspresi malumu tadi.", en:"I liked your shy expression earlier." },
+  { id:"Kamu bikin aku ingin lanjut ngobrol lebih lama.", en:"You make me want to keep talking longer." },
+  { id:"Aku suka melihat kamu tersenyum kecil.", en:"I like seeing your little smile." },
+
+  { id:"Kamu seperti halaman favorit dalam buku.", en:"You're like a favorite page in a book." },
+  { id:"Aku rasa matamu punya cerita.", en:"I think your eyes have stories." },
+  { id:"Kamu terlihat cantik bahkan saat diam.", en:"You look beautiful even when silent." },
+  { id:"Aku suka caramu membuat suasana tidak canggung.", en:"I like how you make things less awkward." },
+  { id:"Kamu punya aura yang bikin penasaran.", en:"You have an aura that makes people curious." },
+  { id:"Aku rasa kamu sering bikin orang senyum sendiri.", en:"I think you often make people smile to themselves." },
+  { id:"Kalau ngobrol sama kamu, waktu terasa cepat.", en:"Time goes fast when talking to you." },
+  { id:"Aku jadi ingin tahu lebih banyak tentang kamu.", en:"Now I want to know more about you." },
+  { id:"Kamu punya energi yang bikin tenang.", en:"You have energy that feels calming." },
+  { id:"Aku suka vibe naturalmu.", en:"I like your natural vibe." },
+
+  { id:"Kamu seperti alasan seseorang betah online.", en:"You're like the reason someone stays online." },
+  { id:"Aku rasa senyummu mahal.", en:"I think your smile is priceless." },
+  { id:"Kamu bikin layar jadi lebih indah.", en:"You make the screen look prettier." },
+  { id:"Aku belum pernah lihat orang se-random tapi semenarik ini.", en:"I've never seen someone this random yet this attractive." },
+  { id:"Aku suka cara kamu membuat obrolan terasa ringan.", en:"I like how you make conversations feel easy." },
+  { id:"Kamu punya wajah yang gampang diingat.", en:"You have a face that's easy to remember." },
+  { id:"Aku rasa suara kamu cocok buat nemenin malam.", en:"I think your voice is perfect for late-night talks." },
+  { id:"Kamu terlihat seperti orang yang tulus.", en:"You look like a sincere person." },
+  { id:"Aku suka cara kamu mendengarkan.", en:"I like the way you listen." },
+  { id:"Kamu bikin aku nyaman jadi diri sendiri.", en:"You make me comfortable being myself." },
+
+  { id:"Kamu seperti notifikasi yang selalu ditunggu.", en:"You're like a notification people wait for." },
+  { id:"Aku rasa kamu punya senyum terbaik hari ini.", en:"I think you have the best smile today." },
+  { id:"Kamu punya tatapan yang bikin salah fokus.", en:"Your gaze is distracting in a good way." },
+  { id:"Aku suka chemistry obrolan ini.", en:"I like the chemistry in this conversation." },
+  { id:"Kamu bikin suasana jadi lebih hidup.", en:"You make the atmosphere more lively." },
+  { id:"Aku suka energi bahagiamu.", en:"I like your happy energy." },
+  { id:"Kamu terlihat seperti orang yang seru diajak jalan.", en:"You look like a fun person to hang out with." },
+  { id:"Aku rasa senyummu bisa bikin orang ketagihan.", en:"I think your smile can make people addicted." },
+  { id:"Kamu punya vibe yang bikin orang betah.", en:"You have a vibe that makes people stay." },
+  { id:"Aku suka cara kamu membuat obrolan jadi natural.", en:"I like how you make conversations feel natural." },
+
+  { id:"Kalau cantik ada suaranya, mungkin itu suara kamu.", en:"If beauty had a sound, maybe it would be your voice." },
+  { id:"Aku rasa kamu terlalu menarik buat dilupakan.", en:"I think you're too attractive to forget." },
+  { id:"Kamu seperti lagu tenang di malam hari.", en:"You're like a calm song at night." },
+  { id:"Aku suka melihat matamu saat kamu bicara.", en:"I like looking at your eyes when you talk." },
+  { id:"Kamu bikin aku ingin terus mendengar ceritamu.", en:"You make me want to keep hearing your stories." },
+  { id:"Aku rasa senyummu punya efek bahaya.", en:"I think your smile has dangerous effects." },
+  { id:"Kamu seperti kopi favorit, bikin nagih.", en:"You're like a favorite coffee, addictive." },
+  { id:"Aku suka cara kamu membuat orang nyaman.", en:"I like the way you make people comfortable." },
+  { id:"Kamu kelihatan lebih cantik saat bahagia.", en:"You look prettier when you're happy." },
+  { id:"Senang banget bisa ketemu kamu malam ini.", en:"I'm really happy to meet you tonight." }
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

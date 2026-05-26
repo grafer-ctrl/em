@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OmeTV English Shadowing App</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: white;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+
+    .instruction {
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .setting {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .value {
+      margin-top: 5px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 15px;
+      background: white;
+      color: #4f46e5;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .topic-box {
+      background: rgba(255,255,255,0.15);
+      padding: 25px;
+      border-radius: 20px;
+      margin-top: 20px;
+      text-align: center;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .text-hidden {
+      font-size: 20px;
+      opacity: 0;
+      transition: 0.4s;
+      user-select: none;
+    }
+
+    .text-show {
+      opacity: 1;
+    }
+
+    .timer {
+      font-size: 60px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .desc {
+      margin-top: 15px;
+      font-size: 17px;
+      opacity: 0.9;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .btn-group button {
+      margin-top: 0;
+      flex: 1;
+    }
+
+    .category-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 10px 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    @media(max-width: 600px) {
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .timer {
+        font-size: 45px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- SCREEN 1 -->
+    <div id="screen1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <h1 style="margin:0;font-size:28px;">OmeTV English Practice</h1>
+      </div>
+
+      <div class="instruction">
+        <strong>Instruksi:</strong><br><br>
+        Anda cukup dengarkan suara lalu tirukan pengucapannya.
+        Fokus pada pronunciation, kecepatan bicara, dan intonasi.
+      </div>
+
+      <div class="setting">
+        <label>Volume Suara</label>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+        <div class="value" id="volumeValue">100%</div>
+      </div>
+
+      <div class="setting">
+        <label>Lamanya Timer</label>
+        <input type="range" id="timerSetting" min="1" max="10" value="5">
+        <div class="value" id="timerValue">5 Menit</div>
+      </div>
+
+      <div class="setting">
+        <label>Kecepatan Suara</label>
+        <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1">
+        <div class="value" id="speedValue">1x</div>
+      </div>
+
+      <button onclick="startPractice()">Mulai Latihan</button>
+      <button onclick="randomTopic()">Acak Topik</button>
+    </div>
+
+
+    <!-- SCREEN 2 -->
+    <div id="screen2" class="hidden">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px;flex-wrap:wrap;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <button onclick="randomTopic()" style="width:auto;padding:10px 18px;margin-top:0;">🎲 Acak</button>
+      </div>
+
+      <div class="category-badge">English Shadowing Category</div>
+
+      <h2 id="categoryTitle">Listen & Repeat</h2>
+
+      <div class="topic-box">
+
+        <div id="practiceText" class="text-hidden">
+          Hello everyone! My name is Dias.
+        </div>
+
+        <div id="translationText" class="text-hidden" style="margin-top:15px; font-size:16px; opacity:0.85;">
+          Halo semuanya! Nama saya Dias.
+        </div>
+
+        <div class="timer" id="timer">03:00</div>
+
+        <div class="desc">
+          Dengarkan dan tirukan kalimat tadi sebelum waktu habis.
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button onclick="showAnswer()">Kunci Jawaban</button>
+        <button onclick="repeatVoice()">Putar Ulang Suara</button>
+        <button onclick="nextTopic()">Next Topic</button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const topics = [
+
+  {
+    category: "1. Hobi dan Kegiatan",
+    en: "What do you usually do in your free time? I really enjoy listening to music, watching YouTube videos, and playing games with my friends. Sometimes I also practice speaking English because I want to become more confident. I think hobbies make life more fun and relaxing. What hobbies do you enjoy the most?",
+    id: "Apa yang biasanya kamu lakukan di waktu luang? Saya sangat suka mendengarkan musik, menonton video YouTube, dan bermain game bersama teman-teman saya. Kadang saya juga berlatih berbicara bahasa Inggris karena saya ingin lebih percaya diri. Menurut saya hobi membuat hidup lebih menyenangkan dan santai. Hobi apa yang paling kamu sukai?"
+  },
+
+  {
+    category: "2. Musik Favorit",
+    en: "Do you like music? I listen to music almost every day because it helps me relax and feel happier. I enjoy pop songs and sometimes slow music when I study or chat online. Music can connect people from different countries and cultures. What kind of music do you usually listen to?",
+    id: "Apakah kamu suka musik? Saya mendengarkan musik hampir setiap hari karena membantu saya rileks dan merasa lebih bahagia. Saya suka lagu pop dan kadang musik pelan saat belajar atau mengobrol online. Musik bisa menghubungkan orang dari berbagai negara dan budaya. Jenis musik apa yang biasanya kamu dengarkan?"
+  },
+
+  {
+    category: "3. Film dan Serial",
+    en: "What movies or series do you like watching? I enjoy comedy and action movies because they are entertaining and exciting. Sometimes I watch movies in English to improve my listening skills too. Watching movies is a fun way to learn new words and expressions. Do you have a favorite movie or actor?",
+    id: "Film atau serial apa yang kamu suka tonton? Saya suka film komedi dan aksi karena menghibur dan seru. Kadang saya menonton film berbahasa Inggris juga untuk meningkatkan kemampuan mendengar saya. Menonton film adalah cara menyenangkan untuk belajar kata dan ekspresi baru. Apakah kamu punya film atau aktor favorit?"
+  },
+
+  {
+    category: "4. Makanan Favorit",
+    en: "What is your favorite food? I really love fried rice and spicy noodles because they taste delicious and comforting. Indonesian food has many unique flavors and spices that make it special. I also enjoy trying food from other countries when I get the chance. What food could you eat every day without getting bored?",
+    id: "Apa makanan favoritmu? Saya sangat suka nasi goreng dan mie pedas karena rasanya enak dan nyaman di lidah. Makanan Indonesia memiliki banyak rasa dan bumbu unik yang membuatnya spesial. Saya juga suka mencoba makanan dari negara lain jika ada kesempatan. Makanan apa yang bisa kamu makan setiap hari tanpa bosan?"
+  },
+
+  {
+    category: "5. Sekolah atau Kuliah",
+    en: "Are you still studying or already working? I spend a lot of time studying and sometimes it can feel tiring, but I know education is important for the future. I try to balance studying with relaxing activities like chatting online or listening to music. What subjects or lessons do you enjoy the most?",
+    id: "Apakah kamu masih sekolah atau sudah bekerja? Saya menghabiskan banyak waktu untuk belajar dan kadang terasa melelahkan, tetapi saya tahu pendidikan penting untuk masa depan. Saya mencoba menyeimbangkan belajar dengan kegiatan santai seperti mengobrol online atau mendengarkan musik. Pelajaran apa yang paling kamu sukai?"
+  },
+
+  {
+    category: "6. Pekerjaan Impian",
+    en: "What is your dream job in the future? I want to have a job that makes me happy and allows me to meet many people. I think working hard and improving skills step by step is very important. Everyone has different dreams and goals in life. What kind of career do you want someday?",
+    id: "Apa pekerjaan impianmu di masa depan? Saya ingin memiliki pekerjaan yang membuat saya bahagia dan memungkinkan saya bertemu banyak orang. Saya pikir bekerja keras dan meningkatkan kemampuan sedikit demi sedikit sangat penting. Setiap orang punya mimpi dan tujuan hidup yang berbeda. Pekerjaan seperti apa yang kamu inginkan nanti?"
+  },
+
+  {
+    category: "7. Cuaca Hari Ini",
+    en: "How is the weather in your place today? In my area, the weather is sometimes hot during the day but cooler at night. I like rainy weather because it feels calm and relaxing, especially while drinking coffee or listening to music. Weather can really change our mood sometimes. What kind of weather do you like the most?",
+    id: "Bagaimana cuaca di tempatmu hari ini? Di daerah saya, cuacanya kadang panas di siang hari tetapi lebih sejuk di malam hari. Saya suka cuaca hujan karena terasa tenang dan santai, apalagi sambil minum kopi atau mendengarkan musik. Cuaca kadang benar-benar bisa memengaruhi suasana hati kita. Cuaca seperti apa yang paling kamu sukai?"
+  },
+
+  {
+    category: "8. Game Favorit",
+    en: "Do you play games on your phone or computer? I sometimes play games to relax after a busy day because they can be really fun and exciting. Multiplayer games are interesting because we can play and communicate with people from different countries. Some games also improve teamwork and strategy skills. What games do you enjoy playing?",
+    id: "Apakah kamu bermain game di ponsel atau komputer? Saya kadang bermain game untuk bersantai setelah hari yang sibuk karena game bisa sangat menyenangkan dan seru. Game multiplayer menarik karena kita bisa bermain dan berkomunikasi dengan orang dari berbagai negara. Beberapa game juga meningkatkan kerja sama dan strategi. Game apa yang kamu suka mainkan?"
+  },
+
+  {
+    category: "9. Liburan dan Traveling",
+    en: "Do you enjoy traveling? I would love to visit new places, try different foods, and learn about other cultures someday. Traveling can create unforgettable memories and help us understand the world better. Even short trips with friends or family can be very enjoyable. Which country or city would you like to visit one day?",
+    id: "Apakah kamu suka traveling? Saya ingin sekali mengunjungi tempat baru, mencoba makanan berbeda, dan belajar tentang budaya lain suatu hari nanti. Traveling bisa menciptakan kenangan yang tidak terlupakan dan membantu kita memahami dunia lebih baik. Bahkan perjalanan singkat bersama teman atau keluarga bisa sangat menyenangkan. Negara atau kota mana yang ingin kamu kunjungi suatu hari nanti?"
+  },
+
+  {
+    category: "10. Media Sosial",
+    en: "What social media apps do you use the most? I usually spend time watching videos, chatting with friends, and learning new things online. Social media can be entertaining, but sometimes it’s important to take breaks too. I think balance is very important in daily life. What do you usually do on social media?",
+    id: "Aplikasi media sosial apa yang paling sering kamu gunakan? Saya biasanya menghabiskan waktu menonton video, mengobrol dengan teman, dan belajar hal baru secara online. Media sosial bisa menghibur, tetapi kadang penting juga untuk beristirahat. Menurut saya keseimbangan sangat penting dalam kehidupan sehari-hari. Apa yang biasanya kamu lakukan di media sosial?"
+  },
+
+  {
+    category: "11. Hewan Peliharaan",
+    en: "Do you have any pets at home? I think pets can make people feel happier because they are cute and loyal companions. Some people love cats while others prefer dogs or even birds and fish. Taking care of animals also teaches responsibility and patience. What animal do you like the most?",
+    id: "Apakah kamu punya hewan peliharaan di rumah? Saya pikir hewan peliharaan bisa membuat orang merasa lebih bahagia karena mereka lucu dan setia menemani. Ada orang yang suka kucing sementara yang lain lebih suka anjing atau bahkan burung dan ikan. Merawat hewan juga mengajarkan tanggung jawab dan kesabaran. Hewan apa yang paling kamu sukai?"
+  },
+
+  {
+    category: "12. Aktivitas Pagi",
+    en: "What do you usually do in the morning? I normally wake up, check my phone for a few minutes, and then prepare for the day. Sometimes I listen to music or drink coffee before starting my activities. A good morning routine can improve mood and productivity. What is the first thing you do after waking up?",
+    id: "Apa yang biasanya kamu lakukan di pagi hari? Saya biasanya bangun, mengecek ponsel beberapa menit, lalu bersiap menjalani hari. Kadang saya mendengarkan musik atau minum kopi sebelum memulai aktivitas. Rutinitas pagi yang baik bisa meningkatkan suasana hati dan produktivitas. Apa hal pertama yang kamu lakukan setelah bangun tidur?"
+  },
+
+  {
+    category: "13. Bahasa dan Belajar Inggris",
+    en: "Why are you learning English? I want to improve my communication skills and talk with people from different countries more confidently. English is very useful for education, work, travel, and making international friends online. I know learning a language takes time, but practice makes improvement possible. How do you usually practice your English?",
+    id: "Kenapa kamu belajar bahasa Inggris? Saya ingin meningkatkan kemampuan komunikasi dan berbicara dengan orang dari berbagai negara dengan lebih percaya diri. Bahasa Inggris sangat berguna untuk pendidikan, pekerjaan, traveling, dan mendapatkan teman internasional secara online. Saya tahu belajar bahasa membutuhkan waktu, tetapi latihan membuat kita berkembang. Bagaimana biasanya kamu melatih bahasa Inggrismu?"
+  },
+
+  {
+    category: "14. Akhir Pekan",
+    en: "What do you usually do on weekends? I like relaxing at home, watching movies, playing games, or spending time with friends and family. Weekends are important because they help us rest after busy weekdays. Sometimes I also try new hobbies or learn something interesting online. How do you spend your weekends?",
+    id: "Apa yang biasanya kamu lakukan saat akhir pekan? Saya suka bersantai di rumah, menonton film, bermain game, atau menghabiskan waktu bersama teman dan keluarga. Akhir pekan penting karena membantu kita beristirahat setelah hari kerja yang sibuk. Kadang saya juga mencoba hobi baru atau belajar sesuatu yang menarik secara online. Bagaimana kamu menghabiskan akhir pekanmu?"
+  },
+
+  {
+    category: "15. Persahabatan",
+    en: "Do you enjoy making new friends online? I think meeting new people can be exciting because everyone has different stories, experiences, and personalities. Sometimes a simple conversation can become a memorable friendship. Being friendly and respectful is important when talking to others online. What do you think makes someone a good friend?",
+    id: "Apakah kamu suka mendapatkan teman baru secara online? Saya pikir bertemu orang baru bisa menyenangkan karena setiap orang punya cerita, pengalaman, dan kepribadian yang berbeda. Kadang percakapan sederhana bisa menjadi persahabatan yang berkesan. Bersikap ramah dan sopan sangat penting saat berbicara dengan orang lain secara online. Menurutmu apa yang membuat seseorang menjadi teman yang baik?"
+  }
+
+];
+
+    let currentTopic = 0;
+    let countdown;
+
+    const volumeSlider = document.getElementById('volume');
+    const timerSlider = document.getElementById('timerSetting');
+    const speedSlider = document.getElementById('speed');
+
+    volumeSlider.addEventListener('input', () => {
+      document.getElementById('volumeValue').innerText = Math.round(volumeSlider.value * 100) + '%';
+    });
+
+    timerSlider.addEventListener('input', () => {
+      document.getElementById('timerValue').innerText = timerSlider.value + ' Menit';
+    });
+
+    speedSlider.addEventListener('input', () => {
+      document.getElementById('speedValue').innerText = speedSlider.value + 'x';
+    });
+
+    function loadTopic() {
+      document.getElementById('categoryTitle').innerText = topics[currentTopic].category;
+      document.getElementById('practiceText').innerText = topics[currentTopic].en;
+      document.getElementById('translationText').innerText = topics[currentTopic].id;
+    }
+
+    function speakText() {
+
+      speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance(topics[currentTopic].en);
+
+      speech.lang = 'en-US';
+      speech.volume = volumeSlider.value;
+      speech.rate = speedSlider.value;
+
+      speech.onend = () => {
+        document.getElementById('practiceText').classList.remove('text-show');
+        document.getElementById('translationText').classList.remove('text-show');
+        startTimer();
+      };
+
+      speechSynthesis.speak(speech);
+    }
+
+    function startPractice() {
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function startTimer() {
+
+      clearInterval(countdown);
+
+      let minutes = parseInt(timerSlider.value);
+      let time = minutes * 60;
+
+      countdown = setInterval(() => {
+
+        let mins = Math.floor(time / 60);
+        let secs = time % 60;
+
+        mins = mins < 10 ? '0' + mins : mins;
+        secs = secs < 10 ? '0' + secs : secs;
+
+        document.getElementById('timer').innerText = `${mins}:${secs}`;
+
+        if(time <= 0) {
+          clearInterval(countdown);
+          document.getElementById('timer').innerText = 'Selesai';
+        }
+
+        time--;
+
+      }, 1000);
+    }
+
+    function showAnswer() {
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+    }
+
+    function repeatVoice() {
+
+      clearInterval(countdown);
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function nextTopic() {
+
+      clearInterval(countdown);
+
+      currentTopic++;
+
+      if(currentTopic >= topics.length) {
+        currentTopic = 0;
+      }
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function randomTopic() {
+
+      clearInterval(countdown);
+
+      let randomIndex;
+
+      do {
+        randomIndex = Math.floor(Math.random() * topics.length);
+      } while(randomIndex === currentTopic && topics.length > 1);
+
+      currentTopic = randomIndex;
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+  </script>
+
+</body>
+</html>

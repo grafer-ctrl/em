@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="secondary" onclick="prevSentence()">⬅ Prev</button>
+            <button class="success" onclick="nextSentence()">Next ➡</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {speaker:"A", id:"Hai, kamu bisa dengar aku?", en:"Hi, can you hear me?"},
+  {speaker:"B", id:"Iya, aku bisa dengar kamu.", en:"Yes, I can hear you."},
+  {speaker:"A", id:"Halo, apa kabar?", en:"Hello, how are you?"},
+  {speaker:"B", id:"Aku baik, kamu?", en:"I’m good, you?"},
+  {speaker:"A", id:"Aku juga baik.", en:"I’m good too."},
+
+  {speaker:"A", id:"Kamu dari mana?", en:"Where are you from?"},
+  {speaker:"B", id:"Aku dari Thailand.", en:"I’m from Thailand."},
+  {speaker:"A", id:"Aku dari Indonesia.", en:"I’m from Indonesia."},
+
+  {speaker:"A", id:"Namamu siapa?", en:"What’s your name?"},
+  {speaker:"B", id:"Namaku Lisa.", en:"My name is Lisa."},
+  {speaker:"A", id:"Nama yang bagus.", en:"Nice name."},
+
+  {speaker:"A", id:"Umurmu berapa?", en:"How old are you?"},
+  {speaker:"B", id:"Aku delapan belas.", en:"I’m eighteen."},
+  {speaker:"A", id:"Kamu terlihat lebih dewasa.", en:"You look more mature."},
+
+  {speaker:"A", id:"Kamu pelajar?", en:"Are you a student?"},
+  {speaker:"B", id:"Iya, aku mahasiswa.", en:"Yes, I’m a college student."},
+  {speaker:"A", id:"Kamu belajar apa?", en:"What do you study?"},
+  {speaker:"B", id:"Aku belajar bisnis.", en:"I study business."},
+
+  {speaker:"A", id:"Kamu suka musik?", en:"Do you like music?"},
+  {speaker:"B", id:"Iya, aku suka.", en:"Yes, I do."},
+  {speaker:"A", id:"Genre favoritmu apa?", en:"What’s your favorite genre?"},
+  {speaker:"B", id:"Pop.", en:"Pop."},
+
+  {speaker:"A", id:"Siapa penyanyi favoritmu?", en:"Who’s your favorite singer?"},
+  {speaker:"B", id:"Ariana Grande.", en:"Ariana Grande."},
+
+  {speaker:"A", id:"Kamu suka film?", en:"Do you like movies?"},
+  {speaker:"B", id:"Iya.", en:"Yes."},
+  {speaker:"A", id:"Genre apa?", en:"What genre?"},
+  {speaker:"B", id:"Romantis.", en:"Romance."},
+
+  {speaker:"A", id:"Aku suka action movie.", en:"I like action movies."},
+
+  {speaker:"A", id:"Kamu main game?", en:"Do you play games?"},
+  {speaker:"B", id:"Kadang-kadang.", en:"Sometimes."},
+  {speaker:"A", id:"Game apa?", en:"What game?"},
+  {speaker:"B", id:"Mobile Legends.", en:"Mobile Legends."},
+
+  {speaker:"A", id:"Aku juga main itu.", en:"I play that too."},
+
+  {speaker:"A", id:"Hobimu apa?", en:"What’s your hobby?"},
+  {speaker:"B", id:"Aku suka menggambar.", en:"I like drawing."},
+
+  {speaker:"A", id:"Kamu sangat kreatif.", en:"You’re very creative."},
+
+  {speaker:"A", id:"Kamu suka makan apa?", en:"What food do you like?"},
+  {speaker:"B", id:"Aku suka sushi.", en:"I like sushi."},
+  {speaker:"A", id:"Aku suka ayam goreng.", en:"I like fried chicken."},
+
+  {speaker:"A", id:"Kamu suka kopi?", en:"Do you like coffee?"},
+  {speaker:"B", id:"Iya, suka.", en:"Yes, I do."},
+
+  {speaker:"A", id:"Kamu tinggal di kota besar?", en:"Do you live in a big city?"},
+  {speaker:"B", id:"Iya.", en:"Yes."},
+
+  {speaker:"A", id:"Cuaca di sana bagaimana?", en:"How’s the weather there?"},
+  {speaker:"B", id:"Panas.", en:"Hot."},
+
+  {speaker:"A", id:"Aku suka cuaca dingin.", en:"I like cold weather."},
+
+  {speaker:"A", id:"Kamu sering pakai OmeTV?", en:"Do you use OmeTV often?"},
+  {speaker:"B", id:"Kadang-kadang.", en:"Sometimes."},
+
+  {speaker:"A", id:"Kamu suka ketemu orang baru?", en:"Do you like meeting new people?"},
+  {speaker:"B", id:"Iya.", en:"Yes."},
+
+  {speaker:"A", id:"Kamu orangnya pemalu?", en:"Are you shy?"},
+  {speaker:"B", id:"Sedikit.", en:"A little."},
+
+  {speaker:"A", id:"Aku juga agak pemalu.", en:"I’m a bit shy too."},
+
+  {speaker:"A", id:"Kamu kerja atau sekolah?", en:"Do you work or study?"},
+  {speaker:"B", id:"Aku kerja.", en:"I work."},
+
+  {speaker:"A", id:"Kerja apa?", en:"What job?"},
+  {speaker:"B", id:"Desain grafis.", en:"Graphic design."},
+
+  {speaker:"A", id:"Itu keren.", en:"That’s cool."},
+
+  {speaker:"A", id:"Kamu suka traveling?", en:"Do you like traveling?"},
+  {speaker:"B", id:"Iya.", en:"Yes."},
+
+  {speaker:"A", id:"Negara impianmu apa?", en:"What’s your dream country?"},
+  {speaker:"B", id:"Korea.", en:"Korea."},
+
+  {speaker:"A", id:"Kenapa Korea?", en:"Why Korea?"},
+  {speaker:"B", id:"Aku suka K-pop.", en:"I like K-pop."},
+
+  {speaker:"A", id:"Siapa idol favoritmu?", en:"Who’s your favorite idol?"},
+  {speaker:"B", id:"Jennie.", en:"Jennie."},
+
+  {speaker:"A", id:"Aku suka BTS.", en:"I like BTS."},
+
+  {speaker:"A", id:"Kamu suka kucing atau anjing?", en:"Cats or dogs?"},
+  {speaker:"B", id:"Kucing.", en:"Cats."},
+
+  {speaker:"A", id:"Aku juga suka kucing.", en:"I like cats too."},
+
+  {speaker:"A", id:"Kamu tipe orang malam?", en:"Are you a night person?"},
+  {speaker:"B", id:"Iya.", en:"Yes."},
+
+  {speaker:"A", id:"Aku juga.", en:"Me too."},
+
+  {speaker:"A", id:"Kamu suka belajar bahasa Inggris?", en:"Do you like learning English?"},
+  {speaker:"B", id:"Iya.", en:"Yes."},
+
+  {speaker:"A", id:"Bahasa Inggrismu bagus.", en:"Your English is good."},
+  {speaker:"B", id:"Terima kasih.", en:"Thank you."},
+
+  {speaker:"A", id:"Kamu terlihat cantik.", en:"You look beautiful."},
+  {speaker:"B", id:"Terima kasih.", en:"Thank you."},
+
+  {speaker:"A", id:"Kamu punya pacar?", en:"Do you have a boyfriend?"},
+  {speaker:"B", id:"Tidak.", en:"No."},
+
+  {speaker:"A", id:"Oh begitu.", en:"I see."},
+
+  {speaker:"A", id:"Aku senang ngobrol denganmu.", en:"I’m happy talking with you."},
+  {speaker:"B", id:"Aku juga.", en:"Me too."},
+
+  {speaker:"A", id:"Kita lanjut ngobrol ya.", en:"Let’s keep talking."},
+  {speaker:"B", id:"Oke.", en:"Okay."},
+
+  {speaker:"A", id:"Aku harus pergi.", en:"I have to go."},
+  {speaker:"B", id:"Hati-hati.", en:"Take care."},
+
+  {speaker:"A", id:"Sampai jumpa.", en:"See you."},
+  {speaker:"B", id:"Sampai jumpa.", en:"See you."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function prevSentence(){
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:15px; font-weight:700; color:#111827; margin-bottom:15px; }
+        .word-en { font-size:15px; color:#10b981; font-weight:700; margin:15px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+    {
+    id:"Halo! Aku dari Indonesia. Indonesia adalah negara yang indah dengan banyak pulau, budaya, dan makanan lezat. Aku suka pantai, gunung, dan suasana ramah orang-orang di sini. Cuaca di Indonesia biasanya hangat dan kami punya banyak tempat wisata menarik seperti Bali, Yogyakarta, dan Raja Ampat. Aku bangga menjadi orang Indonesia.",
+    en:"Hello! I’m from Indonesia. Indonesia is a beautiful country with many islands, cultures, and delicious foods. I like the beaches, mountains, and the friendly atmosphere of the people here. The weather in Indonesia is usually warm, and we have many interesting tourist destinations like Bali, Yogyakarta, and Raja Ampat. I’m proud to be Indonesian."
+  },
+   {
+    id:"Halo! Aku dari Indonesia. Indonesia adalah negara yang sangat besar dengan ribuan pulau dan banyak budaya unik. Orang-orang di sini ramah dan suka membantu. Aku suka makanan Indonesia karena rasanya kaya rempah dan sangat lezat.",
+    en:"Hello! I’m from Indonesia. Indonesia is a very large country with thousands of islands and many unique cultures. People here are friendly and helpful. I like Indonesian food because it is full of spices and very delicious."
+  },
+
+  {
+    id:"Indonesia terkenal dengan pantainya yang indah. Banyak wisatawan datang ke Bali untuk menikmati pantai, sunset, dan budaya lokal. Aku juga suka suasana tropis di Indonesia karena terasa santai dan nyaman.",
+    en:"Indonesia is famous for its beautiful beaches. Many tourists come to Bali to enjoy the beaches, sunsets, and local culture. I also like the tropical atmosphere in Indonesia because it feels relaxing and comfortable."
+  },
+
+  {
+    id:"Aku tinggal di Indonesia dan aku bangga dengan budaya di sini. Kami punya banyak bahasa daerah, tarian tradisional, dan makanan khas dari setiap daerah. Indonesia sangat beragam dan menarik untuk dipelajari.",
+    en:"I live in Indonesia and I’m proud of the culture here. We have many local languages, traditional dances, and special foods from each region. Indonesia is very diverse and interesting to learn about."
+  },
+
+  {
+    id:"Salah satu hal yang aku suka dari Indonesia adalah makanannya. Ada nasi goreng, sate, rendang, dan banyak makanan pedas yang enak. Orang Indonesia juga suka makan bersama keluarga atau teman.",
+    en:"One thing I like about Indonesia is the food. There is fried rice, satay, rendang, and many delicious spicy foods. Indonesian people also enjoy eating together with family or friends."
+  },
+
+  {
+    id:"Indonesia punya banyak tempat wisata alam yang indah. Aku suka gunung, pantai, dan air terjun di sini. Alam Indonesia sangat hijau dan cocok untuk traveling atau healing.",
+    en:"Indonesia has many beautiful natural tourist destinations. I like the mountains, beaches, and waterfalls here. Indonesia’s nature is very green and perfect for traveling or healing."
+  },
+
+  {
+    id:"Orang Indonesia terkenal ramah kepada wisatawan. Banyak turis mengatakan bahwa mereka merasa nyaman saat datang ke Indonesia. Aku senang karena orang-orang di sini suka tersenyum dan mudah bergaul.",
+    en:"Indonesian people are known for being friendly to tourists. Many tourists say they feel comfortable when visiting Indonesia. I’m happy because people here like smiling and are easy to get along with."
+  },
+
+  {
+    id:"Indonesia adalah negara tropis jadi cuacanya sering panas. Tapi aku suka karena kami bisa menikmati pantai dan buah-buahan segar sepanjang tahun. Mangga dan kelapa di Indonesia sangat enak.",
+    en:"Indonesia is a tropical country, so the weather is often hot. But I like it because we can enjoy beaches and fresh fruits all year long. Mangoes and coconuts in Indonesia are very delicious."
+  },
+
+  {
+    id:"Aku suka tinggal di Indonesia karena banyak tradisi unik. Setiap daerah punya budaya dan kebiasaan berbeda. Itu membuat Indonesia terasa sangat spesial dan penuh warna.",
+    en:"I like living in Indonesia because there are many unique traditions. Every region has different cultures and customs. That makes Indonesia feel very special and colorful."
+  },
+
+  {
+    id:"Indonesia memiliki banyak pulau terkenal seperti Bali, Lombok, dan Komodo. Banyak orang dari luar negeri ingin berlibur ke sana karena pemandangannya sangat indah.",
+    en:"Indonesia has many famous islands like Bali, Lombok, and Komodo. Many people from other countries want to vacation there because the scenery is very beautiful."
+  },
+
+  {
+    id:"Aku bangga menjadi orang Indonesia. Walaupun negara ini sangat beragam, kami tetap bersatu. Aku berharap suatu hari kamu bisa mengunjungi Indonesia dan menikmati keindahan alam serta budayanya.",
+    en:"I’m proud to be Indonesian. Even though this country is very diverse, we still stay united. I hope someday you can visit Indonesia and enjoy its natural beauty and culture."
+  }
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

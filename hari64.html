@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+    {id:"Menurutmu hubungan yang sehat itu seperti apa?", en:"What do you think a healthy relationship looks like?"},
+  {id:"Kamu lebih suka hubungan santai atau serius?", en:"Do you prefer casual or serious relationships?"},
+  {id:"Apa love language kamu?", en:"What is your love language?"},
+  {id:"Kamu tipe orang yang romantis?", en:"Are you a romantic person?"},
+  {id:"Menurutmu komunikasi penting dalam hubungan?", en:"Do you think communication is important in relationships?"},
+  {id:"Kamu lebih suka quality time atau gift?", en:"Do you prefer quality time or gifts?"},
+  {id:"Menurutmu hubungan jarak jauh bisa berhasil?", en:"Do you think long-distance relationships can work?"},
+  {id:"Apa hal paling penting dalam relationship?", en:"What is the most important thing in a relationship?"},
+  {id:"Kamu percaya soulmate?", en:"Do you believe in soulmates?"},
+  {id:"Menurutmu cemburu itu normal?", en:"Do you think jealousy is normal?"},
+  {id:"Kamu tipe yang mudah jatuh cinta?", en:"Are you the type who falls in love easily?"},
+  {id:"Apa first impression penting buatmu?", en:"Is first impression important to you?"},
+  {id:"Menurutmu red flag terbesar apa?", en:"What do you think is the biggest red flag?"},
+  {id:"Green flag favoritmu apa?", en:"What is your favorite green flag?"},
+  {id:"Kamu lebih suka pasangan yang lucu atau dewasa?", en:"Do you prefer funny or mature partners?"},
+  {id:"Menurutmu relationship harus selalu jujur?", en:"Do you think relationships should always be honest?"},
+  {id:"Kamu lebih suka dipanggil sayang atau nama asli?", en:"Do you prefer pet names or real names?"},
+  {id:"Apa date ideal menurutmu?", en:"What is your ideal date?"},
+  {id:"Kamu suka deep talk dengan pasangan?", en:"Do you like deep talks with your partner?"},
+  {id:"Menurutmu hubungan tanpa drama mungkin?", en:"Do you think drama-free relationships are possible?"},
+  {id:"Apa hal kecil yang bikin kamu bahagia dalam hubungan?", en:"What small things make you happy in relationships?"},
+  {id:"Kamu lebih suka pasangan yang clingy atau santai?", en:"Do you prefer clingy or relaxed partners?"},
+  {id:"Menurutmu trust sulit dibangun?", en:"Do you think trust is hard to build?"},
+  {id:"Kamu percaya cinta pada pandangan pertama?", en:"Do you believe in love at first sight?"},
+  {id:"Apa tipe pasangan idealmu?", en:"What is your ideal partner type?"},
+  {id:"Kamu lebih suka pasangan yang talkative atau kalem?", en:"Do you prefer talkative or calm partners?"},
+  {id:"Menurutmu humor penting dalam relationship?", en:"Do you think humor is important in relationships?"},
+  {id:"Kamu lebih suka hubungan private atau publik?", en:"Do you prefer private or public relationships?"},
+  {id:"Apa menurutmu pasangan harus selalu chat setiap hari?", en:"Do you think couples should chat every day?"},
+  {id:"Kamu suka couple goals?", en:"Do you like couple goals?"},
+  {id:"Menurutmu umur penting dalam relationship?", en:"Do you think age matters in relationships?"},
+  {id:"Kamu lebih suka pasangan yang ambisius?", en:"Do you prefer ambitious partners?"},
+  {id:"Apa hal yang paling bikin kamu ilfeel?", en:"What turns you off the most?"},
+  {id:"Menurutmu hubungan toxic bisa diperbaiki?", en:"Do you think toxic relationships can be fixed?"},
+  {id:"Kamu lebih suka pasangan yang perhatian atau cuek?", en:"Do you prefer caring or chill partners?"},
+  {id:"Apa pendapatmu tentang friendzone?", en:"What do you think about the friendzone?"},
+  {id:"Menurutmu mantan bisa jadi teman?", en:"Do you think exes can stay friends?"},
+  {id:"Kamu tipe yang gampang move on?", en:"Are you someone who moves on easily?"},
+  {id:"Apa hal romantis favoritmu?", en:"What is your favorite romantic thing?"},
+  {id:"Menurutmu anniversary penting?", en:"Do you think anniversaries are important?"},
+  {id:"Kamu suka surprise kecil?", en:"Do you like small surprises?"},
+  {id:"Menurutmu pasangan harus saling support?", en:"Do you think partners should support each other?"},
+  {id:"Apa hubungan impianmu?", en:"What is your dream relationship?"},
+  {id:"Kamu lebih suka date di cafe atau alam?", en:"Do you prefer dates at cafes or in nature?"},
+  {id:"Menurutmu cinta bisa bertahan lama?", en:"Do you think love can last long?"},
+  {id:"Apa menurutmu physical touch penting?", en:"Do you think physical touch is important?"},
+  {id:"Kamu lebih suka pasangan yang mandiri?", en:"Do you prefer independent partners?"},
+  {id:"Menurutmu pasangan harus punya hobi yang sama?", en:"Do you think couples should share hobbies?"},
+  {id:"Apa yang membuat hubungan terasa nyaman?", en:"What makes relationships feel comfortable?"},
+  {id:"Menurutmu flirting itu penting?", en:"Do you think flirting is important?"},
+  {id:"Kamu suka obrolan random dengan pasangan?", en:"Do you like random conversations with your partner?"},
+  {id:"Menurutmu pasangan harus terbuka soal perasaan?", en:"Do you think partners should be open about feelings?"},
+  {id:"Apa hal paling manis dalam relationship?", en:"What is the sweetest thing in a relationship?"},
+  {id:"Kamu suka dipuji pasangan?", en:"Do you like compliments from partners?"},
+  {id:"Menurutmu pasangan ideal harus lucu?", en:"Do you think ideal partners should be funny?"},
+  {id:"Apa arti cinta menurutmu?", en:"What does love mean to you?"},
+  {id:"Kamu lebih suka hubungan yang santai atau intense?", en:"Do you prefer relaxed or intense relationships?"},
+  {id:"Menurutmu pasangan harus sering quality time?", en:"Do you think couples should spend lots of quality time together?"},
+  {id:"Apa hal paling penting selain cinta?", en:"What is most important besides love?"},
+  {id:"Kamu lebih suka pasangan yang perhatian detail?", en:"Do you prefer detail-oriented partners?"},
+  {id:"Menurutmu komunikasi lebih penting daripada chemistry?", en:"Do you think communication is more important than chemistry?"},
+  {id:"Apa pendapatmu tentang ghosting?", en:"What do you think about ghosting?"},
+  {id:"Kamu lebih suka hubungan slow atau cepat?", en:"Do you prefer slow or fast relationships?"},
+  {id:"Menurutmu pasangan harus saling mengerti?", en:"Do you think couples should understand each other?"},
+  {id:"Apa yang bikin hubungan bertahan lama?", en:"What makes relationships last long?"},
+  {id:"Kamu suka pasangan yang humoris?", en:"Do you like humorous partners?"},
+  {id:"Menurutmu cinta perlu usaha?", en:"Do you think love needs effort?"},
+  {id:"Apa hal kecil yang romantis buatmu?", en:"What small things are romantic to you?"},
+  {id:"Kamu suka panggilan lucu dalam hubungan?", en:"Do you like cute nicknames in relationships?"},
+  {id:"Menurutmu pasangan harus jadi sahabat juga?", en:"Do you think partners should also be best friends?"},
+  {id:"Apa tipe date favoritmu?", en:"What is your favorite type of date?"},
+  {id:"Kamu lebih suka ngobrol lama atau diam nyaman?", en:"Do you prefer long talks or comfortable silence?"},
+  {id:"Menurutmu overthinking bisa merusak hubungan?", en:"Do you think overthinking can ruin relationships?"},
+  {id:"Apa yang membuat seseorang menarik buatmu?", en:"What makes someone attractive to you?"},
+  {id:"Kamu suka pasangan yang spontan?", en:"Do you like spontaneous partners?"},
+  {id:"Menurutmu pasangan harus saling percaya penuh?", en:"Do you think couples should fully trust each other?"},
+  {id:"Apa pendapatmu tentang relationship goals di sosial media?", en:"What do you think about relationship goals on social media?"},
+  {id:"Kamu lebih suka pasangan yang banyak bicara?", en:"Do you prefer talkative partners?"},
+  {id:"Menurutmu hubungan sehat terasa seperti apa?", en:"What does a healthy relationship feel like?"},
+  {id:"Apa hal paling sulit dalam relationship?", en:"What is the hardest thing in relationships?"},
+  {id:"Kamu lebih suka pasangan yang realistis atau romantis?", en:"Do you prefer realistic or romantic partners?"},
+  {id:"Menurutmu pasangan harus punya privasi?", en:"Do you think couples should have privacy?"},
+  {id:"Apa arti loyal menurutmu?", en:"What does loyalty mean to you?"},
+  {id:"Kamu suka pasangan yang suka bercanda?", en:"Do you like playful partners?"},
+  {id:"Menurutmu hubungan harus seimbang?", en:"Do you think relationships should be balanced?"},
+  {id:"Apa yang bikin kamu nyaman dengan seseorang?", en:"What makes you comfortable with someone?"},
+  {id:"Kamu lebih suka pasangan yang tenang?", en:"Do you prefer calm partners?"},
+  {id:"Menurutmu relationship terbaik dimulai dari pertemanan?", en:"Do you think the best relationships start from friendship?"},
+  {id:"Apa pendapatmu tentang clingy couple?", en:"What do you think about clingy couples?"},
+  {id:"Kamu suka pasangan yang perhatian kecil?", en:"Do you like partners who notice small things?"},
+  {id:"Menurutmu hubungan harus penuh kompromi?", en:"Do you think relationships need compromise?"},
+  {id:"Apa yang bikin hubungan terasa spesial?", en:"What makes relationships feel special?"},
+  {id:"Kamu suka pasangan yang punya mimpi besar?", en:"Do you like partners with big dreams?"},
+  {id:"Menurutmu chemistry bisa tumbuh?", en:"Do you think chemistry can grow?"},
+  {id:"Apa arti perhatian buatmu?", en:"What does caring mean to you?"},
+  {id:"Kamu lebih suka pasangan yang sabar?", en:"Do you prefer patient partners?"},
+  {id:"Menurutmu pasangan harus saling memotivasi?", en:"Do you think partners should motivate each other?"},
+  {id:"Apa hal sederhana yang romantis menurutmu?", en:"What simple thing is romantic to you?"},
+  {id:"Kamu percaya semua orang punya soulmate?", en:"Do you believe everyone has a soulmate?"},
+  {id:"Menurutmu relationship talk itu seru?", en:"Do you think relationship talks are fun?"},
+   {id:"Menurutmu hubungan ideal itu seperti film atau realistis?", en:"Do you think ideal relationships are like movies or more realistic?"},
+  {id:"Kamu suka pasangan yang sering memberi kabar?", en:"Do you like partners who update you often?"},
+  {id:"Menurutmu perhatian kecil itu penting?", en:"Do you think small acts of care are important?"},
+  {id:"Apa arti nyaman dalam relationship menurutmu?", en:"What does comfort mean in relationships to you?"},
+  {id:"Kamu lebih suka pasangan yang ekspresif?", en:"Do you prefer expressive partners?"},
+  {id:"Menurutmu pasangan harus punya tujuan hidup?", en:"Do you think partners should have life goals?"},
+  {id:"Apa hal paling lucu dalam relationship?", en:"What is the funniest thing in relationships?"},
+  {id:"Kamu suka pasangan yang suka teasing?", en:"Do you like teasing partners?"},
+  {id:"Menurutmu hubungan yang terlalu posesif sehat?", en:"Do you think overly possessive relationships are healthy?"},
+  {id:"Apa pendapatmu tentang soft spoken people?", en:"What do you think about soft-spoken people?"},
+  {id:"Kamu lebih suka pasangan yang pendiam atau aktif?", en:"Do you prefer quiet or active partners?"},
+  {id:"Menurutmu hubungan harus penuh effort dari dua sisi?", en:"Do you think relationships need effort from both sides?"},
+  {id:"Apa yang bikin seseorang terlihat green flag?", en:"What makes someone look like a green flag?"},
+  {id:"Kamu suka pasangan yang suka quality time di rumah?", en:"Do you like partners who enjoy staying at home together?"},
+  {id:"Menurutmu humor bisa menyelamatkan hubungan?", en:"Do you think humor can save relationships?"},
+  {id:"Apa hal paling awkward saat PDKT?", en:"What is the most awkward thing during the talking stage?"},
+  {id:"Kamu tipe yang suka flirting duluan?", en:"Are you the type to flirt first?"},
+  {id:"Menurutmu cinta bisa datang karena kebiasaan?", en:"Do you think love can grow from habits?"},
+  {id:"Apa menurutmu pasangan harus saling terbuka soal masa lalu?", en:"Do you think couples should be open about their past?"},
+  {id:"Kamu suka pasangan yang suka deep talk malam?", en:"Do you like partners who enjoy late-night deep talks?"},
+  {id:"Menurutmu hubungan sehat itu tenang atau penuh excitement?", en:"Do you think healthy relationships are calm or exciting?"},
+  {id:"Apa pendapatmu tentang silent treatment?", en:"What do you think about silent treatment?"},
+  {id:"Kamu lebih suka pasangan yang dominan atau santai?", en:"Do you prefer dominant or relaxed partners?"},
+  {id:"Menurutmu relationship goals realistis itu seperti apa?", en:"What do realistic relationship goals look like?"},
+  {id:"Apa hal paling penting saat first date?", en:"What is most important during a first date?"},
+  {id:"Kamu suka pasangan yang suka ngobrol random?", en:"Do you like partners who enjoy random talks?"},
+  {id:"Menurutmu cinta harus terasa nyaman?", en:"Do you think love should feel comfortable?"},
+  {id:"Apa menurutmu hubungan perlu boundaries?", en:"Do you think relationships need boundaries?"},
+  {id:"Kamu lebih suka pasangan yang cuek tapi peduli?", en:"Do you prefer partners who seem chill but care deeply?"},
+  {id:"Menurutmu perhatian lewat tindakan lebih penting daripada kata-kata?", en:"Do you think actions matter more than words?"},
+  {id:"Apa arti setia menurutmu?", en:"What does loyalty mean to you?"},
+  {id:"Kamu suka pasangan yang suka kasih surprise kecil?", en:"Do you like partners who give small surprises?"},
+  {id:"Menurutmu hubungan terbaik dimulai perlahan?", en:"Do you think the best relationships start slowly?"},
+  {id:"Apa yang bikin hubungan terasa toxic?", en:"What makes relationships feel toxic?"},
+  {id:"Kamu tipe yang cepat baper?", en:"Are you someone who gets emotionally attached easily?"},
+  {id:"Menurutmu pasangan harus saling mendukung mimpi?", en:"Do you think couples should support each other’s dreams?"},
+  {id:"Apa pendapatmu tentang overprotective partner?", en:"What do you think about overprotective partners?"},
+  {id:"Kamu lebih suka pasangan yang aktif di sosial media?", en:"Do you prefer partners active on social media?"},
+  {id:"Menurutmu hubungan private lebih aman?", en:"Do you think private relationships are safer?"},
+  {id:"Apa menurutmu pasangan harus jadi tempat pulang?", en:"Do you think partners should feel like home?"},
+  {id:"Kamu suka pasangan yang sering ngajak ngobrol?", en:"Do you like partners who often start conversations?"},
+  {id:"Menurutmu cinta pertama sulit dilupakan?", en:"Do you think first love is hard to forget?"},
+  {id:"Apa hal sederhana yang bikin kamu merasa dicintai?", en:"What simple thing makes you feel loved?"},
+  {id:"Kamu suka pasangan yang suka skinship?", en:"Do you like partners who enjoy physical affection?"},
+  {id:"Menurutmu pasangan harus saling menghargai privasi?", en:"Do you think couples should respect privacy?"},
+  {id:"Apa yang bikin seseorang terlihat romantis?", en:"What makes someone seem romantic?"},
+  {id:"Kamu lebih suka pasangan yang spontan atau terencana?", en:"Do you prefer spontaneous or planned partners?"},
+  {id:"Menurutmu chemistry lebih penting daripada penampilan?", en:"Do you think chemistry is more important than appearance?"},
+  {id:"Apa pendapatmu tentang online relationship?", en:"What do you think about online relationships?"},
+  {id:"Kamu percaya hubungan online bisa serius?", en:"Do you believe online relationships can become serious?"},
+  {id:"Menurutmu komunikasi tiap hari itu wajib?", en:"Do you think daily communication is necessary?"},
+  {id:"Apa hal yang paling bikin hubungan bertahan?", en:"What makes relationships last the longest?"},
+  {id:"Kamu suka pasangan yang kalem saat marah?", en:"Do you like partners who stay calm when angry?"},
+  {id:"Menurutmu pasangan harus jadi support system?", en:"Do you think partners should be support systems?"},
+  {id:"Apa arti effort menurutmu?", en:"What does effort mean to you?"},
+  {id:"Kamu suka pasangan yang suka mendengarkan?", en:"Do you like partners who listen well?"},
+  {id:"Menurutmu hubungan sehat minim drama?", en:"Do you think healthy relationships have little drama?"},
+  {id:"Apa yang bikin kamu percaya sama seseorang?", en:"What makes you trust someone?"},
+  {id:"Kamu tipe yang suka quality time lama?", en:"Are you someone who likes long quality time?"},
+  {id:"Menurutmu pasangan harus saling memahami mood?", en:"Do you think couples should understand each other’s moods?"},
+  {id:"Apa hal yang bikin hubungan terasa membosankan?", en:"What makes relationships feel boring?"},
+  {id:"Kamu suka pasangan yang humoris dan random?", en:"Do you like humorous and random partners?"},
+  {id:"Menurutmu hubungan perlu banyak kompromi?", en:"Do you think relationships need lots of compromise?"},
+  {id:"Apa pendapatmu tentang clingy but caring partner?", en:"What do you think about clingy but caring partners?"},
+  {id:"Kamu suka pasangan yang dewasa secara emosional?", en:"Do you like emotionally mature partners?"},
+  {id:"Menurutmu pasangan harus bisa jadi teman curhat?", en:"Do you think partners should be someone you can vent to?"},
+  {id:"Apa arti quality time buatmu?", en:"What does quality time mean to you?"},
+  {id:"Kamu lebih suka hubungan yang tenang atau penuh tantangan?", en:"Do you prefer calm relationships or challenging ones?"},
+  {id:"Menurutmu pasangan harus sering memberi reassurance?", en:"Do you think partners should give reassurance often?"},
+  {id:"Apa hal paling manis yang pernah kamu dengar?", en:"What is the sweetest thing you’ve ever heard?"},
+  {id:"Kamu suka pasangan yang perhatian detail kecil?", en:"Do you like partners who notice small details?"},
+  {id:"Menurutmu hubungan harus selalu diperjuangkan?", en:"Do you think relationships should always be fought for?"},
+  {id:"Apa pendapatmu tentang love at first chat?", en:"What do you think about love at first chat?"},
+  {id:"Kamu lebih suka pasangan yang chill?", en:"Do you prefer chill partners?"},
+  {id:"Menurutmu pasangan harus sering bilang sayang?", en:"Do you think couples should often say affectionate words?"},
+  {id:"Apa arti hubungan nyaman menurutmu?", en:"What does a comfortable relationship mean to you?"},
+  {id:"Kamu suka pasangan yang suka jalan bareng?", en:"Do you like partners who enjoy going out together?"},
+  {id:"Menurutmu hubungan harus punya chemistry dan friendship?", en:"Do you think relationships need both chemistry and friendship?"},
+  {id:"Apa hal yang bikin hubungan terasa spesial setiap hari?", en:"What makes relationships feel special every day?"},
+  {id:"Kamu lebih suka pasangan yang pendengar baik?", en:"Do you prefer partners who are good listeners?"},
+  {id:"Menurutmu pasangan harus jujur walau menyakitkan?", en:"Do you think partners should be honest even if it hurts?"},
+  {id:"Apa yang bikin seseorang sulit move on?", en:"What makes someone struggle to move on?"},
+  {id:"Kamu suka pasangan yang suka bercanda receh?", en:"Do you like partners who make silly jokes?"},
+  {id:"Menurutmu hubungan harus santai tapi serius?", en:"Do you think relationships should be relaxed but serious?"},
+  {id:"Apa arti dicintai dengan benar menurutmu?", en:"What does being loved properly mean to you?"},
+  {id:"Kamu lebih suka pasangan yang aktif ngajak ketemu?", en:"Do you prefer partners who actively ask to meet?"},
+  {id:"Menurutmu pasangan harus jadi prioritas?", en:"Do you think partners should be priorities?"},
+  {id:"Apa hal paling romantis selain hadiah?", en:"What is the most romantic thing besides gifts?"},
+  {id:"Kamu suka pasangan yang suka memberi perhatian kecil?", en:"Do you like partners who show small acts of care?"},
+  {id:"Menurutmu hubungan yang dewasa itu seperti apa?", en:"What do mature relationships look like?"},
+  {id:"Apa pendapatmu tentang slow burn relationship?", en:"What do you think about slow-burn relationships?"},
+  {id:"Kamu percaya hubungan bisa bertahan karena komunikasi?", en:"Do you believe relationships survive because of communication?"},
+  {id:"Menurutmu pasangan harus bisa membuat tenang?", en:"Do you think partners should bring peace?"},
+  {id:"Apa arti rasa nyaman dalam cinta?", en:"What does comfort in love mean?"},
+  {id:"Kamu suka pasangan yang romantis diam-diam?", en:"Do you like secretly romantic partners?"},
+  {id:"Menurutmu hubungan paling indah dimulai dari obrolan?", en:"Do you think the best relationships start from conversations?"},
+  {id:"Apa hal yang paling bikin relationship terasa hangat?", en:"What makes relationships feel warm the most?"},
+  {id:"Kamu suka relationship talk seperti ini?", en:"Do you like relationship talks like this?"}
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

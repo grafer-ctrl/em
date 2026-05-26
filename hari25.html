@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>OME TV Speaking Trainer</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f1f5f9;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  color:#111827;
+}
+
+.app{
+  width:100%;
+  max-width:550px;
+  background:white;
+  border-radius:30px;
+  overflow:hidden;
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.08);
+}
+
+/* ================= HEADER ================= */
+
+.header{
+  background:white;
+  padding:20px;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  border-bottom:1px solid #e5e7eb;
+}
+
+.home-btn{
+  width:52px;
+  height:52px;
+  min-width:52px;
+  border-radius:18px;
+  background:#f8fafc;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-decoration:none;
+  font-size:24px;
+  transition:0.2s;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.06);
+}
+
+.home-btn:hover{
+  transform:scale(1.05);
+  background:#eff6ff;
+}
+
+.header-text{
+  flex:1;
+}
+
+.header h1{
+  font-size:24px;
+  margin-bottom:5px;
+  color:#111827;
+}
+
+.header p{
+  color:#64748b;
+  font-size:14px;
+}
+
+/* ================= CHAT ================= */
+
+.chat{
+  height:500px;
+  overflow-y:auto;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  background:#f8fafc;
+}
+
+.message{
+  max-width:85%;
+  padding:15px;
+  border-radius:20px;
+  line-height:1.6;
+  animation:fade .3s ease;
+}
+
+/* AI Bubble */
+
+.ai{
+  align-self:flex-start;
+  background:white;
+  border:1px solid #e5e7eb;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.04);
+
+  color:#111827;
+}
+
+/* USER Bubble */
+
+.user{
+  align-self:flex-end;
+  background:#2563eb;
+  color:white;
+
+  box-shadow:
+    0 6px 18px rgba(37,99,235,0.25);
+}
+
+/* Translation */
+
+.translation{
+  margin-top:8px;
+  font-size:13px;
+  color:#475569;
+}
+
+.user .translation{
+  color:#dbeafe;
+}
+
+/* Answer Box */
+
+.answer-box{
+  margin-top:12px;
+  background:#f8fafc;
+  border:1px solid #e5e7eb;
+  padding:12px;
+  border-radius:14px;
+  color:#111827;
+}
+
+.answer-title{
+  color:#d97706;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.answer-content{
+  display:none;
+  color:#111827;
+  line-height:1.7;
+}
+
+/* ================= BOTTOM ================= */
+
+.bottom{
+  background:white;
+  padding:20px;
+  border-top:1px solid #e5e7eb;
+}
+
+.status{
+  text-align:center;
+  margin-bottom:15px;
+  color:#2563eb;
+  font-weight:bold;
+}
+
+.mic-area{
+  display:flex;
+  justify-content:center;
+  margin-bottom:20px;
+}
+
+.mic{
+  width:95px;
+  height:95px;
+  border-radius:50%;
+  background:#2563eb;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:42px;
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
+  box-shadow:
+    0 10px 30px rgba(37,99,235,0.3);
+}
+
+.mic:hover{
+  transform:scale(1.05);
+}
+
+.mic.active{
+  animation:pulse 1s infinite;
+}
+
+.result{
+  text-align:center;
+  min-height:40px;
+  color:#111827;
+  margin-bottom:15px;
+}
+
+.score{
+  text-align:center;
+  color:#475569;
+  margin-bottom:20px;
+}
+
+/* Buttons */
+
+.controls{
+  display:flex;
+  gap:10px;
+}
+
+button{
+  flex:1;
+  padding:15px;
+  border:none;
+  border-radius:16px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+}
+
+.show-btn{
+  background:#facc15;
+  color:#111827;
+}
+
+.next-btn{
+  background:#2563eb;
+  color:white;
+}
+
+/* ================= ANIMATION ================= */
+
+@keyframes fade{
+  from{
+    opacity:0;
+    transform:translateY(10px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+@keyframes pulse{
+
+  0%{
+    transform:scale(1);
+    box-shadow:0 0 0 0 rgba(37,99,235,.5);
+  }
+
+  70%{
+    transform:scale(1.08);
+    box-shadow:0 0 0 25px rgba(37,99,235,0);
+  }
+
+  100%{
+    transform:scale(1);
+  }
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+
+  <div class="header">
+
+    <a href="index.html" class="home-btn">
+      🏠
+    </a>
+
+    <div class="header-text">
+      <h1>OME TV Speaking Trainer</h1>
+      <p>Practice Real English Conversation</p>
+    </div>
+
+  </div>
+
+  <!-- CHAT -->
+
+  <div class="chat" id="chat"></div>
+
+  <!-- BOTTOM -->
+
+  <div class="bottom">
+
+    <div class="status" id="status">
+      🎤 Press microphone and answer
+    </div>
+
+    <div class="mic-area">
+
+      <div class="mic" id="micBtn">
+        🎤
+      </div>
+
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <div class="score" id="score">
+      Pronunciation Score: --
+    </div>
+
+    <div class="controls">
+
+      <button class="show-btn" onclick="showAnswer()">
+        Show Answer
+      </button>
+
+      <button class="next-btn" onclick="nextConversation()">
+        Next
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const conversations = [
+  {
+    speaker:"A",
+    en:"Hello.",
+    id:"Halo.",
+    answers:[
+      "hi",
+      "hello"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Hi.",
+    id:"Hai.",
+    answers:[
+      "what is your name",
+      "your name"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"What’s your name?",
+    id:"Siapa namamu?",
+    answers:[
+      "my name is emma",
+      "emma"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"My name is Emma.",
+    id:"Namaku Emma.",
+    answers:[
+      "nice to meet you",
+      "nice to meet you too"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Nice to meet you.",
+    id:"Senang bertemu denganmu.",
+    answers:[
+      "nice to meet you too",
+      "you too"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Nice to meet you too.",
+    id:"Senang bertemu denganmu juga.",
+    answers:[
+      "where are you from",
+      "from where"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Where are you from?",
+    id:"Kamu dari mana?",
+    answers:[
+      "i am from thailand",
+      "thailand"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"I’m from Thailand.",
+    id:"Aku dari Thailand.",
+    answers:[
+      "i am from indonesia",
+      "indonesia"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"I’m from Indonesia.",
+    id:"Aku dari Indonesia.",
+    answers:[
+      "that is cool",
+      "cool"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"That’s cool.",
+    id:"Itu keren.",
+    answers:[
+      "how old are you",
+      "your age"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"How old are you?",
+    id:"Umurmu berapa?",
+    answers:[
+      "i am eighteen years old",
+      "eighteen"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"I’m eighteen years old.",
+    id:"Aku delapan belas tahun.",
+    answers:[
+      "you look very young",
+      "very young"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"You look very young.",
+    id:"Kamu terlihat sangat muda.",
+    answers:[
+      "thank you",
+      "thanks"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Thank you.",
+    id:"Terima kasih.",
+    answers:[
+      "are you a student",
+      "student"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Are you a student?",
+    id:"Kamu pelajar?",
+    answers:[
+      "yes i am",
+      "yes"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Yes, I am.",
+    id:"Iya.",
+    answers:[
+      "what do you study",
+      "study what"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"What do you study?",
+    id:"Kamu belajar apa?",
+    answers:[
+      "i study english",
+      "english"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"I study English.",
+    id:"Aku belajar bahasa Inggris.",
+    answers:[
+      "do you work",
+      "work"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Do you work?",
+    id:"Kamu bekerja?",
+    answers:[
+      "no i only study now",
+      "only study"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"No, I only study now.",
+    id:"Tidak, sekarang aku hanya belajar.",
+    answers:[
+      "what is your hobby",
+      "your hobby"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"What’s your hobby?",
+    id:"Apa hobimu?",
+    answers:[
+      "i like music",
+      "music"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"I like music.",
+    id:"Aku suka musik.",
+    answers:[
+      "me too",
+      "same"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Me too.",
+    id:"Aku juga.",
+    answers:[
+      "do you like movies",
+      "movies"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Do you like movies?",
+    id:"Kamu suka film?",
+    answers:[
+      "yes i do",
+      "yes"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Yes, I do.",
+    id:"Iya.",
+    answers:[
+      "what movies do you like",
+      "favorite movies"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"What movies do you like?",
+    id:"Film apa yang kamu suka?",
+    answers:[
+      "i like comedy movies",
+      "comedy movies"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"I like comedy movies.",
+    id:"Aku suka film komedi.",
+    answers:[
+      "do you play games",
+      "games"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Do you play games?",
+    id:"Kamu main game?",
+    answers:[
+      "sometimes",
+      "a little"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Sometimes.",
+    id:"Kadang-kadang.",
+    answers:[
+      "what game do you play",
+      "what game"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"What game do you play?",
+    id:"Game apa yang kamu mainkan?",
+    answers:[
+      "mobile legends",
+      "ml"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Mobile Legends.",
+    id:"Mobile Legends.",
+    answers:[
+      "what time is it there",
+      "time there"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"What time is it there?",
+    id:"Jam berapa di sana?",
+    answers:[
+      "it is 9 pm",
+      "9 pm"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"It’s 9 PM.",
+    id:"Jam 9 malam.",
+    answers:[
+      "is your city big",
+      "big city"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Is your city big?",
+    id:"Kotamu besar?",
+    answers:[
+      "yes it is very big",
+      "very big"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Yes, it’s very big.",
+    id:"Iya, sangat besar.",
+    answers:[
+      "is it beautiful",
+      "beautiful"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Is it beautiful?",
+    id:"Apakah indah?",
+    answers:[
+      "yes especially at night",
+      "at night"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Yes, especially at night.",
+    id:"Iya, terutama malam hari.",
+    answers:[
+      "do you like coffee",
+      "coffee"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Do you like coffee?",
+    id:"Kamu suka kopi?",
+    answers:[
+      "yes i love iced coffee",
+      "iced coffee"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Yes, I love iced coffee.",
+    id:"Iya, aku suka es kopi.",
+    answers:[
+      "your english is very good",
+      "good english"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"You speak English very well.",
+    id:"Bahasa Inggrismu sangat bagus.",
+    answers:[
+      "really thank you",
+      "thank you"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Really? Thank you.",
+    id:"Benarkah? Terima kasih.",
+    answers:[
+      "i am still learning english",
+      "still learning"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"I’m still learning English.",
+    id:"Aku masih belajar bahasa Inggris.",
+    answers:[
+      "your english is good",
+      "good english"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Your English is good.",
+    id:"Bahasa Inggrismu bagus.",
+    answers:[
+      "thank you",
+      "thanks"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Are you shy?",
+    id:"Kamu pemalu?",
+    answers:[
+      "a little bit",
+      "a little"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"A little bit.",
+    id:"Sedikit.",
+    answers:[
+      "it is fun talking to you",
+      "fun talking"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"It’s fun talking to you.",
+    id:"Seru ngobrol denganmu.",
+    answers:[
+      "thank you",
+      "thanks"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Thank you.",
+    id:"Terima kasih.",
+    answers:[
+      "i have to go now",
+      "have to go"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"I have to go now.",
+    id:"Aku harus pergi sekarang.",
+    answers:[
+      "okay take care",
+      "take care"
+    ]
+  },
+
+  {
+    speaker:"B",
+    en:"Okay, take care.",
+    id:"Oke, hati-hati.",
+    answers:[
+      "bye bye",
+      "bye"
+    ]
+  },
+
+  {
+    speaker:"A",
+    en:"Bye-bye.",
+    id:"Dadah.",
+    answers:[
+      "goodbye",
+      "see you"
+    ]
+  }
+];
+
+let current = 0;
+
+const chat = document.getElementById("chat");
+const micBtn = document.getElementById("micBtn");
+const result = document.getElementById("result");
+const score = document.getElementById("score");
+const statusText = document.getElementById("status");
+
+function addMessage(data){
+
+  const div = document.createElement("div");
+
+  div.className =
+    data.speaker === "A"
+    ? "message ai"
+    : "message user";
+
+  div.innerHTML = `
+    <strong>${data.speaker}</strong><br>
+    ${data.en}
+
+    <div class="translation">
+      ${data.id}
+    </div>
+
+    <div class="answer-box">
+
+      <div class="answer-title">
+        ✅ Answer Key
+      </div>
+
+      <div class="answer-content">
+        ${data.answers.join("<br>")}
+      </div>
+
+    </div>
+  `;
+
+  chat.appendChild(div);
+
+  chat.scrollTop = chat.scrollHeight;
+
+}
+
+function loadConversation(){
+
+  if(current >= conversations.length){
+
+    statusText.innerHTML =
+      "🎉 Training Complete!";
+
+    result.innerHTML =
+      "Amazing Job!";
+
+    speak("Training complete");
+
+    return;
+  }
+
+  const data = conversations[current];
+
+  addMessage(data);
+
+  speak(data.en);
+
+}
+
+function speak(text){
+
+  const speech =
+    new SpeechSynthesisUtterance(text);
+
+  speech.lang = "en-US";
+
+  speech.rate = 1;
+
+  speechSynthesis.speak(speech);
+
+}
+
+function showAnswer(){
+
+  const all =
+    document.querySelectorAll(".answer-content");
+
+  if(all.length > 0){
+
+    all[all.length - 1]
+      .style.display = "block";
+
+  }
+
+}
+
+function nextConversation(){
+
+  current++;
+
+  loadConversation();
+
+}
+
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+const recognition =
+  new SpeechRecognition();
+
+recognition.lang = "en-US";
+
+recognition.continuous = false;
+
+recognition.interimResults = false;
+
+micBtn.onclick = () => {
+
+  micBtn.classList.add("active");
+
+  result.innerHTML =
+    "🎧 Listening...";
+
+  recognition.start();
+
+};
+
+recognition.onresult = (event) => {
+
+  micBtn.classList.remove("active");
+
+  const transcript =
+    event.results[0][0].transcript.toLowerCase();
+
+  result.innerHTML =
+    `🗣 You said: ${transcript}`;
+
+  checkAnswer(transcript);
+
+};
+
+recognition.onerror = () => {
+
+  micBtn.classList.remove("active");
+
+  result.innerHTML =
+    "❌ Microphone Error";
+
+};
+
+function checkAnswer(userText){
+
+  const answers =
+    conversations[current].answers;
+
+  let matched = false;
+
+  answers.forEach(answer => {
+
+    if(userText.includes(answer)){
+
+      matched = true;
+
+    }
+
+  });
+
+  if(matched){
+
+    statusText.innerHTML =
+      "✅ Excellent Answer!";
+
+    score.innerHTML =
+      "⭐ Pronunciation Score: 92%";
+
+    speak("Excellent");
+
+  }else{
+
+    statusText.innerHTML =
+      "😅 Try Again";
+
+    score.innerHTML =
+      "⭐ Pronunciation Score: 45%";
+
+    speak("Try again");
+
+  }
+
+}
+
+loadConversation();
+
+</script>
+
+</body>
+</html>

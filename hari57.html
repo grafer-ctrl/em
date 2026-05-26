@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional English Conversation</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 24px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    
+    body { 
+      background: var(--bg); 
+      color: var(--text-main); 
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 16px;
+    }
+
+    .app-container { width: 100%; max-width: 500px; }
+
+    .card, .chat-window {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .card-header { padding: 24px; border-bottom: 1px solid var(--border); }
+    .card-body { padding: 24px; }
+    
+    /* Control Groups */
+    .control-group { margin-bottom: 15px; }
+    label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 5px; }
+    input[type="range"] { width: 100%; cursor: pointer; }
+    
+    button { padding: 12px 24px; border-radius: 14px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+    button.primary { background: var(--primary); color: white; width: 100%; }
+    button.primary:hover { background: var(--primary-hover); }
+    button.outline { background: #f1f5f9; color: var(--text-main); }
+    
+    .info-box { background: #eef2ff; color: var(--primary); padding: 15px; border-radius: 14px; font-size: 0.85rem; font-weight: 500; margin-top: 15px; text-align: center; line-height: 1.4; }
+    
+    .bubbles-area { padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 250px; }
+    .bubble-text { max-width: 85%; padding: 14px 20px; border-radius: 20px; font-size: 1rem; }
+    .bubble-them { background: #f1f5f9; border-bottom-left-radius: 4px; align-self: flex-start; }
+    .bubble-me { background: var(--primary); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+    
+    .translation { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+    .speaker-btn { background: #e2e8f0; border-radius: 50%; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border: none; }
+    
+    .nav-bottom { padding: 20px; background: #fff; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .slide { display: none; }
+    .active-slide { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div id="slideSetup" class="slide active-slide">
+    <div class="card">
+      <div class="card-header">
+        <h2>3 bulan bisa bicara B Inggris</h2>
+        <p>Atur kecepatan dan volume suara Anda.</p>
+      </div>
+      <div class="card-body">
+        <div class="control-group">
+          <label>Kecepatan Suara</label>
+          <input type="range" id="rateRange" min="0.5" max="2" step="0.1" value="1">
+        </div>
+        <div class="control-group">
+          <label>Volume Suara (Max 300%)</label>
+          <input type="range" id="volumeRange" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        
+        <div class="info-box">
+          Jawablah dengan B inggris, bicara bahasa inggris gak harus nunggu sempurna.
+        </div>
+        
+        <button class="primary" style="margin-top: 20px;" id="startBtn">Mulai Latihan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="slideChat" class="slide">
+    <div class="chat-window">
+      <div class="card-header" style="display:flex; justify-content: space-between; align-items: center;">
+        <div><h2 id="partnerName">Selesaikan</h2><p id="sessionCounter">Sesi 1 / 10</p></div>
+        <button class="outline" onclick="location.reload()">Exit</button>
+      </div>
+
+      <div class="bubbles-area">
+        <div class="bubble-them">
+          <div class="bubble-text" id="partnerMsg">...</div>
+        </div>
+        <div class="translation">
+          <button class="speaker-btn" id="speakPartner">🔊</button>
+          <span id="partnerTrans">...</span>
+        </div>
+
+        <div class="bubble-me">
+          <div class="bubble-text" id="userMsg">❓ ❓ ❓</div>
+        </div>
+        <div class="translation" style="justify-content: flex-end;">
+          <span id="userTrans" style="font-style: italic;"></span>
+        </div>
+      </div>
+
+      <div class="nav-bottom">
+        <button id="prevBtn" class="outline">Prev</button>
+        <button id="revealBtn" class="outline">Lihat Jawaban</button>
+        <button id="nextBtn" class="primary" style="width: auto;">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===[MULAI TANDA] TAMBAHKAN PERCAKAPAN ANDA DI BAWAH INI ===
+  const DIALOGS =[
+  {
+    pEn: () => `Say it with a warm smile and relaxed voice.`,
+    pId: () => `Ucapkan dengan senyum hangat dan suara santai.`,
+    aEn: () => `This makes you sound friendly and approachable.`,
+    aId: () => `Ini membuatmu terdengar ramah dan mudah didekati.`
+  },
+
+  {
+    pEn: () => `Raise your tone slightly when asking questions.`,
+    pId: () => `Naikkan sedikit nada suaramu saat bertanya.`,
+    aEn: () => `It sounds more natural and interested.`,
+    aId: () => `Itu terdengar lebih natural dan tertarik.`
+  },
+
+  {
+    pEn: () => `Smile before speaking.`,
+    pId: () => `Tersenyumlah sebelum berbicara.`,
+    aEn: () => `People can hear a smile in your voice.`,
+    aId: () => `Orang bisa mendengar senyum dari suaramu.`
+  },
+
+  {
+    pEn: () => `Use a soft laugh after funny sentences.`,
+    pId: () => `Gunakan tawa kecil setelah kalimat lucu.`,
+    aEn: () => `It makes the conversation feel lighter.`,
+    aId: () => `Itu membuat percakapan terasa lebih ringan.`
+  },
+
+  {
+    pEn: () => `Slow down when saying compliments.`,
+    pId: () => `Perlambat saat memberi pujian.`,
+    aEn: () => `It sounds more sincere and natural.`,
+    aId: () => `Itu terdengar lebih tulus dan natural.`
+  },
+
+  {
+    pEn: () => `Keep your tone calm, not too loud.`,
+    pId: () => `Jaga nada suaramu tetap tenang, jangan terlalu keras.`,
+    aEn: () => `A calm voice feels comfortable to listen to.`,
+    aId: () => `Suara tenang terasa nyaman didengar.`
+  },
+
+  {
+    pEn: () => `Use eye contact while talking.`,
+    pId: () => `Gunakan kontak mata saat berbicara.`,
+    aEn: () => `It shows confidence and attention.`,
+    aId: () => `Itu menunjukkan percaya diri dan perhatian.`
+  },
+
+  {
+    pEn: () => `Nod your head slightly while listening.`,
+    pId: () => `Anggukkan kepala sedikit saat mendengarkan.`,
+    aEn: () => `It makes the other person feel heard.`,
+    aId: () => `Itu membuat lawan bicara merasa didengarkan.`
+  },
+
+  {
+    pEn: () => `React naturally with expressions like “oh really?”`,
+    pId: () => `Bereaksilah secara natural dengan ekspresi seperti “oh really?”`,
+    aEn: () => `Small reactions keep conversations alive.`,
+    aId: () => `Reaksi kecil membuat percakapan tetap hidup.`
+  },
+
+  {
+    pEn: () => `Don’t speak too fast.`,
+    pId: () => `Jangan bicara terlalu cepat.`,
+    aEn: () => `Speaking slower sounds clearer and more confident.`,
+    aId: () => `Berbicara lebih lambat terdengar lebih jelas dan percaya diri.`
+  },
+
+  {
+    pEn: () => `Pause briefly before answering.`,
+    pId: () => `Berhenti sebentar sebelum menjawab.`,
+    aEn: () => `It makes you sound more relaxed.`,
+    aId: () => `Itu membuatmu terdengar lebih santai.`
+  },
+
+  {
+    pEn: () => `Use surprised expressions naturally.`,
+    pId: () => `Gunakan ekspresi terkejut secara natural.`,
+    aEn: () => `It makes reactions feel real.`,
+    aId: () => `Itu membuat reaksimu terasa nyata.`
+  },
+
+  {
+    pEn: () => `Smile when introducing yourself.`,
+    pId: () => `Tersenyumlah saat memperkenalkan diri.`,
+    aEn: () => `First impressions become warmer.`,
+    aId: () => `Kesan pertama jadi lebih hangat.`
+  },
+
+  {
+    pEn: () => `Lean slightly closer when listening carefully.`,
+    pId: () => `Sedikit mendekat saat mendengarkan dengan serius.`,
+    aEn: () => `It shows genuine interest.`,
+    aId: () => `Itu menunjukkan ketertarikan yang tulus.`
+  },
+
+  {
+    pEn: () => `Use playful tone for jokes.`,
+    pId: () => `Gunakan nada bermain saat bercanda.`,
+    aEn: () => `Jokes feel more natural that way.`,
+    aId: () => `Candaan terasa lebih natural seperti itu.`
+  },
+
+  {
+    pEn: () => `Keep your facial expression relaxed.`,
+    pId: () => `Jaga ekspresi wajah tetap santai.`,
+    aEn: () => `It helps the conversation feel comfortable.`,
+    aId: () => `Itu membantu percakapan terasa nyaman.`
+  },
+
+  {
+    pEn: () => `Avoid sounding too robotic.`,
+    pId: () => `Hindari terdengar terlalu seperti robot.`,
+    aEn: () => `Natural pauses make speech feel human.`,
+    aId: () => `Jeda natural membuat bicara terasa manusiawi.`
+  },
+
+  {
+    pEn: () => `Use “hmm” or “ohh” naturally while listening.`,
+    pId: () => `Gunakan “hmm” atau “ohh” secara natural saat mendengarkan.`,
+    aEn: () => `These small sounds show attention.`,
+    aId: () => `Suara kecil ini menunjukkan perhatian.`
+  },
+
+  {
+    pEn: () => `Laugh softly instead of forcing loud laughs.`,
+    pId: () => `Tertawalah pelan daripada memaksa tawa keras.`,
+    aEn: () => `Soft laughter feels more genuine.`,
+    aId: () => `Tawa pelan terasa lebih tulus.`
+  },
+
+  {
+    pEn: () => `Use excited tone when talking about hobbies.`,
+    pId: () => `Gunakan nada antusias saat membahas hobi.`,
+    aEn: () => `Energy makes conversations more engaging.`,
+    aId: () => `Energi membuat percakapan lebih menarik.`
+  },
+
+  {
+    pEn: () => `Relax your shoulders while speaking.`,
+    pId: () => `Rilekskan bahumu saat berbicara.`,
+    aEn: () => `Body language affects your voice.`,
+    aId: () => `Bahasa tubuh mempengaruhi suaramu.`
+  },
+
+  {
+    pEn: () => `Use gentle teasing carefully.`,
+    pId: () => `Gunakan candaan menggoda dengan hati-hati.`,
+    aEn: () => `It can make conversations playful.`,
+    aId: () => `Itu bisa membuat percakapan lebih seru.`
+  },
+
+  {
+    pEn: () => `Show surprise with wider eyes sometimes.`,
+    pId: () => `Tunjukkan rasa terkejut dengan mata lebih terbuka kadang-kadang.`,
+    aEn: () => `Facial expressions create emotion.`,
+    aId: () => `Ekspresi wajah menciptakan emosi.`
+  },
+
+  {
+    pEn: () => `Don’t stare too seriously.`,
+    pId: () => `Jangan menatap terlalu serius.`,
+    aEn: () => `A softer look feels friendlier.`,
+    aId: () => `Tatapan lembut terasa lebih ramah.`
+  },
+
+  {
+    pEn: () => `Use hand gestures naturally while explaining.`,
+    pId: () => `Gunakan gerakan tangan secara natural saat menjelaskan.`,
+    aEn: () => `It adds personality to your speech.`,
+    aId: () => `Itu menambah karakter pada cara bicaramu.`
+  },
+
+  {
+    pEn: () => `Tilt your head slightly when curious.`,
+    pId: () => `Miringkan kepala sedikit saat penasaran.`,
+    aEn: () => `It shows interest without words.`,
+    aId: () => `Itu menunjukkan ketertarikan tanpa kata-kata.`
+  },
+
+  {
+    pEn: () => `Use softer voice at emotional moments.`,
+    pId: () => `Gunakan suara lebih lembut saat momen emosional.`,
+    aEn: () => `It creates a more personal feeling.`,
+    aId: () => `Itu menciptakan perasaan lebih personal.`
+  },
+
+  {
+    pEn: () => `React quickly to funny moments.`,
+    pId: () => `Bereaksilah cepat pada momen lucu.`,
+    aEn: () => `Fast reactions feel authentic.`,
+    aId: () => `Reaksi cepat terasa autentik.`
+  },
+
+  {
+    pEn: () => `Use confident tone when introducing topics.`,
+    pId: () => `Gunakan nada percaya diri saat memulai topik.`,
+    aEn: () => `Confidence attracts attention.`,
+    aId: () => `Percaya diri menarik perhatian.`
+  },
+
+  {
+    pEn: () => `Smile with your eyes, not only your mouth.`,
+    pId: () => `Tersenyumlah dengan mata, bukan hanya mulut.`,
+    aEn: () => `It makes your expression feel real.`,
+    aId: () => `Itu membuat ekspresimu terasa nyata.`
+  },
+
+  {
+    pEn: () => `Use a curious tone when asking follow-up questions.`,
+    pId: () => `Gunakan nada penasaran saat bertanya lanjutan.`,
+    aEn: () => `It keeps conversations flowing naturally.`,
+    aId: () => `Itu menjaga percakapan tetap mengalir natural.`
+  },
+
+  {
+    pEn: () => `Avoid speaking with flat emotion.`,
+    pId: () => `Hindari bicara dengan emosi datar.`,
+    aEn: () => `Emotion makes conversations alive.`,
+    aId: () => `Emosi membuat percakapan hidup.`
+  },
+
+  {
+    pEn: () => `Use “really?” with genuine curiosity.`,
+    pId: () => `Gunakan “really?” dengan rasa penasaran yang tulus.`,
+    aEn: () => `Simple reactions build connection.`,
+    aId: () => `Reaksi sederhana membangun koneksi.`
+  },
+
+  {
+    pEn: () => `Take small pauses after important sentences.`,
+    pId: () => `Ambil jeda kecil setelah kalimat penting.`,
+    aEn: () => `It gives emotional impact.`,
+    aId: () => `Itu memberi dampak emosional.`
+  },
+
+  {
+    pEn: () => `Use relaxed breathing while talking.`,
+    pId: () => `Gunakan napas santai saat berbicara.`,
+    aEn: () => `It keeps your voice steady.`,
+    aId: () => `Itu menjaga suaramu tetap stabil.`
+  },
+
+  {
+    pEn: () => `Show excitement naturally, not excessively.`,
+    pId: () => `Tunjukkan antusiasme secara natural, jangan berlebihan.`,
+    aEn: () => `Too much energy can feel fake.`,
+    aId: () => `Terlalu banyak energi bisa terasa palsu.`
+  },
+
+  {
+    pEn: () => `Use friendly eyebrow expressions.`,
+    pId: () => `Gunakan ekspresi alis yang ramah.`,
+    aEn: () => `Small facial details change the mood.`,
+    aId: () => `Detail kecil wajah mengubah suasana.`
+  },
+
+  {
+    pEn: () => `Mirror the other person’s energy slightly.`,
+    pId: () => `Ikuti sedikit energi lawan bicara.`,
+    aEn: () => `People feel more connected that way.`,
+    aId: () => `Orang merasa lebih terhubung seperti itu.`
+  },
+
+  {
+    pEn: () => `Use softer endings instead of abrupt stops.`,
+    pId: () => `Gunakan akhir kalimat yang lembut daripada tiba-tiba berhenti.`,
+    aEn: () => `It keeps the mood natural.`,
+    aId: () => `Itu menjaga suasana tetap natural.`
+  },
+
+  {
+    pEn: () => `Practice sounding curious, not interrogative.`,
+    pId: () => `Latih terdengar penasaran, bukan seperti menginterogasi.`,
+    aEn: () => `Tone changes how questions feel.`,
+    aId: () => `Nada suara mengubah rasa sebuah pertanyaan.`
+  },
+
+  {
+    pEn: () => `Use genuine reactions instead of scripted ones.`,
+    pId: () => `Gunakan reaksi tulus daripada yang terasa hafalan.`,
+    aEn: () => `Authenticity feels more attractive.`,
+    aId: () => `Keaslian terasa lebih menarik.`
+  },
+
+  {
+    pEn: () => `Relax your jaw before speaking.`,
+    pId: () => `Rilekskan rahang sebelum berbicara.`,
+    aEn: () => `It helps your voice sound smoother.`,
+    aId: () => `Itu membantu suaramu terdengar lebih halus.`
+  },
+
+  {
+    pEn: () => `Use playful eye contact during jokes.`,
+    pId: () => `Gunakan kontak mata playful saat bercanda.`,
+    aEn: () => `It makes jokes land better.`,
+    aId: () => `Itu membuat candaan lebih terasa.`
+  },
+
+  {
+    pEn: () => `Sound interested even in simple topics.`,
+    pId: () => `Terdengarlah tertarik bahkan pada topik sederhana.`,
+    aEn: () => `Interest creates better chemistry.`,
+    aId: () => `Ketertarikan menciptakan chemistry lebih baik.`
+  },
+
+  {
+    pEn: () => `Use natural pauses instead of saying “umm” too much.`,
+    pId: () => `Gunakan jeda natural daripada terlalu sering bilang “umm”.`,
+    aEn: () => `Pauses sound more confident.`,
+    aId: () => `Jeda terdengar lebih percaya diri.`
+  },
+
+  {
+    pEn: () => `Smile gently while listening.`,
+    pId: () => `Tersenyumlah lembut saat mendengarkan.`,
+    aEn: () => `It creates a warm atmosphere.`,
+    aId: () => `Itu menciptakan suasana hangat.`
+  },
+
+  {
+    pEn: () => `Use expressive tone for storytelling.`,
+    pId: () => `Gunakan nada ekspresif saat bercerita.`,
+    aEn: () => `Stories become more engaging.`,
+    aId: () => `Cerita jadi lebih menarik.`
+  },
+
+  {
+    pEn: () => `Avoid forcing confidence too hard.`,
+    pId: () => `Hindari memaksakan percaya diri terlalu keras.`,
+    aEn: () => `Natural confidence feels better.`,
+    aId: () => `Percaya diri yang natural terasa lebih baik.`
+  },
+
+  {
+    pEn: () => `Use soft chuckles during light moments.`,
+    pId: () => `Gunakan tawa kecil saat momen ringan.`,
+    aEn: () => `It makes conversations feel comfortable.`,
+    aId: () => `Itu membuat percakapan terasa nyaman.`
+  },
+
+  {
+    pEn: () => `Look relaxed instead of trying to impress too much.`,
+    pId: () => `Terlihat santai daripada terlalu berusaha mengesankan.`,
+    aEn: () => `Relaxed people feel easier to talk to.`,
+    aId: () => `Orang santai terasa lebih mudah diajak ngobrol.`
+  },
+
+  {
+    pEn: () => `Speak like you’re talking to a friend.`,
+    pId: () => `Berbicaralah seperti sedang ngobrol dengan teman.`,
+    aEn: () => `Friendly energy feels the most natural.`,
+    aId: () => `Energi ramah terasa paling natural.`
+  }
+];
+  // ===[AKHIR TANDA] ===
+
+  let current = 0;
+  let voices =[];
+
+  window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
+
+  function speak(text, isPartner = true) {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    const voice = voices.find(v => v.lang.includes('en-US')) || voices[0];
+    if (voice) utter.voice = voice;
+    
+    // Ambil nilai dari slider
+    utter.rate = parseFloat(document.getElementById('rateRange').value);
+    utter.volume = parseFloat(document.getElementById('volumeRange').value);
+    
+    utter.pitch = isPartner ? 1.0 : 1.2;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function update() {
+    const d = DIALOGS[current];
+    document.getElementById('partnerMsg').textContent = d.pEn();
+    document.getElementById('partnerTrans').textContent = d.pId();
+    document.getElementById('userMsg').textContent = "❓ ❓ ❓";
+    document.getElementById('userTrans').textContent = "";
+    document.getElementById('sessionCounter').textContent = `Sesi ${current + 1} / ${DIALOGS.length}`;
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    document.getElementById('slideSetup').classList.remove('active-slide');
+    document.getElementById('slideChat').classList.add('active-slide');
+    update();
+    setTimeout(() => speak(DIALOGS[current].pEn()), 500);
+  });
+
+  document.getElementById('speakPartner').addEventListener('click', () => speak(DIALOGS[current].pEn()));
+
+  document.getElementById('revealBtn').addEventListener('click', () => {
+    const d = DIALOGS[current];
+    document.getElementById('userMsg').textContent = d.aEn();
+    document.getElementById('userTrans').textContent = d.aId();
+    speak(d.aEn(), false);
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if(current < DIALOGS.length - 1) { current++; update(); speak(DIALOGS[current].pEn()); }
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if(current > 0) { current--; update(); speak(DIALOGS[current].pEn()); }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Bagaimana cuaca di kotamu hari ini?", en:"How is the weather in your city today?"},
+  {id:"Di sana sedang hujan?", en:"Is it raining there?"},
+  {id:"Cuacanya panas atau dingin?", en:"Is the weather hot or cold?"},
+  {id:"Kamu suka cuaca hujan?", en:"Do you like rainy weather?"},
+  {id:"Kamu lebih suka cuaca cerah?", en:"Do you prefer sunny weather?"},
+  {id:"Di kotamu sering hujan?", en:"Does it rain often in your city?"},
+  {id:"Sekarang cuacanya berangin?", en:"Is it windy there right now?"},
+  {id:"Di sana sedang musim apa?", en:"What season is it there right now?"},
+  {id:"Kamu suka musim dingin?", en:"Do you like winter?"},
+  {id:"Kamu suka musim panas?", en:"Do you like summer?"},
+  {id:"Cuaca favoritmu seperti apa?", en:"What is your favorite type of weather?"},
+  {id:"Di kotamu sering banjir?", en:"Does your city flood often?"},
+  {id:"Cuaca hari ini membuatmu malas?", en:"Does today’s weather make you feel lazy?"},
+  {id:"Kamu suka suara hujan?", en:"Do you like the sound of rain?"},
+  {id:"Di sana malamnya dingin?", en:"Is it cold at night there?"},
+  {id:"Kamu suka jalan-jalan saat cuaca cerah?", en:"Do you like going outside in sunny weather?"},
+  {id:"Di kotamu ada salju?", en:"Does it snow in your city?"},
+  {id:"Cuaca di negaramu mudah berubah?", en:"Does the weather change quickly in your country?"},
+  {id:"Cuaca di sana nyaman?", en:"Is the weather comfortable there?"},
+  {id:"Kamu lebih suka hujan atau panas?", en:"Do you prefer rain or sunshine?"},
+
+  {id:"Kamu tinggal di kota atau desa?", en:"Do you live in a city or a village?"},
+  {id:"Kotamu besar?", en:"Is your city big?"},
+  {id:"Kotamu ramai?", en:"Is your city crowded?"},
+  {id:"Kotamu terkenal karena apa?", en:"What is your city famous for?"},
+  {id:"Apa hal terbaik dari kotamu?", en:"What is the best thing about your city?"},
+  {id:"Kotamu aman?", en:"Is your city safe?"},
+  {id:"Di kotamu banyak tempat wisata?", en:"Are there many tourist places in your city?"},
+  {id:"Kotamu indah saat malam?", en:"Is your city beautiful at night?"},
+  {id:"Apa makanan terkenal di kotamu?", en:"What food is famous in your city?"},
+  {id:"Transportasi di kotamu bagus?", en:"Is transportation good in your city?"},
+  {id:"Kamu suka tinggal di kotamu?", en:"Do you like living in your city?"},
+  {id:"Kotamu tenang atau sibuk?", en:"Is your city quiet or busy?"},
+  {id:"Apa tempat favoritmu di kotamu?", en:"What is your favorite place in your city?"},
+  {id:"Di kotamu banyak mall?", en:"Are there many malls in your city?"},
+  {id:"Kotamu bersih?", en:"Is your city clean?"},
+  {id:"Apa hal yang paling unik dari kotamu?", en:"What is the most unique thing about your city?"},
+  {id:"Kotamu mahal untuk ditinggali?", en:"Is your city expensive to live in?"},
+  {id:"Di kotamu banyak pohon?", en:"Are there many trees in your city?"},
+  {id:"Kotamu terkenal di negaramu?", en:"Is your city famous in your country?"},
+  {id:"Apa yang membuat kotamu spesial?", en:"What makes your city special?"},
+
+  {id:"Negaramu terkenal karena apa?", en:"What is your country famous for?"},
+  {id:"Kamu bangga dengan negaramu?", en:"Are you proud of your country?"},
+  {id:"Apa makanan paling terkenal dari negaramu?", en:"What is the most famous food from your country?"},
+  {id:"Banyak turis datang ke negaramu?", en:"Do many tourists visit your country?"},
+  {id:"Negaramu panas atau dingin?", en:"Is your country hot or cold?"},
+  {id:"Apa tempat paling terkenal di negaramu?", en:"What is the most famous place in your country?"},
+  {id:"Orang-orang di negaramu ramah?", en:"Are people in your country friendly?"},
+  {id:"Apa bahasa utama di negaramu?", en:"What is the main language in your country?"},
+  {id:"Negaramu punya budaya yang menarik?", en:"Does your country have an interesting culture?"},
+  {id:"Apa festival terkenal di negaramu?", en:"What is a famous festival in your country?"},
+  {id:"Negaramu terkenal dengan musik apa?", en:"What music is your country famous for?"},
+  {id:"Apa minuman populer di negaramu?", en:"What is a popular drink in your country?"},
+  {id:"Negaramu punya banyak pulau?", en:"Does your country have many islands?"},
+  {id:"Negaramu punya banyak gunung?", en:"Does your country have many mountains?"},
+  {id:"Apa hal terbaik tentang negaramu?", en:"What is the best thing about your country?"},
+  {id:"Kamu ingin tinggal di negaramu selamanya?", en:"Do you want to live in your country forever?"},
+  {id:"Apa kota paling populer di negaramu?", en:"What is the most popular city in your country?"},
+  {id:"Turis biasanya suka apa dari negaramu?", en:"What do tourists usually like about your country?"},
+  {id:"Negaramu terkenal dengan pantai?", en:"Is your country famous for beaches?"},
+  {id:"Apa yang membuat negaramu berbeda?", en:"What makes your country different?"},
+
+  {id:"Kalau aku datang ke kotamu, ke mana aku harus pergi?", en:"If I visit your city, where should I go?"},
+  {id:"Tempat wisata favoritmu apa?", en:"What is your favorite tourist spot?"},
+  {id:"Di kotamu ada pantai?", en:"Does your city have beaches?"},
+  {id:"Di kotamu ada gunung?", en:"Are there mountains in your city?"},
+  {id:"Apa makanan yang harus dicoba di kotamu?", en:"What food should people try in your city?"},
+  {id:"Kamu suka jalan-jalan di kotamu?", en:"Do you enjoy walking around your city?"},
+  {id:"Kotamu bagus untuk turis?", en:"Is your city good for tourists?"},
+  {id:"Di sana banyak tempat nongkrong?", en:"Are there many hangout places there?"},
+  {id:"Apa tempat paling romantis di kotamu?", en:"What is the most romantic place in your city?"},
+  {id:"Kotamu terkenal dengan alam atau gedung?", en:"Is your city famous for nature or buildings?"},
+  {id:"Kamu lebih suka kota besar atau kecil?", en:"Do you prefer big cities or small cities?"},
+  {id:"Kamu suka suasana kota modern?", en:"Do you like modern city vibes?"},
+  {id:"Apa tempat paling ramai di kotamu?", en:"What is the busiest place in your city?"},
+  {id:"Kamu suka tinggal dekat pusat kota?", en:"Do you like living near downtown?"},
+  {id:"Di kotamu banyak cafe?", en:"Are there many cafes in your city?"},
+  {id:"Apa makanan jalanan terkenal di kotamu?", en:"What street food is famous in your city?"},
+  {id:"Kota impianmu seperti apa?", en:"What is your dream city like?"},
+  {id:"Kamu ingin pindah ke negara lain?", en:"Do you want to move to another country?"},
+  {id:"Negara mana yang ingin kamu kunjungi?", en:"Which country do you want to visit?"},
+  {id:"Apa kota favoritmu selain kotamu sendiri?", en:"What is your favorite city besides your own?"},
+
+  {id:"Cuaca di sana cocok untuk tidur.", en:"The weather there sounds perfect for sleeping."},
+  {id:"Kotamu terdengar menarik.", en:"Your city sounds interesting."},
+  {id:"Aku ingin mencoba makanan dari negaramu.", en:"I want to try food from your country."},
+  {id:"Negaramu terdengar indah.", en:"Your country sounds beautiful."},
+  {id:"Aku suka suasana kota yang tenang.", en:"I like calm city vibes."},
+  {id:"Aku lebih suka cuaca dingin.", en:"I prefer cold weather."},
+  {id:"Aku suka hujan di malam hari.", en:"I like rain at night."},
+  {id:"Cuaca cerah membuatku semangat.", en:"Sunny weather gives me energy."},
+  {id:"Aku ingin melihat salju suatu hari nanti.", en:"I want to see snow someday."},
+  {id:"Pantai di negaramu pasti bagus.", en:"The beaches in your country must be beautiful."},
+  {id:"Aku suka kota dengan banyak lampu malam.", en:"I like cities with lots of night lights."},
+  {id:"Aku suka tempat yang tidak terlalu ramai.", en:"I like places that are not too crowded."},
+  {id:"Aku ingin mencoba hidup di luar negeri.", en:"I want to try living abroad."},
+  {id:"Kotamu terdengar nyaman.", en:"Your city sounds comfortable."},
+  {id:"Aku suka budaya dari negaramu.", en:"I like your country’s culture."},
+  {id:"Aku penasaran dengan kehidupan di negaramu.", en:"I’m curious about life in your country."},
+  {id:"Aku suka kota dengan cuaca dingin.", en:"I like cities with cold weather."},
+  {id:"Aku ingin jalan-jalan ke negaramu suatu hari nanti.", en:"I want to travel to your country someday."},
+  {id:"Negaramu terdengar sangat seru.", en:"Your country sounds really fun."},
+  {id:"Aku suka ngobrol tentang kota dan negara lain.", en:"I like talking about cities and countries."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

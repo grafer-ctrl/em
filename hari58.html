@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="secondary" onclick="prevSentence()">⬅ Prev</button>
+            <button class="success" onclick="nextSentence()">Next ➡</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {speaker:"A", id:"Apa kabar?", en:"What’s up?"},
+  {speaker:"B", id:"Baik, kamu bagaimana?", en:"I’m good. What about you?"},
+
+  {speaker:"A", id:"Bagaimana kabarmu?", en:"How’s it going?"},
+  {speaker:"B", id:"Lumayan baik.", en:"Pretty good."},
+
+  {speaker:"A", id:"Senang bertemu denganmu.", en:"Nice to meet you."},
+  {speaker:"B", id:"Senang bertemu denganmu juga.", en:"Nice to meet you too."},
+
+  {speaker:"A", id:"Lama tidak bertemu.", en:"Long time no see."},
+  {speaker:"B", id:"Iya, sudah lama sekali.", en:"Yeah, it’s been a while."},
+
+  {speaker:"A", id:"Kamu bagaimana akhir-akhir ini?", en:"How have you been?"},
+  {speaker:"B", id:"Aku baik-baik saja.", en:"I’ve been good."},
+
+  {speaker:"A", id:"Tidak masalah.", en:"No worries."},
+  {speaker:"B", id:"Terima kasih banyak.", en:"Thanks a lot."},
+
+  {speaker:"A", id:"Terdengar bagus.", en:"Sounds good."},
+  {speaker:"B", id:"Ayo kita lakukan.", en:"Let’s do it."},
+
+  {speaker:"A", id:"Masuk akal.", en:"That makes sense."},
+  {speaker:"B", id:"Aku juga berpikir begitu.", en:"I think so too."},
+
+  {speaker:"A", id:"Aku paham sekarang.", en:"I got it."},
+  {speaker:"B", id:"Bagus!", en:"Great!"},
+
+  {speaker:"A", id:"Salahku.", en:"My bad."},
+  {speaker:"B", id:"Tidak apa-apa.", en:"No problem."},
+
+  {speaker:"A", id:"Santai saja, tidak usah buru-buru.", en:"Take your time."},
+  {speaker:"B", id:"Oke, terima kasih.", en:"Okay, thank you."},
+
+  {speaker:"A", id:"Tergantung situasinya.", en:"It depends."},
+  {speaker:"B", id:"Benar juga.", en:"That’s true."},
+
+  {speaker:"A", id:"Tentu saja.", en:"For sure."},
+  {speaker:"B", id:"Mantap!", en:"Awesome!"},
+
+  {speaker:"A", id:"Tepat sekali!", en:"Exactly!"},
+  {speaker:"B", id:"Kamu mengerti maksudku.", en:"You understand me."},
+
+  {speaker:"A", id:"Bisa ulangi?", en:"Could you repeat that?"},
+  {speaker:"B", id:"Tentu.", en:"Sure."},
+
+  {speaker:"A", id:"Maksudmu apa?", en:"What do you mean?"},
+  {speaker:"B", id:"Maksudku itu bagus.", en:"I mean it’s good."},
+
+  {speaker:"A", id:"Aku tidak paham.", en:"I don’t get it."},
+  {speaker:"B", id:"Biar aku jelaskan.", en:"Let me explain."},
+
+  {speaker:"A", id:"Bisa bicara pelan?", en:"Can you speak slowly?"},
+  {speaker:"B", id:"Ya, tentu.", en:"Yeah, of course."},
+
+  {speaker:"A", id:"Bagaimana bilang ini dalam bahasa Inggris?", en:"How do you say this in English?"},
+  {speaker:"B", id:"Kamu bisa bilang seperti ini.", en:"You can say it like this."},
+
+  {speaker:"A", id:"Serius?", en:"Really?"},
+  {speaker:"B", id:"Iya, serius.", en:"Yeah, really."},
+
+  {speaker:"A", id:"Itu menarik.", en:"That’s interesting."},
+  {speaker:"B", id:"Aku senang kamu suka.", en:"I’m glad you like it."},
+
+  {speaker:"A", id:"Ceritakan lebih banyak.", en:"Tell me more."},
+  {speaker:"B", id:"Oke, jadi begini...", en:"Okay, so here’s the story..."},
+
+  {speaker:"A", id:"Kalau kamu?", en:"What about you?"},
+  {speaker:"B", id:"Aku juga suka itu.", en:"I like that too."},
+
+  {speaker:"A", id:"Aku juga.", en:"Same here."},
+  {speaker:"B", id:"Keren!", en:"Cool!"},
+
+  {speaker:"A", id:"Aku setuju.", en:"I agree."},
+  {speaker:"B", id:"Senang mendengarnya.", en:"Glad to hear that."},
+
+  {speaker:"A", id:"Kamu benar.", en:"You’re right."},
+  {speaker:"B", id:"Terima kasih.", en:"Thanks."},
+
+  {speaker:"A", id:"Kamu dari mana?", en:"Where are you from?"},
+  {speaker:"B", id:"Aku dari Indonesia.", en:"I’m from Indonesia."},
+
+  {speaker:"A", id:"Kamu kerja atau sekolah apa?", en:"What do you do?"},
+  {speaker:"B", id:"Aku masih kuliah.", en:"I’m still in college."},
+
+  {speaker:"A", id:"Kamu kelihatan ramah.", en:"You seem friendly."},
+  {speaker:"B", id:"Terima kasih!", en:"Thank you!"},
+
+  {speaker:"A", id:"Bahasa Inggrismu bagus.", en:"Your English is good."},
+  {speaker:"B", id:"Makasih banyak.", en:"Thanks a lot."},
+
+  {speaker:"A", id:"Kamu sering pakai OmeTV?", en:"Do you use OmeTV often?"},
+  {speaker:"B", id:"Kadang-kadang saja.", en:"Only sometimes."},
+
+  {speaker:"A", id:"Yuk berteman.", en:"Let’s be friends."},
+  {speaker:"B", id:"Tentu!", en:"Sure!"},
+
+  {speaker:"A", id:"Seru ngobrol sama kamu.", en:"You’re fun to talk to."},
+  {speaker:"B", id:"Aku juga menikmati obrolan ini.", en:"I’m enjoying this chat too."},
+
+  {speaker:"A", id:"Masa sih!", en:"No way!"},
+  {speaker:"B", id:"Iya, beneran.", en:"Yeah, seriously."},
+
+  {speaker:"A", id:"Gila juga!", en:"That’s crazy!"},
+  {speaker:"B", id:"Aku juga kaget.", en:"I was surprised too."},
+
+  {speaker:"A", id:"Wah keren.", en:"Wow, that’s cool."},
+  {speaker:"B", id:"Senang kamu suka.", en:"Glad you like it."},
+
+  {speaker:"A", id:"Aku tidak percaya.", en:"I can’t believe it."},
+  {speaker:"B", id:"Tapi itu nyata.", en:"But it’s real."},
+
+  {speaker:"A", id:"Sampai ketemu lagi.", en:"See you around."},
+  {speaker:"B", id:"Sampai jumpa!", en:"See you!"},
+
+  {speaker:"A", id:"Jaga diri baik-baik.", en:"Take care."},
+  {speaker:"B", id:"Kamu juga.", en:"You too."},
+
+  {speaker:"A", id:"Ngobrol lagi nanti.", en:"Talk to you later."},
+  {speaker:"B", id:"Oke, sampai nanti.", en:"Okay, see you later."},
+
+  {speaker:"A", id:"Semoga harimu menyenangkan!", en:"Have a nice day!"},
+  {speaker:"B", id:"Terima kasih, kamu juga!", en:"Thanks, you too!"},
+
+  {speaker:"A", id:"Sampai nanti!", en:"Catch you later!"},
+  {speaker:"B", id:"Dadah!", en:"Bye!"},
+   {speaker:"A", id:"Aku sedikit gugup.", en:"I’m a little nervous."},
+  {speaker:"B", id:"Santai saja.", en:"Just relax."},
+
+  {speaker:"A", id:"Aku baru belajar bahasa Inggris.", en:"I’m new to English."},
+  {speaker:"B", id:"Tidak apa-apa, terus latihan.", en:"That’s okay, keep practicing."},
+
+  {speaker:"A", id:"Aku suka musik.", en:"I like music."},
+  {speaker:"B", id:"Aku juga suka musik.", en:"I like music too."},
+
+  {speaker:"A", id:"Film favoritmu apa?", en:"What’s your favorite movie?"},
+  {speaker:"B", id:"Aku suka film aksi.", en:"I like action movies."},
+
+  {speaker:"A", id:"Kamu suka game?", en:"Do you like games?"},
+  {speaker:"B", id:"Ya, aku suka game online.", en:"Yeah, I like online games."},
+
+  {speaker:"A", id:"Aku sedang belajar speaking.", en:"I’m practicing speaking."},
+  {speaker:"B", id:"Bahasa Inggrismu sudah bagus.", en:"Your English is already good."},
+
+  {speaker:"A", id:"Aku suka cara bicaramu.", en:"I like the way you talk."},
+  {speaker:"B", id:"Terima kasih banyak.", en:"Thank you so much."},
+
+  {speaker:"A", id:"Cuaca di sini panas.", en:"The weather here is hot."},
+  {speaker:"B", id:"Di sini juga panas.", en:"It’s hot here too."},
+
+  {speaker:"A", id:"Hari ini aku sibuk.", en:"I’m busy today."},
+  {speaker:"B", id:"Semoga harimu lancar.", en:"Hope your day goes well."},
+
+  {speaker:"A", id:"Aku lapar sekarang.", en:"I’m hungry right now."},
+  {speaker:"B", id:"Aku juga lapar.", en:"I’m hungry too."},
+
+  {speaker:"A", id:"Aku suka kopi.", en:"I love coffee."},
+  {speaker:"B", id:"Aku lebih suka teh.", en:"I prefer tea."},
+
+  {speaker:"A", id:"Kamu terlihat bahagia.", en:"You look happy."},
+  {speaker:"B", id:"Karena hariku menyenangkan.", en:"Because I’m having a good day."},
+
+  {speaker:"A", id:"Aku capek hari ini.", en:"I’m tired today."},
+  {speaker:"B", id:"Kamu harus istirahat.", en:"You should get some rest."},
+
+  {speaker:"A", id:"Aku suka ngobrol dengan orang baru.", en:"I like talking to new people."},
+  {speaker:"B", id:"Aku juga begitu.", en:"Same here."},
+
+  {speaker:"A", id:"Aku sering menonton YouTube.", en:"I watch YouTube a lot."},
+  {speaker:"B", id:"Aku juga setiap hari.", en:"Me too, every day."},
+
+  {speaker:"A", id:"Aku sedang santai sekarang.", en:"I’m just relaxing right now."},
+  {speaker:"B", id:"Aku juga santai.", en:"I’m relaxing too."},
+
+  {speaker:"A", id:"Aku suka belajar bahasa.", en:"I enjoy learning languages."},
+  {speaker:"B", id:"Itu keren.", en:"That’s cool."},
+
+  {speaker:"A", id:"Aku suka suara musik lo-fi.", en:"I like lo-fi music."},
+  {speaker:"B", id:"Itu sangat menenangkan.", en:"It’s really relaxing."},
+
+  {speaker:"A", id:"Aku belum percaya diri.", en:"I’m not confident yet."},
+  {speaker:"B", id:"Kamu akan semakin baik.", en:"You’ll get better."},
+
+  {speaker:"A", id:"Aku suka traveling.", en:"I love traveling."},
+  {speaker:"B", id:"Negara mana yang ingin kamu kunjungi?", en:"Which country do you want to visit?"},
+
+  {speaker:"A", id:"Aku suka makanan pedas.", en:"I like spicy food."},
+  {speaker:"B", id:"Aku juga suka makanan pedas.", en:"I like spicy food too."},
+
+  {speaker:"A", id:"Aku suka mendengarkan lagu malam hari.", en:"I like listening to music at night."},
+  {speaker:"B", id:"Suasananya lebih tenang.", en:"The vibe feels calmer."},
+
+  {speaker:"A", id:"Aku sering begadang.", en:"I stay up late a lot."},
+  {speaker:"B", id:"Kamu harus tidur lebih awal.", en:"You should sleep earlier."},
+
+  {speaker:"A", id:"Aku suka warna hitam.", en:"I like black color."},
+  {speaker:"B", id:"Aku suka warna biru.", en:"I like blue."},
+
+  {speaker:"A", id:"Aku suka foto-foto.", en:"I like taking pictures."},
+  {speaker:"B", id:"Aku suka melihat pemandangan.", en:"I enjoy looking at scenery."},
+
+  {speaker:"A", id:"Aku suka suara hujan.", en:"I love the sound of rain."},
+  {speaker:"B", id:"Itu membuat rileks.", en:"It feels relaxing."},
+
+  {speaker:"A", id:"Aku sedang belajar grammar.", en:"I’m studying grammar."},
+  {speaker:"B", id:"Terus semangat belajar.", en:"Keep up the good work."},
+
+  {speaker:"A", id:"Aku suka kucing.", en:"I love cats."},
+  {speaker:"B", id:"Aku lebih suka anjing.", en:"I prefer dogs."},
+
+  {speaker:"A", id:"Aku suka nonton anime.", en:"I like watching anime."},
+  {speaker:"B", id:"Anime favoritmu apa?", en:"What’s your favorite anime?"},
+
+  {speaker:"A", id:"Aku suka suasana malam.", en:"I like nighttime vibes."},
+  {speaker:"B", id:"Malam memang lebih tenang.", en:"Nights are calmer indeed."},
+
+  {speaker:"A", id:"Aku suka mendengarkan orang berbicara bahasa Inggris.", en:"I enjoy listening to English speakers."},
+  {speaker:"B", id:"Itu bagus untuk latihan.", en:"That’s good practice."},
+
+  {speaker:"A", id:"Aku sedang mencoba percaya diri.", en:"I’m trying to be confident."},
+  {speaker:"B", id:"Kamu sudah hebat.", en:"You’re doing great."},
+
+  {speaker:"A", id:"Aku suka bermain mobile game.", en:"I like playing mobile games."},
+  {speaker:"B", id:"Game apa yang sering kamu mainkan?", en:"What game do you play often?"},
+
+  {speaker:"A", id:"Aku suka suara alam.", en:"I love nature sounds."},
+  {speaker:"B", id:"Aku juga suka itu.", en:"I like that too."},
+
+  {speaker:"A", id:"Aku suka belajar lewat film.", en:"I like learning through movies."},
+  {speaker:"B", id:"Itu cara yang menyenangkan.", en:"That’s a fun way to learn."},
+
+  {speaker:"A", id:"Aku kadang malu bicara Inggris.", en:"I’m sometimes shy speaking English."},
+  {speaker:"B", id:"Tidak usah malu.", en:"Don’t be shy."},
+
+  {speaker:"A", id:"Aku ingin lancar bahasa Inggris.", en:"I want to speak English fluently."},
+  {speaker:"B", id:"Kamu pasti bisa.", en:"You can do it."},
+
+  {speaker:"A", id:"Aku suka suara aksen Inggris.", en:"I like English accents."},
+  {speaker:"B", id:"Aksen mana favoritmu?", en:"Which accent is your favorite?"},
+
+  {speaker:"A", id:"Aku suka ngobrol santai.", en:"I enjoy casual conversations."},
+  {speaker:"B", id:"Aku juga suka ngobrol santai.", en:"I enjoy casual chats too."},
+
+  {speaker:"A", id:"Aku suka belajar kata baru.", en:"I like learning new words."},
+  {speaker:"B", id:"Aku juga setiap hari belajar.", en:"I study every day too."},
+
+  {speaker:"A", id:"Aku suka suasana kafe.", en:"I like café vibes."},
+  {speaker:"B", id:"Kafe memang nyaman.", en:"Cafés feel cozy."},
+
+  {speaker:"A", id:"Aku ingin pergi ke luar negeri.", en:"I want to go abroad."},
+  {speaker:"B", id:"Semoga impianmu tercapai.", en:"I hope your dream comes true."},
+
+  {speaker:"A", id:"Aku suka suara ombak.", en:"I love the sound of waves."},
+  {speaker:"B", id:"Pantai memang menenangkan.", en:"Beaches feel peaceful."},
+
+  {speaker:"A", id:"Aku suka menonton vlog.", en:"I like watching vlogs."},
+  {speaker:"B", id:"Aku juga sering menonton vlog.", en:"I watch vlogs a lot too."},
+
+  {speaker:"A", id:"Aku sedang menikmati obrolan ini.", en:"I’m enjoying this conversation."},
+  {speaker:"B", id:"Aku juga.", en:"Me too."},
+
+  {speaker:"A", id:"Aku suka belajar sedikit demi sedikit.", en:"I like learning step by step."},
+  {speaker:"B", id:"Itu cara yang bagus.", en:"That’s a good method."},
+
+  {speaker:"A", id:"Aku suka orang yang ramah.", en:"I like friendly people."},
+  {speaker:"B", id:"Keramahan itu penting.", en:"Being friendly matters."},
+
+  {speaker:"A", id:"Aku suka mendengar cerita orang.", en:"I like hearing people’s stories."},
+  {speaker:"B", id:"Aku juga suka berbagi cerita.", en:"I like sharing stories too."},
+
+  {speaker:"A", id:"Aku ingin lebih percaya diri.", en:"I want to be more confident."},
+  {speaker:"B", id:"Latihan akan membantu.", en:"Practice will help."},
+
+  {speaker:"A", id:"Aku suka suasana pagi.", en:"I like morning vibes."},
+  {speaker:"B", id:"Pagi terasa segar.", en:"Mornings feel fresh."},
+
+  {speaker:"A", id:"Aku suka belajar dengan musik.", en:"I like studying with music."},
+  {speaker:"B", id:"Musik membantu fokus.", en:"Music helps me focus."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function prevSentence(){
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

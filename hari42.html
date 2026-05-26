@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Kamu punya pacar?", en:"Do you have a boyfriend/girlfriend?"},
+  {id:"Statusmu sekarang apa?", en:"What’s your relationship status?"},
+  {id:"Kamu masih single?", en:"Are you still single?"},
+  {id:"Kamu sedang dekat dengan seseorang?", en:"Are you talking to someone right now?"},
+  {id:"Kamu lagi suka seseorang?", en:"Do you like someone right now?"},
+  {id:"Kamu punya crush?", en:"Do you have a crush?"},
+  {id:"Kamu pernah pacaran?", en:"Have you ever been in a relationship?"},
+  {id:"Sudah berapa lama kamu single?", en:"How long have you been single?"},
+  {id:"Kamu lebih suka single atau punya pacar?", en:"Do you prefer being single or in a relationship?"},
+  {id:"Kamu tipe orang yang romantis?", en:"Are you a romantic person?"},
+
+  {id:"Apa tipe cowok/cewek yang kamu suka?", en:"What type of guy/girl do you like?"},
+  {id:"Kamu suka orang yang seperti apa?", en:"What kind of person do you like?"},
+  {id:"Apa yang paling penting dalam hubungan?", en:"What’s most important in a relationship?"},
+  {id:"Kamu lebih suka orang lucu atau romantis?", en:"Do you prefer funny or romantic people?"},
+  {id:"Kamu suka orang yang pemalu atau percaya diri?", en:"Do you like shy or confident people?"},
+  {id:"Menurutmu hubungan jarak jauh bisa berhasil?", en:"Do you think long-distance relationships can work?"},
+  {id:"Kamu percaya cinta pada pandangan pertama?", en:"Do you believe in love at first sight?"},
+  {id:"Kamu gampang jatuh cinta?", en:"Do you fall in love easily?"},
+  {id:"Kamu cemburuan?", en:"Are you a jealous person?"},
+  {id:"Apa hal paling romantis yang pernah kamu lakukan?", en:"What’s the most romantic thing you’ve ever done?"},
+
+  {id:"Apa hal paling romantis yang pernah seseorang lakukan untukmu?", en:"What’s the most romantic thing someone has done for you?"},
+  {id:"Kamu pernah patah hati?", en:"Have you ever had your heart broken?"},
+  {id:"Kamu pernah ditolak?", en:"Have you ever been rejected?"},
+  {id:"Menurutmu hubungan itu sulit?", en:"Do you think relationships are difficult?"},
+  {id:"Kamu lebih suka chat atau call dengan pasangan?", en:"Do you prefer texting or calling your partner?"},
+  {id:"Kamu suka pasangan yang perhatian?", en:"Do you like caring partners?"},
+  {id:"Apa bahasa cinta kamu?", en:"What’s your love language?"},
+  {id:"Kamu lebih suka quality time atau hadiah?", en:"Do you prefer quality time or gifts?"},
+  {id:"Kamu suka dipanggil sayang?", en:"Do you like cute nicknames?"},
+  {id:"Kalau punya pasangan, kamu posesif?", en:"Are you possessive in relationships?"},
+
+  {id:"Kamu pernah LDR?", en:"Have you ever been in a long-distance relationship?"},
+  {id:"Menurutmu cinta online bisa nyata?", en:"Do you think online love can be real?"},
+  {id:"Kamu nyaman ngobrol soal hubungan?", en:"Are you comfortable talking about relationships?"},
+  {id:"Kamu lebih suka hubungan serius atau santai?", en:"Do you prefer serious or casual relationships?"},
+  {id:"Apa green flag menurutmu?", en:"What’s a green flag for you?"},
+  {id:"Apa red flag terbesar menurutmu?", en:"What’s the biggest red flag for you?"},
+  {id:"Kamu suka orang yang jujur?", en:"Do you like honest people?"},
+  {id:"Menurutmu komunikasi penting?", en:"Do you think communication is important?"},
+  {id:"Kamu pernah ghosting seseorang?", en:"Have you ever ghosted someone?"},
+  {id:"Kamu pernah di-ghosting?", en:"Have you ever been ghosted?"},
+
+  {id:"Kalau suka seseorang biasanya kamu duluan chat?", en:"If you like someone, do you text first?"},
+  {id:"Kamu malu kalau flirting?", en:"Do you get shy when flirting?"},
+  {id:"Kamu jago flirting?", en:"Are you good at flirting?"},
+  {id:"Menurutmu aku orangnya flirt atau friendly?", en:"Do I seem flirty or just friendly?"},
+  {id:"Kamu lebih suka hubungan yang lucu atau romantis?", en:"Do you prefer funny or romantic relationships?"},
+  {id:"Apa pasangan ideal menurutmu?", en:"What’s your ideal partner like?"},
+  {id:"Kamu suka orang yang perhatian kecil-kecil?", en:"Do you like people who notice small things?"},
+  {id:"Kamu suka dipuji?", en:"Do you like compliments?"},
+  {id:"Kalau pasanganmu sibuk terus, kamu marah?", en:"Would you get upset if your partner is always busy?"},
+  {id:"Menurutmu kepercayaan penting dalam hubungan?", en:"Do you think trust is important in relationships?"}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Kamu lagi ngapain sekarang?", en:"What are you doing right now?"},
+  {id:"Sekarang kamu lagi sibuk?", en:"Are you busy right now?"},
+  {id:"Kamu lagi santai?", en:"Are you relaxing right now?"},
+  {id:"Kamu lagi makan?", en:"Are you eating right now?"},
+  {id:"Kamu lagi minum sesuatu?", en:"Are you drinking something right now?"},
+  {id:"Kamu lagi dengar musik?", en:"Are you listening to music right now?"},
+  {id:"Kamu lagi nonton sesuatu?", en:"Are you watching something right now?"},
+  {id:"Kamu lagi main game?", en:"Are you playing games right now?"},
+  {id:"Kamu lagi belajar?", en:"Are you studying right now?"},
+  {id:"Kamu lagi kerja?", en:"Are you working right now?"},
+  {id:"Kamu lagi di rumah?", en:"Are you at home right now?"},
+  {id:"Kamu lagi di luar?", en:"Are you outside right now?"},
+  {id:"Kamu lagi sendiri?", en:"Are you alone right now?"},
+  {id:"Kamu lagi sama teman?", en:"Are you with friends right now?"},
+  {id:"Kamu lagi pakai HP?", en:"Are you using your phone right now?"},
+  {id:"Kamu lagi pakai laptop?", en:"Are you using a laptop right now?"},
+  {id:"Kamu lagi rebahan?", en:"Are you lying down right now?"},
+  {id:"Kamu lagi ngantuk?", en:"Are you sleepy right now?"},
+  {id:"Kamu lagi bosan?", en:"Are you bored right now?"},
+  {id:"Kamu lagi senang?", en:"Are you happy right now?"},
+  {id:"Kamu lagi capek?", en:"Are you tired right now?"},
+  {id:"Kamu lagi di kamar?", en:"Are you in your room right now?"},
+  {id:"Kamu lagi scrolling TikTok?", en:"Are you scrolling TikTok right now?"},
+  {id:"Kamu lagi buka YouTube?", en:"Are you watching YouTube right now?"},
+  {id:"Kamu lagi ngobrol sama orang lain juga?", en:"Are you talking to other people too right now?"},
+  {id:"Kamu lagi minum kopi?", en:"Are you drinking coffee right now?"},
+  {id:"Kamu lagi dengar lagu apa?", en:"What song are you listening to right now?"},
+  {id:"Kamu lagi nonton film apa?", en:"What movie are you watching right now?"},
+  {id:"Kamu lagi main game apa?", en:"What game are you playing right now?"},
+  {id:"Kamu lagi mikirin apa?", en:"What are you thinking about right now?"},
+  {id:"Kemarin kamu ngapain?", en:"What did you do yesterday?"},
+  {id:"Kemarin kamu sibuk?", en:"Were you busy yesterday?"},
+  {id:"Kemarin kamu sekolah?", en:"Did you go to school yesterday?"},
+  {id:"Kemarin kamu kerja?", en:"Did you work yesterday?"},
+  {id:"Kemarin kamu main game?", en:"Did you play games yesterday?"},
+  {id:"Kemarin kamu nonton film?", en:"Did you watch a movie yesterday?"},
+  {id:"Kemarin kamu tidur cepat?", en:"Did you sleep early yesterday?"},
+  {id:"Kemarin kamu begadang?", en:"Did you stay up late yesterday?"},
+  {id:"Kemarin kamu pergi keluar?", en:"Did you go out yesterday?"},
+  {id:"Kemarin kamu makan apa?", en:"What did you eat yesterday?"},
+  {id:"Kemarin kamu minum kopi?", en:"Did you drink coffee yesterday?"},
+  {id:"Kemarin kamu olahraga?", en:"Did you exercise yesterday?"},
+  {id:"Kemarin kamu ketemu teman?", en:"Did you meet your friends yesterday?"},
+  {id:"Kemarin kamu di rumah saja?", en:"Did you stay home yesterday?"},
+  {id:"Kemarin kamu belajar bahasa Inggris?", en:"Did you study English yesterday?"},
+  {id:"Kemarin kamu pakai Ometv juga?", en:"Did you use Ometv yesterday too?"},
+  {id:"Kemarin kamu sibuk dengan apa?", en:"What kept you busy yesterday?"},
+  {id:"Kemarin kamu bangun jam berapa?", en:"What time did you wake up yesterday?"},
+  {id:"Kemarin kamu tidur jam berapa?", en:"What time did you sleep yesterday?"},
+  {id:"Kemarin kamu pergi ke mana?", en:"Where did you go yesterday?"},
+  {id:"Kemarin kamu nonton YouTube?", en:"Did you watch YouTube yesterday?"},
+  {id:"Kemarin kamu dengar musik?", en:"Did you listen to music yesterday?"},
+  {id:"Kemarin kamu malas-malasan?", en:"Did you just relax yesterday?"},
+  {id:"Kemarin kamu masak sesuatu?", en:"Did you cook something yesterday?"},
+  {id:"Kemarin kamu belanja?", en:"Did you go shopping yesterday?"},
+  {id:"Kemarin kamu ada tugas?", en:"Did you have homework yesterday?"},
+  {id:"Kemarin kamu capek?", en:"Were you tired yesterday?"},
+  {id:"Kemarin kamu senang?", en:"Were you happy yesterday?"},
+  {id:"Kemarin cuaca di tempatmu bagaimana?", en:"How was the weather yesterday in your place?"},
+  {id:"Kemarin hal paling seru apa yang kamu lakukan?", en:"What was the most fun thing you did yesterday?"},
+  {id:"Besok kamu mau ngapain?", en:"What are you going to do tomorrow?"},
+  {id:"Besok kamu sibuk?", en:"Will you be busy tomorrow?"},
+  {id:"Besok kamu sekolah?", en:"Will you go to school tomorrow?"},
+  {id:"Besok kamu kerja?", en:"Will you work tomorrow?"},
+  {id:"Besok kamu ada rencana?", en:"Do you have plans tomorrow?"},
+  {id:"Besok kamu mau santai?", en:"Will you relax tomorrow?"},
+  {id:"Besok kamu mau pergi keluar?", en:"Will you go out tomorrow?"},
+  {id:"Besok kamu mau main game?", en:"Will you play games tomorrow?"},
+  {id:"Besok kamu mau nonton film?", en:"Will you watch a movie tomorrow?"},
+  {id:"Besok kamu mau olahraga?", en:"Will you exercise tomorrow?"},
+  {id:"Besok kamu mau ketemu teman?", en:"Will you meet your friends tomorrow?"},
+  {id:"Besok kamu mau belajar?", en:"Will you study tomorrow?"},
+  {id:"Besok kamu mau tidur cepat?", en:"Will you sleep early tomorrow?"},
+  {id:"Besok kamu mau bangun pagi?", en:"Will you wake up early tomorrow?"},
+  {id:"Besok kamu mau makan apa?", en:"What will you eat tomorrow?"},
+  {id:"Besok kamu mau minum kopi?", en:"Will you drink coffee tomorrow?"},
+  {id:"Besok kamu mau ke mana?", en:"Where will you go tomorrow?"},
+  {id:"Besok kamu mau di rumah saja?", en:"Will you stay home tomorrow?"},
+  {id:"Besok kamu ada kelas?", en:"Do you have classes tomorrow?"},
+  {id:"Besok kamu ada pekerjaan?", en:"Do you have work tomorrow?"},
+  {id:"Besok kamu mau pakai Ometv lagi?", en:"Will you use Ometv again tomorrow?"},
+  {id:"Besok kamu mau coba sesuatu yang baru?", en:"Will you try something new tomorrow?"},
+  {id:"Besok kamu mau dengar musik?", en:"Will you listen to music tomorrow?"},
+  {id:"Besok kamu mau nonton YouTube?", en:"Will you watch YouTube tomorrow?"},
+  {id:"Besok kamu mau jalan-jalan?", en:"Will you go for a walk tomorrow?"},
+  {id:"Besok kamu mau bersantai?", en:"Will you chill tomorrow?"},
+  {id:"Besok kamu punya jadwal padat?", en:"Do you have a busy schedule tomorrow?"},
+  {id:"Besok kamu mau bangun siang?", en:"Will you wake up late tomorrow?"},
+  {id:"Besok kamu mau mengerjakan tugas?", en:"Will you do homework tomorrow?"},
+  {id:"Besok hal pertama yang mau kamu lakukan apa?", en:"What is the first thing you will do tomorrow?"},
+  {id:"Minggu ini kamu sibuk?", en:"Are you busy this week?"},
+  {id:"Hari ini kamu sudah makan?", en:"Did you eat today?"},
+  {id:"Hari ini kamu sudah mandi?", en:"Did you take a shower today?"},
+  {id:"Hari ini kamu keluar rumah?", en:"Did you go outside today?"},
+  {id:"Hari ini kamu minum kopi?", en:"Did you drink coffee today?"},
+  {id:"Hari ini kamu tidur siang?", en:"Did you take a nap today?"},
+  {id:"Hari ini kamu belajar sesuatu?", en:"Did you learn something today?"},
+  {id:"Hari ini kamu dengar lagu apa?", en:"What song did you listen to today?"},
+  {id:"Hari ini kamu nonton apa?", en:"What did you watch today?"},
+  {id:"Hari ini kamu merasa bagaimana?", en:"How do you feel today?"},
+  {id:"Hari ini kamu ketawa banyak?", en:"Did you laugh a lot today?"},
+  {id:"Hari ini kamu ngobrol sama banyak orang?", en:"Did you talk to many people today?"},
+  {id:"Hari ini kamu capek?", en:"Are you tired today?"},
+  {id:"Hari ini kamu bahagia?", en:"Are you happy today?"},
+  {id:"Hari ini kamu produktif?", en:"Were you productive today?"},
+  {id:"Hari ini kamu malas-malasan?", en:"Did you just relax today?"},
+  {id:"Hari ini kamu main HP terus?", en:"Did you use your phone all day today?"},
+  {id:"Hari ini kamu main game lama?", en:"Did you play games for a long time today?"},
+  {id:"Hari ini kamu ada masalah?", en:"Did you have any problems today?"},
+  {id:"Hari ini kamu menikmati harimu?", en:"Did you enjoy your day today?"}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

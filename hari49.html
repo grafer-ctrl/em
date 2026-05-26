@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="secondary" onclick="prevSentence()">⬅ Prev</button>
+            <button class="success" onclick="nextSentence()">Next ➡</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Kamu lagi ngapain sekarang?", en:"What are you doing right now?"},
+  {id:"Hari kamu gimana sejauh ini?", en:"How has your day been so far?"},
+  {id:"Kamu lagi sibuk atau santai?", en:"Are you busy or relaxing?"},
+  {id:"Kamu biasanya ngapain kalau lagi gabut?", en:"What do you usually do when you’re bored?"},
+  {id:"Kamu tinggal di kota besar atau kecil?", en:"Do you live in a big city or a small one?"},
+  {id:"Cuaca di tempatmu sekarang gimana?", en:"How’s the weather there right now?"},
+  {id:"Jam berapa di tempat kamu sekarang?", en:"What time is it there right now?"},
+  {id:"Kamu lagi di rumah atau di luar?", en:"Are you at home or outside?"},
+  {id:"Kamu pakai HP atau laptop sekarang?", en:"Are you using a phone or laptop right now?"},
+  {id:"Kamu suka ngobrol random kayak gini?", en:"Do you like random conversations like this?"},
+
+  {id:"Kamu sering pakai OmeTV?", en:"Do you use OmeTV often?"},
+  {id:"Ini pertama kalinya kamu di sini?", en:"Is this your first time here?"},
+  {id:"Kamu biasanya ketemu orang dari mana aja di sini?", en:"Where do you usually meet people from here?"},
+  {id:"Kamu suka ngobrol sama orang asing?", en:"Do you like talking to strangers?"},
+  {id:"Kenapa kamu pakai OmeTV?", en:"Why do you use OmeTV?"},
+  {id:"Kamu lagi cari teman atau cuma iseng?", en:"Are you looking for friends or just passing time?"},
+  {id:"Kamu sering ketemu orang lucu di sini?", en:"Do you often meet funny people here?"},
+  {id:"Pernah ketemu orang aneh di sini?", en:"Have you met weird people here?"},
+  {id:"Obrolan paling seru yang pernah kamu dapat apa?", en:"What’s the best conversation you’ve had here?"},
+  {id:"Kamu lebih suka chat atau video call?", en:"Do you prefer chatting or video calls?"},
+
+  {id:"Kamu dari negara mana lagi pernah ketemu orang?", en:"What countries have you met people from?"},
+  {id:"Kamu suka bahasa Inggris?", en:"Do you like English?"},
+  {id:"Kamu belajar bahasa Inggris sendiri?", en:"Did you learn English by yourself?"},
+  {id:"Apa sulit belajar bahasa Inggris?", en:"Is learning English difficult?"},
+  {id:"Kamu bisa bahasa lain selain ini?", en:"Do you speak any other languages?"},
+  {id:"Kamu mau belajar bahasa apa lagi?", en:"What language do you want to learn?"},
+  {id:"Kamu pernah ke luar negeri?", en:"Have you ever been abroad?"},
+  {id:"Negara mana yang ingin kamu kunjungi?", en:"Which country do you want to visit?"},
+  {id:"Kalau bisa pindah negara, kamu mau ke mana?", en:"If you could move countries, where would you go?"},
+  {id:"Kamu suka traveling?", en:"Do you like traveling?"},
+
+  {id:"Kamu kerja atau masih sekolah?", en:"Are you working or still studying?"},
+  {id:"Kalau sekolah, kamu suka pelajaran apa?", en:"If you’re studying, what subject do you like?"},
+  {id:"Kalau kerja, kerja apa?", en:"If you work, what do you do?"},
+  {id:"Kamu suka pekerjaan atau sekolahmu?", en:"Do you like your job or school?"},
+  {id:"Apa cita-cita kamu?", en:"What is your dream job?"},
+  {id:"Kamu ingin jadi apa nanti?", en:"What do you want to become?"},
+  {id:"Kamu orangnya ambisius gak?", en:"Are you an ambitious person?"},
+  {id:"Kamu suka kerja keras atau santai?", en:"Do you prefer working hard or relaxing?"},
+  {id:"Kamu lebih suka pagi atau malam?", en:"Do you prefer mornings or nights?"},
+  {id:"Kamu tipe orang introvert atau extrovert?", en:"Are you an introvert or extrovert?"},
+
+  {id:"Kamu suka musik apa?", en:"What kind of music do you like?"},
+  {id:"Lagu terakhir yang kamu dengar apa?", en:"What was the last song you listened to?"},
+  {id:"Siapa penyanyi favoritmu?", en:"Who’s your favorite singer?"},
+  {id:"Kamu suka K-pop?", en:"Do you like K-pop?"},
+  {id:"Kamu nonton film apa akhir-akhir ini?", en:"What movies have you watched lately?"},
+  {id:"Genre film favoritmu apa?", en:"What’s your favorite movie genre?"},
+  {id:"Kamu suka anime?", en:"Do you like anime?"},
+  {id:"Game favoritmu apa?", en:"What’s your favorite game?"},
+  {id:"Kamu main game di HP atau PC?", en:"Do you play games on phone or PC?"},
+  {id:"Kamu suka nonton YouTube?", en:"Do you watch YouTube a lot?"},
+
+  {id:"Kamu suka makanan apa?", en:"What food do you like?"},
+  {id:"Makanan favoritmu apa?", en:"What’s your favorite food?"},
+  {id:"Kamu suka makanan pedas?", en:"Do you like spicy food?"},
+  {id:"Kamu lebih suka kopi atau teh?", en:"Do you prefer coffee or tea?"},
+  {id:"Sarapan favoritmu apa?", en:"What’s your favorite breakfast?"},
+  {id:"Kamu suka masak?", en:"Do you like cooking?"},
+  {id:"Kamu sering makan di luar?", en:"Do you eat out often?"},
+  {id:"Makanan khas negaramu apa?", en:"What’s a famous food in your country?"},
+  {id:"Kamu suka dessert?", en:"Do you like desserts?"},
+  {id:"Makanan paling enak menurutmu apa?", en:"What’s the best food in your opinion?"},
+
+  {id:"Kamu punya hewan peliharaan?", en:"Do you have any pets?"},
+  {id:"Kamu suka kucing atau anjing?", en:"Do you like cats or dogs?"},
+  {id:"Hewan favoritmu apa?", en:"What’s your favorite animal?"},
+  {id:"Kamu takut hewan apa?", en:"What animals are you afraid of?"},
+  {id:"Kamu suka alam atau kota?", en:"Do you prefer nature or cities?"},
+  {id:"Tempat favoritmu untuk santai di mana?", en:"Where is your favorite place to relax?"},
+  {id:"Kamu suka pantai atau gunung?", en:"Do you prefer beaches or mountains?"},
+  {id:"Kamu pernah camping?", en:"Have you ever been camping?"},
+  {id:"Liburan terakhir kamu ke mana?", en:"Where was your last vacation?"},
+  {id:"Kamu suka traveling sendirian atau bareng teman?", en:"Do you prefer solo or group travel?"},
+
+  {id:"Kamu tipe orang pagi atau malam?", en:"Are you a morning or night person?"},
+  {id:"Biasanya kamu tidur jam berapa?", en:"What time do you usually sleep?"},
+  {id:"Kamu sering begadang?", en:"Do you often stay up late?"},
+  {id:"Apa yang kamu lakukan sebelum tidur?", en:"What do you do before sleeping?"},
+  {id:"Kamu pakai alarm bangun tidur?", en:"Do you use an alarm to wake up?"},
+  {id:"Kamu gampang bangun pagi?", en:"Is it easy for you to wake up early?"},
+  {id:"Hari favoritmu apa?", en:"What’s your favorite day?"},
+  {id:"Kamu suka weekend?", en:"Do you like weekends?"},
+  {id:"Apa yang kamu lakukan di weekend?", en:"What do you do on weekends?"},
+  {id:"Kamu lebih suka hari sibuk atau santai?", en:"Do you prefer busy or relaxed days?"},
+
+  {id:"Kamu suka ngobrol panjang atau singkat?", en:"Do you prefer long or short conversations?"},
+  {id:"Kamu suka orang yang humoris?", en:"Do you like funny people?"},
+  {id:"Tipe teman yang kamu suka seperti apa?", en:"What kind of friends do you like?"},
+  {id:"Kamu gampang percaya orang?", en:"Do you trust people easily?"},
+  {id:"Kamu orangnya santai atau serius?", en:"Are you chill or serious?"},
+  {id:"Kamu suka ngobrol tentang apa?", en:"What do you like to talk about?"},
+  {id:"Kamu pernah punya pengalaman lucu di OmeTV?", en:"Have you had funny experiences on OmeTV?"},
+  {id:"Obrolan ini enak gak buat kamu?", en:"Is this conversation good for you?"},
+  {id:"Kamu nyaman ngobrol sama aku?", en:"Are you comfortable talking with me?"},
+  {id:"Kamu mau lanjut ngobrol atau ganti topik?", en:"Do you want to continue or change topic?"},
+
+  {id:"Kalau kamu bisa jadi apa saja, mau jadi apa?", en:"If you could be anything, what would you be?"},
+  {id:"Kalau bisa punya kekuatan, pilih apa?", en:"If you could have a power, what would you choose?"},
+  {id:"Kalau hidupmu film, judulnya apa?", en:"If your life was a movie, what would the title be?"},
+  {id:"Kalau bisa balik ke masa lalu, mau ke kapan?", en:"If you could go back in time, when would you go?"},
+  {id:"Kalau bisa ke masa depan, kamu mau lihat apa?", en:"If you could see the future, what would you check?"},
+  {id:"Kalau kamu bisa tukar hidup sehari, dengan siapa?", en:"If you could switch lives for a day, with who?"},
+  {id:"Kalau kamu menang lotre, kamu ngapain?", en:"If you won the lottery, what would you do?"},
+  {id:"Kalau kamu terkenal, terkenal karena apa?", en:"If you were famous, what for?"},
+  {id:"Kalau kamu bisa hidup di game, game apa?", en:"If you could live in a game, which one?"},
+  {id:"Kalau kamu harus pilih satu makanan selamanya?", en:"If you had to eat one food forever?"},
+
+  {id:"Apa hal paling random yang kamu suka?", en:"What’s the most random thing you like?"},
+  {id:"Apa hal yang bikin kamu happy hari ini?", en:"What made you happy today?"},
+  {id:"Apa hal kecil yang kamu syukuri?", en:"What small thing are you grateful for?"},
+  {id:"Apa yang bikin kamu stress biasanya?", en:"What usually stresses you out?"},
+  {id:"Apa yang kamu lakukan saat sedih?", en:"What do you do when you’re sad?"},
+  {id:"Apa yang bikin kamu semangat?", en:"What motivates you?"},
+  {id:"Apa impian terbesar kamu?", en:"What is your biggest dream?"},
+  {id:"Apa target kamu tahun ini?", en:"What’s your goal this year?"},
+  {id:"Apa hal yang ingin kamu ubah dari hidupmu?", en:"What would you change in your life?"},
+  {id:"Apa hal paling kamu banggakan?", en:"What are you most proud of?"},
+
+  {id:"Kamu suka ngobrol sama orang baru?", en:"Do you like meeting new people?"},
+  {id:"Kamu lebih suka teman banyak atau sedikit?", en:"Do you prefer many friends or a few close ones?"},
+  {id:"Kamu mudah bosan gak?", en:"Do you get bored easily?"},
+  {id:"Kamu orang yang sabar gak?", en:"Are you a patient person?"},
+  {id:"Kamu suka kejutan?", en:"Do you like surprises?"},
+  {id:"Kamu suka drama atau damai?", en:"Do you prefer drama or peace?"},
+  {id:"Kamu sering mikir masa depan?", en:"Do you think about the future often?"},
+  {id:"Kamu lebih suka ngobrol online atau offline?", en:"Do you prefer online or offline chatting?"},
+  {id:"Kamu pernah punya teman dari negara lain?", en:"Have you had friends from other countries?"},
+  {id:"Kamu suka obrolan seperti ini gak?", en:"Do you like conversations like this?"}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function prevSentence(){
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

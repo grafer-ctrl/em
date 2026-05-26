@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Kamu gampang akrab ya", en:"You get comfortable quickly"},
+{id:"Aku suka energimu", en:"I like your energy"},
+{id:"Kamu enak diajak ngobrol", en:"You are easy to talk to"},
+{id:"Aku nyaman ngobrol sama kamu", en:"I feel comfortable talking with you"},
+{id:"Kamu punya vibe yang santai", en:"You have a relaxed vibe"},
+{id:"Aku suka cara kamu bicara", en:"I like the way you talk"},
+{id:"Kamu kelihatan percaya diri", en:"You look confident"},
+{id:"Aku suka orang yang santai seperti kamu", en:"I like relaxed people like you"},
+{id:"Kamu bikin obrolan jadi seru", en:"You make the conversation fun"},
+{id:"Aku suka pembawaanmu", en:"I like your personality"},
+{id:"Kamu kelihatan ramah banget", en:"You seem very friendly"},
+{id:"Aku jadi tidak canggung", en:"I do not feel awkward anymore"},
+{id:"Kamu gampang bikin suasana nyaman", en:"You easily make the atmosphere comfortable"},
+{id:"Aku suka ngobrol seperti ini", en:"I like conversations like this"},
+{id:"Kamu kelihatan easygoing", en:"You seem easygoing"},
+{id:"Aku suka orang yang positive vibes", en:"I like people with positive vibes"},
+{id:"Kamu kelihatan seru diajak ngobrol", en:"You seem fun to talk to"},
+{id:"Aku suka energi santaimu", en:"I like your calm energy"},
+{id:"Kamu bikin aku lebih pede ngobrol", en:"You make me more confident to talk"},
+{id:"Aku suka cara kamu merespon", en:"I like the way you respond"},
+{id:"Kamu punya senyum yang bagus", en:"You have a nice smile"},
+{id:"Aku suka vibe santai ini", en:"I like this relaxed vibe"},
+{id:"Kamu terlihat nyaman ngobrol", en:"You look comfortable talking"},
+{id:"Aku suka orang yang tidak jaim", en:"I like people who are not pretending"},
+{id:"Kamu bikin obrolan terasa natural", en:"You make the conversation feel natural"},
+{id:"Aku suka orang yang terbuka", en:"I like open-minded people"},
+{id:"Kamu punya aura positif", en:"You have a positive aura"},
+{id:"Aku suka cara kamu ketawa", en:"I like your laugh"},
+{id:"Kamu kelihatan asik", en:"You seem fun"},
+{id:"Aku suka ngobrol yang santai begini", en:"I like relaxed talks like this"},
+{id:"Kamu bikin suasana jadi ringan", en:"You make the atmosphere light"},
+{id:"Aku suka orang yang percaya diri", en:"I like confident people"},
+{id:"Kamu punya energi yang nyaman", en:"You have comfortable energy"},
+{id:"Aku suka cara kamu membawa obrolan", en:"I like how you carry the conversation"},
+{id:"Kamu kelihatan friendly banget", en:"You look really friendly"},
+{id:"Aku jadi lebih santai sekarang", en:"I feel more relaxed now"},
+{id:"Kamu bikin aku tidak gugup", en:"You make me less nervous"},
+{id:"Aku suka cara kamu ngobrol", en:"I like how you talk"},
+{id:"Kamu bikin obrolan tidak boring", en:"You make the conversation not boring"},
+{id:"Aku suka vibe percaya dirimu", en:"I like your confident vibe"},
+{id:"Kamu kelihatan easy to talk", en:"You seem easy to talk to"},
+{id:"Aku suka orang yang santai seperti ini", en:"I like people who are relaxed like this"},
+{id:"Kamu bikin suasana lebih hidup", en:"You make the atmosphere more lively"},
+{id:"Aku suka pembicaraan yang natural", en:"I like natural conversations"},
+{id:"Kamu punya cara bicara yang nyaman", en:"You have a comfortable way of speaking"},
+{id:"Aku suka ngobrol tanpa canggung", en:"I like conversations without awkwardness"},
+{id:"Kamu kelihatan punya banyak cerita", en:"You seem to have many stories"},
+{id:"Aku suka cara kamu menjawab", en:"I like the way you answer"},
+{id:"Kamu bikin aku enjoy ngobrol", en:"You make me enjoy talking"},
+{id:"Aku suka vibe tenangmu", en:"I like your calm vibe"},
+{id:"Kamu terlihat sangat santai", en:"You look very relaxed"},
+{id:"Aku suka orang yang bisa bikin nyaman", en:"I like people who can make others comfortable"},
+{id:"Kamu bikin obrolan terasa gampang", en:"You make conversation feel easy"},
+{id:"Aku suka gaya ngobrolmu", en:"I like your chatting style"},
+{id:"Kamu kelihatan punya energi bagus", en:"You seem to have good energy"},
+{id:"Aku suka orang yang apa adanya", en:"I like genuine people"},
+{id:"Kamu bikin aku lebih terbuka", en:"You make me more open"},
+{id:"Aku suka cara kamu menjaga obrolan", en:"I like how you keep the conversation going"},
+{id:"Kamu bikin suasana jadi chill", en:"You make the atmosphere chill"},
+{id:"Aku suka ngobrol dengan orang santai", en:"I like talking with relaxed people"},
+{id:"Kamu punya aura friendly", en:"You have a friendly aura"},
+{id:"Aku suka energi positif seperti ini", en:"I like positive energy like this"},
+{id:"Kamu terlihat nyaman jadi diri sendiri", en:"You seem comfortable being yourself"},
+{id:"Aku suka orang yang percaya diri saat ngobrol", en:"I like people who are confident while talking"},
+{id:"Kamu bikin suasana jadi tidak kaku", en:"You make the atmosphere less stiff"},
+{id:"Aku suka vibe ngobrol ini", en:"I like this conversation vibe"},
+{id:"Kamu punya cara bicara yang menarik", en:"You have an interesting way of speaking"},
+{id:"Aku suka energi happy kamu", en:"I like your happy energy"},
+{id:"Kamu bikin aku merasa santai", en:"You make me feel relaxed"},
+{id:"Aku suka orang yang bisa diajak ngobrol lama", en:"I like people who can talk for a long time"},
+{id:"Kamu bikin percakapan jadi mengalir", en:"You make the conversation flow"},
+{id:"Aku suka cara kamu bercanda", en:"I like the way you joke"},
+{id:"Kamu kelihatan sangat easygoing", en:"You seem very easygoing"},
+{id:"Aku suka suasana santai seperti ini", en:"I like relaxed atmospheres like this"},
+{id:"Kamu punya pembawaan yang enak", en:"You have a pleasant personality"},
+{id:"Aku suka ngobrol dengan orang yang nyaman", en:"I like talking with comfortable people"},
+{id:"Kamu bikin suasana jadi hangat", en:"You make the atmosphere warm"},
+{id:"Aku suka orang yang bisa bikin tenang", en:"I like people who can make others calm"},
+{id:"Kamu terlihat punya banyak energi positif", en:"You seem to have a lot of positive energy"},
+{id:"Aku suka cara kamu membuat obrolan hidup", en:"I like how you make conversations lively"},
+{id:"Kamu bikin aku lebih enjoy", en:"You make me enjoy this more"},
+{id:"Aku suka orang yang tidak bikin canggung", en:"I like people who do not make things awkward"},
+{id:"Kamu kelihatan seru banget", en:"You seem really fun"},
+{id:"Aku suka ngobrol yang mengalir seperti ini", en:"I like flowing conversations like this"},
+{id:"Kamu punya vibe yang bikin nyaman", en:"You have a comforting vibe"},
+{id:"Aku suka energi santai dan happy", en:"I like relaxed and happy energy"},
+{id:"Kamu bikin suasana jadi asik", en:"You make the atmosphere fun"},
+{id:"Aku suka cara kamu membawa diri", en:"I like how you carry yourself"},
+{id:"Kamu terlihat percaya diri banget", en:"You look very confident"},
+{id:"Aku suka ngobrol dengan orang yang terbuka", en:"I like talking with open people"},
+{id:"Kamu bikin aku merasa diterima", en:"You make me feel accepted"},
+{id:"Aku suka cara kamu bikin obrolan nyaman", en:"I like how you make conversations comfortable"},
+{id:"Kamu punya energi yang positif banget", en:"You have very positive energy"},
+{id:"Aku suka vibe friendly seperti ini", en:"I like friendly vibes like this"},
+{id:"Kamu bikin suasana terasa santai", en:"You make the atmosphere feel relaxed"},
+{id:"Aku suka ngobrol tanpa tekanan", en:"I like pressure-free conversations"},
+{id:"Kamu terlihat enjoy ngobrol", en:"You look like you enjoy talking"},
+{id:"Aku suka orang yang easygoing", en:"I like easygoing people"},
+{id:"Kamu bikin aku lebih percaya diri ngobrol", en:"You make me more confident to talk"},
+{id:"Aku suka suasana ngobrol yang nyaman", en:"I like comfortable conversation vibes"},
+{id:"Kamu bikin percakapan terasa natural banget", en:"You make conversations feel very natural"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

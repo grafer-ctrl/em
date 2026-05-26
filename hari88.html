@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Tolong bantu saya", en:"Please help me"},
+{id:"Saya tidak mengerti", en:"I do not understand"},
+{id:"Bisa bicara lebih pelan?", en:"Can you speak slower?"},
+{id:"Di mana toilet?", en:"Where is the bathroom?"},
+{id:"Berapa harganya?", en:"How much is it?"},
+{id:"Saya tersesat", en:"I am lost"},
+{id:"Bisakah kamu membantu saya?", en:"Can you help me?"},
+{id:"Saya butuh air", en:"I need water"},
+{id:"Saya lapar", en:"I am hungry"},
+{id:"Saya haus", en:"I am thirsty"},
+{id:"Saya sakit", en:"I am sick"},
+{id:"Panggil dokter", en:"Call a doctor"},
+{id:"Di mana rumah sakit?", en:"Where is the hospital?"},
+{id:"Saya tidak bisa bahasa Inggris dengan baik", en:"I cannot speak English well"},
+{id:"Tolong ulangi", en:"Please repeat that"},
+{id:"Apa maksudnya?", en:"What does that mean?"},
+{id:"Saya tidak tahu", en:"I do not know"},
+{id:"Tolong tunggu sebentar", en:"Please wait a moment"},
+{id:"Saya butuh bantuan", en:"I need help"},
+{id:"Jam berapa sekarang?", en:"What time is it?"},
+{id:"Di mana halte bus?", en:"Where is the bus stop?"},
+{id:"Di mana stasiun?", en:"Where is the station?"},
+{id:"Saya mau pesan makanan", en:"I want to order food"},
+{id:"Tolong tanpa pedas", en:"Please no spicy food"},
+{id:"Saya alergi", en:"I have allergies"},
+{id:"Bisa pakai kartu?", en:"Can I pay by card?"},
+{id:"Saya tidak punya uang tunai", en:"I do not have cash"},
+{id:"Di mana hotel saya?", en:"Where is my hotel?"},
+{id:"Tolong panggil taksi", en:"Please call a taxi"},
+{id:"Saya butuh internet", en:"I need internet"},
+{id:"Apa ada WiFi?", en:"Is there WiFi?"},
+{id:"Password WiFi apa?", en:"What is the WiFi password?"},
+{id:"Saya ingin check in", en:"I want to check in"},
+{id:"Saya ingin check out", en:"I want to check out"},
+{id:"Saya mau beli ini", en:"I want to buy this"},
+{id:"Bisa lebih murah?", en:"Can it be cheaper?"},
+{id:"Tolong tunjukkan jalannya", en:"Please show me the way"},
+{id:"Saya sedang mencari teman saya", en:"I am looking for my friend"},
+{id:"Saya kehilangan HP saya", en:"I lost my phone"},
+{id:"Saya kehilangan dompet saya", en:"I lost my wallet"},
+{id:"Apakah aman di sini?", en:"Is it safe here?"},
+{id:"Saya mau pergi ke bandara", en:"I want to go to the airport"},
+{id:"Kapan busnya datang?", en:"When does the bus arrive?"},
+{id:"Saya butuh charger", en:"I need a charger"},
+{id:"Boleh pinjam?", en:"Can I borrow it?"},
+{id:"Saya hanya melihat-lihat", en:"I am just looking around"},
+{id:"Saya suka tempat ini", en:"I like this place"},
+{id:"Cuacanya panas", en:"The weather is hot"},
+{id:"Cuacanya dingin", en:"The weather is cold"},
+{id:"Hujan hari ini", en:"It is raining today"},
+{id:"Saya capek", en:"I am tired"},
+{id:"Saya senang bertemu kamu", en:"Nice to meet you"},
+{id:"Dari mana kamu?", en:"Where are you from?"},
+{id:"Nama saya Umar", en:"My name is Umar"},
+{id:"Saya dari Indonesia", en:"I am from Indonesia"},
+{id:"Saya sedang belajar bahasa Inggris", en:"I am learning English"},
+{id:"Bisa foto bersama?", en:"Can we take a photo together?"},
+{id:"Tolong hati-hati", en:"Please be careful"},
+{id:"Saya baik-baik saja", en:"I am okay"},
+{id:"Saya tidak apa-apa", en:"I am fine"},
+{id:"Saya butuh istirahat", en:"I need some rest"},
+{id:"Saya takut", en:"I am scared"},
+{id:"Jangan khawatir", en:"Do not worry"},
+{id:"Tidak masalah", en:"No problem"},
+{id:"Terima kasih banyak", en:"Thank you very much"},
+{id:"Sama-sama", en:"You are welcome"},
+{id:"Maaf", en:"Sorry"},
+{id:"Permisi", en:"Excuse me"},
+{id:"Selamat pagi", en:"Good morning"},
+{id:"Selamat siang", en:"Good afternoon"},
+{id:"Selamat malam", en:"Good evening"},
+{id:"Sampai jumpa", en:"See you later"},
+{id:"Hati-hati di jalan", en:"Take care"},
+{id:"Saya setuju", en:"I agree"},
+{id:"Saya tidak setuju", en:"I disagree"},
+{id:"Saya suka itu", en:"I like that"},
+{id:"Saya tidak suka itu", en:"I do not like that"},
+{id:"Tolong tuliskan", en:"Please write it down"},
+{id:"Bisa dieja?", en:"Can you spell it?"},
+{id:"Saya sedang terburu-buru", en:"I am in a hurry"},
+{id:"Tunggu sebentar", en:"Wait a second"},
+{id:"Saya siap", en:"I am ready"},
+{id:"Mari pergi", en:"Let us go"},
+{id:"Saya bingung", en:"I am confused"},
+{id:"Saya lupa", en:"I forgot"},
+{id:"Tidak apa-apa", en:"It is okay"},
+{id:"Bagus sekali", en:"Very good"},
+{id:"Kerja bagus", en:"Good job"},
+{id:"Saya percaya kamu", en:"I believe you"},
+{id:"Saya sedang mencari pekerjaan", en:"I am looking for a job"},
+{id:"Saya butuh tidur", en:"I need sleep"},
+{id:"Saya tidak mengerti pertanyaannya", en:"I do not understand the question"},
+{id:"Bisa bantu terjemahkan?", en:"Can you help translate?"},
+{id:"Saya sedang menunggu seseorang", en:"I am waiting for someone"},
+{id:"Apa kamu bisa bahasa Indonesia?", en:"Can you speak Indonesian?"},
+{id:"Saya suka musik", en:"I like music"},
+{id:"Saya suka makanan ini", en:"I like this food"},
+{id:"Saya mau pulang", en:"I want to go home"},
+{id:"Sampai nanti", en:"See you later"},
+{id:"Semoga harimu menyenangkan", en:"Have a nice day"},
+{id:"Saya harap semuanya baik-baik saja", en:"I hope everything is okay"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

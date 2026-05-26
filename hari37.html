@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Kemarin aku ngobrol dengan orang dari Jepang.", en:"Yesterday I talked with someone from Japan."},
+  {id:"Tadi aku ketemu orang yang sangat lucu di Ometv.", en:"Earlier I met someone really funny on Ometv."},
+  {id:"Aku pernah ngobrol sampai pagi di Ometv.", en:"I once talked until morning on Ometv."},
+  {id:"Aku pernah ketemu orang yang jago nyanyi di sini.", en:"I once met someone who could sing really well here."},
+  {id:"Kemarin aku bertemu orang yang sangat ramah.", en:"Yesterday I met someone very friendly."},
+  {id:"Aku pernah salah paham karena bahasa Inggris.", en:"I once had a misunderstanding because of English."},
+  {id:"Tadi ada orang yang terus tertawa saat ngobrol denganku.", en:"Earlier someone kept laughing while talking to me."},
+  {id:"Aku pernah ketemu orang yang mirip artis.", en:"I once met someone who looked like a celebrity."},
+  {id:"Aku pernah ngobrol dengan orang dari lebih dari lima negara dalam satu malam.", en:"I once talked with people from more than five countries in one night."},
+  {id:"Aku pernah sangat gugup saat pertama kali menggunakan Ometv.", en:"I was very nervous the first time I used Ometv."},
+
+  {id:"Aku pernah ketemu orang yang sangat baik hati.", en:"I once met someone very kind."},
+  {id:"Aku pernah diajari beberapa kata bahasa Korea di sini.", en:"Someone once taught me some Korean words here."},
+  {id:"Aku pernah ketawa sampai sakit perut saat ngobrol di sini.", en:"I once laughed so hard while chatting here."},
+  {id:"Aku pernah ngobrol dengan orang sambil main game.", en:"I once talked with someone while playing games."},
+  {id:"Aku pernah ketemu orang yang suka musik yang sama denganku.", en:"I once met someone who liked the same music as me."},
+  {id:"Aku pernah ketemu orang yang sangat pemalu.", en:"I once met someone very shy."},
+  {id:"Aku pernah ngobrol dengan seseorang selama satu jam.", en:"I once talked with someone for one hour."},
+  {id:"Aku pernah bertemu orang yang kameranya sangat blur.", en:"I once met someone with a very blurry camera."},
+  {id:"Aku pernah bertemu orang yang sangat energik.", en:"I once met someone very energetic."},
+  {id:"Aku pernah berbicara dengan orang dari Amerika.", en:"I once talked with someone from America."},
+
+  {id:"Aku pernah ketemu orang yang suka anime juga.", en:"I once met someone who also likes anime."},
+  {id:"Aku pernah salah mengucapkan kata dalam bahasa Inggris.", en:"I once pronounced an English word wrong."},
+  {id:"Aku pernah ngobrol sambil dengar musik.", en:"I once chatted while listening to music."},
+  {id:"Aku pernah ketemu orang yang sangat santai.", en:"I once met someone very chill."},
+  {id:"Aku pernah skip orang secara tidak sengaja.", en:"I once skipped someone by accident."},
+  {id:"Aku pernah ngobrol dengan orang yang sangat pintar.", en:"I once talked with someone very smart."},
+  {id:"Aku pernah bertemu orang yang suka kopi seperti aku.", en:"I once met someone who likes coffee like me."},
+  {id:"Aku pernah ngobrol dengan orang sampai lupa waktu.", en:"I once talked with someone until I lost track of time."},
+  {id:"Aku pernah ketemu orang yang punya tawa lucu.", en:"I once met someone with a funny laugh."},
+  {id:"Aku pernah ketemu orang yang sangat sopan.", en:"I once met someone very polite."},
+
+  {id:"Aku pernah berbicara dengan orang dari Filipina.", en:"I once talked with someone from the Philippines."},
+  {id:"Aku pernah belajar slang bahasa Inggris di sini.", en:"I once learned English slang here."},
+  {id:"Aku pernah merasa malu saat berbicara bahasa Inggris.", en:"I once felt embarrassed speaking English."},
+  {id:"Aku pernah bertemu orang yang sangat lucu.", en:"I once met someone really funny."},
+  {id:"Aku pernah ketemu orang yang suka game yang sama.", en:"I once met someone who likes the same game."},
+  {id:"Aku pernah ngobrol sambil makan mie.", en:"I once chatted while eating noodles."},
+  {id:"Aku pernah ngobrol dengan orang sampai baterai HP habis.", en:"I once talked with someone until my phone battery died."},
+  {id:"Aku pernah ketemu orang yang sangat ramah di malam hari.", en:"I once met someone very friendly at night."},
+  {id:"Aku pernah ketemu orang yang sangat pendiam.", en:"I once met someone very quiet."},
+  {id:"Aku pernah ngobrol dengan orang yang sedang belajar bahasa Indonesia.", en:"I once talked with someone learning Indonesian."},
+
+  {id:"Aku pernah ketemu orang yang sangat suka bercanda.", en:"I once met someone who loves joking around."},
+  {id:"Aku pernah ketemu orang yang suaranya sangat lembut.", en:"I once met someone with a very soft voice."},
+  {id:"Aku pernah berbicara dengan orang dari Thailand.", en:"I once talked with someone from Thailand."},
+  {id:"Aku pernah ketemu orang yang mengajakku bernyanyi.", en:"I once met someone who asked me to sing."},
+  {id:"Aku pernah merasa sangat nyaman ngobrol dengan orang asing.", en:"I once felt very comfortable talking with a stranger."},
+  {id:"Aku pernah ngobrol sambil rebahan.", en:"I once chatted while lying down."},
+  {id:"Aku pernah ketemu orang yang suka K-pop.", en:"I once met someone who likes K-pop."},
+  {id:"Aku pernah ngobrol dengan orang yang suka film horor.", en:"I once talked with someone who likes horror movies."},
+  {id:"Aku pernah bertemu orang yang sangat percaya diri.", en:"I once met someone very confident."},
+  {id:"Aku pernah berbicara dengan orang yang tinggal di Korea.", en:"I once talked with someone living in Korea."},
+
+  {id:"Aku pernah ketemu orang yang suka menggambar.", en:"I once met someone who likes drawing."},
+  {id:"Aku pernah ngobrol dengan orang yang sangat lucu sampai aku tidak bisa berhenti tertawa.", en:"I once talked with someone so funny that I couldn’t stop laughing."},
+  {id:"Aku pernah ketemu orang yang sedang belajar gitar.", en:"I once met someone learning guitar."},
+  {id:"Aku pernah ngobrol dengan orang sambil hujan-hujanan.", en:"I once talked with someone while it was raining."},
+  {id:"Aku pernah ketemu orang yang sangat sabar mendengarkanku.", en:"I once met someone very patient listening to me."},
+  {id:"Aku pernah ngobrol dengan orang yang sangat suka traveling.", en:"I once talked with someone who loves traveling."},
+  {id:"Aku pernah bertemu orang yang memakai kostum lucu.", en:"I once met someone wearing a funny costume."},
+  {id:"Aku pernah berbicara dengan orang yang suka fotografi.", en:"I once talked with someone who likes photography."},
+  {id:"Aku pernah ketemu orang yang punya suara bagus.", en:"I once met someone with a nice voice."},
+  {id:"Aku pernah ngobrol dengan orang sambil mendengarkan lagu yang sama.", en:"I once talked with someone while listening to the same song."},
+
+  {id:"Aku pernah ketemu orang yang sangat random.", en:"I once met someone very random."},
+  {id:"Aku pernah berbicara dengan orang yang suka olahraga.", en:"I once talked with someone who likes sports."},
+  {id:"Aku pernah ngobrol dengan orang sampai lupa tidur.", en:"I once talked with someone until I forgot to sleep."},
+  {id:"Aku pernah ketemu orang yang sangat pintar bahasa Inggris.", en:"I once met someone very good at English."},
+  {id:"Aku pernah berbicara dengan orang yang tinggal dekat pantai.", en:"I once talked with someone living near the beach."},
+  {id:"Aku pernah ngobrol dengan orang sambil minum kopi.", en:"I once chatted while drinking coffee."},
+  {id:"Aku pernah ketemu orang yang suka membaca buku.", en:"I once met someone who likes reading books."},
+  {id:"Aku pernah ngobrol dengan orang yang sangat tenang.", en:"I once talked with someone very calm."},
+  {id:"Aku pernah ketemu orang yang suka hujan.", en:"I once met someone who likes rainy weather."},
+  {id:"Aku pernah ngobrol dengan orang yang tinggal di kota besar.", en:"I once talked with someone living in a big city."},
+
+  {id:"Aku pernah berbicara dengan orang yang suka kucing.", en:"I once talked with someone who likes cats."},
+  {id:"Aku pernah ketemu orang yang sangat suka kopi.", en:"I once met someone who really loves coffee."},
+  {id:"Aku pernah ngobrol dengan orang yang baru bangun tidur.", en:"I once talked with someone who just woke up."},
+  {id:"Aku pernah ketemu orang yang sangat santai saat ngobrol.", en:"I once met someone very relaxed while chatting."},
+  {id:"Aku pernah ngobrol dengan orang yang suka memasak.", en:"I once talked with someone who likes cooking."},
+  {id:"Aku pernah ketemu orang yang sangat lucu meskipun baru kenal.", en:"I once met someone very funny even though we just met."},
+  {id:"Aku pernah ngobrol dengan orang sambil mendengar suara hujan.", en:"I once chatted while listening to rain sounds."},
+  {id:"Aku pernah berbicara dengan orang yang suka tidur siang.", en:"I once talked with someone who likes naps."},
+  {id:"Aku pernah ketemu orang yang sangat baik kepadaku.", en:"I once met someone very kind to me."},
+  {id:"Aku pernah ngobrol dengan orang yang suka traveling ke luar negeri.", en:"I once talked with someone who likes traveling abroad."},
+
+  {id:"Aku pernah ketemu orang yang sangat menyenangkan diajak ngobrol.", en:"I once met someone very fun to talk to."},
+  {id:"Aku pernah ngobrol dengan orang sampai merasa seperti teman lama.", en:"I once talked with someone who felt like an old friend."},
+  {id:"Aku pernah berbicara dengan orang yang suka musik chill.", en:"I once talked with someone who likes chill music."},
+  {id:"Aku pernah ketemu orang yang sangat suka bercanda.", en:"I once met someone who jokes a lot."},
+  {id:"Aku pernah ngobrol dengan orang yang sangat ramah meskipun baru kenal.", en:"I once talked with someone very friendly even though we just met."},
+  {id:"Aku pernah berbicara dengan orang yang sedang belajar bahasa Inggris.", en:"I once talked with someone learning English."},
+  {id:"Aku pernah ketemu orang yang sangat lucu saat gugup.", en:"I once met someone funny when nervous."},
+  {id:"Aku pernah ngobrol dengan orang yang suka malam hari.", en:"I once talked with someone who likes nighttime."},
+  {id:"Aku pernah ketemu orang yang suka game online.", en:"I once met someone who likes online games."},
+  {id:"Aku pernah ngobrol dengan orang yang suka lagu sedih.", en:"I once talked with someone who likes sad songs."},
+
+  {id:"Aku pernah berbicara dengan orang yang tinggal di kota kecil.", en:"I once talked with someone living in a small town."},
+  {id:"Aku pernah ketemu orang yang sangat nyaman diajak ngobrol.", en:"I once met someone very comfortable to talk to."},
+  {id:"Aku pernah ngobrol dengan orang sampai lupa waktu.", en:"I once talked with someone until I forgot the time."},
+  {id:"Aku pernah berbicara dengan orang yang sangat suka anime.", en:"I once talked with someone who really likes anime."},
+  {id:"Aku pernah ketemu orang yang membuat malamku lebih seru.", en:"I once met someone who made my night more fun."},
+  {id:"Aku pernah ngobrol dengan orang yang sangat baik mendengarkan cerita.", en:"I once talked with someone very good at listening."},
+  {id:"Aku pernah berbicara dengan orang yang suka traveling.", en:"I once talked with someone who likes traveling."},
+  {id:"Aku pernah ketemu orang yang sangat ceria.", en:"I once met someone very cheerful."},
+  {id:"Aku pernah ngobrol dengan orang yang suka film romantis.", en:"I once talked with someone who likes romantic movies."},
+  {id:"Aku pernah ketemu orang yang membuatku lebih percaya diri berbicara bahasa Inggris.", en:"I once met someone who made me more confident speaking English."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

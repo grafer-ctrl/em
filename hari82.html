@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id:"Aku pura-pura tidur biar tidak disuruh bantu, ternyata ketahuan", en:"I pretended to sleep to avoid helping, but I got caught"},
+{id:"Aku bilang cuma lihat-lihat di toko online, tiba-tiba checkout", en:"I said I was just browsing online shops, then suddenly checked out"},
+{id:"Aku bangun pagi buat produktif, ujungnya tidur lagi", en:"I woke up early to be productive, but ended up sleeping again"},
+{id:"Aku buka kulkas berharap ada makanan enak secara ajaib", en:"I opened the fridge hoping delicious food would magically appear"},
+{id:"Aku bilang cuma main 5 menit, tahu-tahu 3 jam", en:"I said I would play for 5 minutes, then suddenly it was 3 hours later"},
+{id:"Aku lupa kalau mic masih nyala waktu ngomong sendiri", en:"I forgot my mic was still on while talking to myself"},
+{id:"Aku niat diet, tapi lihat gorengan langsung kalah", en:"I wanted to diet, but fried snacks defeated me instantly"},
+{id:"Aku pura-pura paham pas dijelaskan, padahal bingung", en:"I pretended to understand the explanation, but I was confused"},
+{id:"Aku ketawa sendiri baca chat lama", en:"I laughed alone reading old chats"},
+{id:"Aku mau tidur cepat tapi malah scrolling tanpa sadar", en:"I wanted to sleep early but ended up scrolling endlessly"},
+{id:"Aku bilang tidak lapar, tapi makan camilan diam-diam", en:"I said I was not hungry, but secretly ate snacks"},
+{id:"Aku salah kirim screenshot ke orang yang ada di screenshot", en:"I accidentally sent a screenshot to the person in the screenshot"},
+{id:"Aku niat bersih-bersih kamar, malah nostalgia barang lama", en:"I planned to clean my room but got distracted by old memories"},
+{id:"Aku lihat jam masih pagi, ternyata sudah siang", en:"I checked the clock thinking it was morning, but it was already noon"},
+{id:"Aku takut nonton horror, tapi penasaran juga", en:"I am scared of horror movies, but still curious"},
+{id:"Aku buka aplikasi belajar, malah buka media sosial", en:"I opened a study app but ended up on social media"},
+{id:"Aku ketiduran sambil pegang HP", en:"I fell asleep while holding my phone"},
+{id:"Aku bilang tidak akan beli apa-apa, lalu diskon muncul", en:"I said I would not buy anything, then a discount appeared"},
+{id:"Aku panik cari HP, ternyata di tangan sendiri", en:"I panicked looking for my phone, but it was already in my hand"},
+{id:"Aku ingin hidup sehat, tapi boba terlalu menggoda", en:"I wanted a healthy lifestyle, but boba was too tempting"},
+{id:"Aku cuma mau lihat satu video, tahu-tahu subuh", en:"I only wanted to watch one video, then suddenly it was dawn"},
+{id:"Aku pakai earphone tapi musiknya belum diputar", en:"I wore earphones but forgot to play music"},
+{id:"Aku buka kamera depan tanpa sengaja dan langsung kaget", en:"I accidentally opened the front camera and got shocked"},
+{id:"Aku niat belajar serius, tapi meja malah jadi tempat ngemil", en:"I planned to study seriously, but my desk became a snack station"},
+{id:"Aku kirim pesan panjang lalu langsung malu sendiri", en:"I sent a long message and immediately felt embarrassed"},
+{id:"Aku bilang tidak akan begadang lagi setiap malam", en:"I say I will stop staying up late every night"},
+{id:"Aku lihat notifikasi lalu lupa mau ngapain", en:"I checked a notification and forgot what I was doing"},
+{id:"Aku senyum sendiri baca komentar lucu", en:"I smiled alone reading funny comments"},
+{id:"Aku baru sadar pakai baju terbalik setelah keluar rumah", en:"I realized my shirt was inside out after leaving home"},
+{id:"Aku niat rebahan sebentar, malah ketiduran lama", en:"I planned to lie down briefly, but slept for hours"},
+{id:"Aku sok kuat makan pedas lalu menyesal", en:"I acted tough eating spicy food and regretted it"},
+{id:"Aku salah sebut nama orang pas kenalan", en:"I said the wrong name while introducing someone"},
+{id:"Aku kira hari ini libur ternyata tidak", en:"I thought today was a holiday, but it was not"},
+{id:"Aku masuk ruangan lalu lupa mau ambil apa", en:"I entered a room and forgot what I needed"},
+{id:"Aku baru sadar typo setelah pesan terkirim", en:"I noticed the typo after sending the message"},
+{id:"Aku ketawa karena meme yang tidak jelas", en:"I laughed at a random meme"},
+{id:"Aku niat olahraga tapi hujan jadi alasan", en:"I planned to exercise but used rain as an excuse"},
+{id:"Aku lupa cas HP lalu panik saat baterai 1 persen", en:"I forgot to charge my phone and panicked at 1 percent battery"},
+{id:"Aku lihat makanan orang lain jadi ikut lapar", en:"I saw someone else's food and suddenly got hungry"},
+{id:"Aku cuma mau duduk sebentar malah malas bangun", en:"I only wanted to sit briefly but became too lazy to stand"},
+{id:"Aku niat hemat tapi checkout lagi", en:"I planned to save money but checked out more items"},
+{id:"Aku salah masuk kelas online", en:"I entered the wrong online class"},
+{id:"Aku ketawa sendiri ingat kejadian memalukan", en:"I laughed alone remembering an embarrassing moment"},
+{id:"Aku pikir hari ini hari Jumat ternyata masih Senin", en:"I thought it was Friday today, but it was still Monday"},
+{id:"Aku buka aplikasi cuaca cuma buat lihat hujan atau tidak", en:"I opened the weather app just to check for rain"},
+{id:"Aku bilang cuma istirahat bentar lalu kebablasan", en:"I said I would rest briefly but overslept"},
+{id:"Aku salah kirim emoji dan langsung panik", en:"I sent the wrong emoji and panicked immediately"},
+{id:"Aku pura-pura sibuk biar tidak diajak keluar", en:"I pretended to be busy to avoid going out"},
+{id:"Aku bilang sudah move on padahal belum", en:"I said I had moved on, but I had not"},
+{id:"Aku niat fokus tapi notifikasi menang terus", en:"I planned to focus but notifications kept winning"},
+{id:"Aku ketiduran pas nunggu balasan chat", en:"I fell asleep while waiting for a reply"},
+{id:"Aku buka TikTok cuma sebentar lalu lupa waktu", en:"I opened TikTok briefly and lost track of time"},
+{id:"Aku beli makanan banyak lalu kenyang duluan", en:"I bought too much food and got full too fast"},
+{id:"Aku lihat harga lalu pura-pura kuat", en:"I saw the price and pretended to stay calm"},
+{id:"Aku lupa kalau kamera belakang lebih jujur", en:"I forgot the back camera is more honest"},
+{id:"Aku niat tidur siang malah bangun malam", en:"I planned a nap but woke up at night"},
+{id:"Aku lihat chat lama lalu nostalgia sendiri", en:"I read old chats and got nostalgic"},
+{id:"Aku sok tenang padahal panik", en:"I acted calm even though I was panicking"},
+{id:"Aku cuma mau rebahan tapi malah overthinking", en:"I just wanted to lie down but started overthinking"},
+{id:"Aku kira suara dari luar ternyata dari HP sendiri", en:"I thought the sound came from outside, but it was my phone"},
+{id:"Aku mau makan sehat besok terus setiap hari bilang begitu", en:"I say I will eat healthy tomorrow every single day"},
+{id:"Aku lihat diskon langsung lupa tujuan awal", en:"I saw a discount and forgot my original plan"},
+{id:"Aku kirim voice note lalu dengar ulang dan malu", en:"I sent a voice note then replayed it and felt embarrassed"},
+{id:"Aku pura-pura tidak lihat pesan biar balas nanti", en:"I pretended not to see the message so I could reply later"},
+{id:"Aku ketawa karena video absurd tengah malam", en:"I laughed at absurd videos late at night"},
+{id:"Aku salah baca chat lalu salah paham", en:"I misread the chat and misunderstood"},
+{id:"Aku mau produktif tapi kasur terlalu nyaman", en:"I wanted to be productive but the bed was too comfortable"},
+{id:"Aku bilang tidak takut horror sambil tutup mata", en:"I said I was not scared of horror while covering my eyes"},
+{id:"Aku niat bangun pagi tapi alarm kalah", en:"I planned to wake up early but lost to the alarm"},
+{id:"Aku cari lagu satu malah dengar album penuh", en:"I searched for one song but listened to the whole album"},
+{id:"Aku buka komentar lebih seru dari videonya", en:"The comments were more entertaining than the video"},
+{id:"Aku bilang cuma lihat-lihat menu lalu pesan banyak", en:"I said I was just checking the menu then ordered a lot"},
+{id:"Aku pura-pura tidak lihat harga ongkir", en:"I pretended not to see the shipping cost"},
+{id:"Aku ketawa sendiri ingat jokes lama", en:"I laughed alone remembering old jokes"},
+{id:"Aku lupa kalau hari ini ada tugas", en:"I forgot there was an assignment today"},
+{id:"Aku niat mandi cepat malah nyanyi lama", en:"I planned a quick shower but ended up singing for a long time"},
+{id:"Aku kira baterai masih banyak ternyata 2 persen", en:"I thought my battery was fine but it was 2 percent"},
+{id:"Aku lihat kaca depan beda sama kamera depan", en:"The mirror and front camera looked completely different"},
+{id:"Aku niat tidur cepat tapi malah mikir random", en:"I planned to sleep early but started thinking random thoughts"},
+{id:"Aku salah dengar lalu jawab dengan percaya diri", en:"I misheard something and answered confidently"},
+{id:"Aku panik karena internet hilang lima menit", en:"I panicked because the internet was gone for five minutes"},
+{id:"Aku bilang tidak akan beli skin game lagi", en:"I said I would not buy game skins again"},
+{id:"Aku buka kulkas berkali-kali berharap ada makanan baru", en:"I kept opening the fridge hoping new food would appear"},
+{id:"Aku niat fokus kerja malah buka komentar", en:"I planned to focus on work but read comments instead"},
+{id:"Aku lihat meme lalu ketawa sendiri tengah malam", en:"I laughed alone at memes late at night"},
+{id:"Aku kira hari ini tanggal muda ternyata tidak", en:"I thought payday was near, but it was not"},
+{id:"Aku baru sadar headphone belum tersambung", en:"I realized my headphones were not connected"},
+{id:"Aku sok santai padahal deadline dekat", en:"I acted relaxed even though the deadline was close"},
+{id:"Aku bilang tidak akan overthinking malam ini", en:"I said I would not overthink tonight"},
+{id:"Aku cuma mau duduk lima menit lalu mager total", en:"I only wanted to sit for five minutes then became completely lazy"},
+{id:"Aku lihat video masak lalu langsung lapar", en:"I watched cooking videos and instantly got hungry"},
+{id:"Aku salah pencet kamera saat rebahan", en:"I accidentally opened the camera while lying down"},
+{id:"Aku niat baca chat sebentar malah nostalgia", en:"I planned to read chats briefly but got nostalgic"},
+{id:"Aku kira semua orang tidur ternyata masih online", en:"I thought everyone was asleep but they were still online"},
+{id:"Aku niat hemat kuota tapi autoplay menang", en:"I planned to save data but autoplay won"},
+{id:"Aku buka HP buat lihat jam lalu lupa waktunya", en:"I opened my phone to check the time and forgot it"},
+{id:"Aku ketawa karena komentar lebih lucu dari kontennya", en:"I laughed because the comments were funnier than the content"},
+{id:"Aku bilang tidak mau drama tapi suka baca drama orang", en:"I said I hate drama but enjoy reading other people's drama"},
+{id:"Aku pikir pesan belum terkirim ternyata sudah dibaca", en:"I thought the message was not sent, but it was already read"},
+{id:"Aku baru sadar salah chat setelah dikirim", en:"I realized I sent the message to the wrong chat"},
+{id:"Aku niat fokus hidup sehat tapi martabak muncul", en:"I planned a healthy lifestyle but martabak appeared"},
+{id:"Aku cuma mau istirahat sebentar lalu hilang satu hari", en:"I only wanted a short break and lost an entire day"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

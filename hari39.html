@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Aku sedikit capek hari ini.", en:"I’m a little tired today."},
+  {id:"Hari ini cukup melelahkan.", en:"Today was pretty exhausting."},
+  {id:"Aku belum tidur dengan baik akhir-akhir ini.", en:"I haven’t been sleeping well lately."},
+  {id:"Aku merasa bosan belakangan ini.", en:"I’ve been feeling bored lately."},
+  {id:"Aku sedang banyak pikiran.", en:"I’ve been overthinking a lot."},
+  {id:"Aku agak stres karena sekolah.", en:"I’m a bit stressed because of school."},
+  {id:"Aku capek dengan tugas sekolah.", en:"I’m tired of school assignments."},
+  {id:"Aku merasa malas hari ini.", en:"I feel lazy today."},
+  {id:"Mood-ku naik turun akhir-akhir ini.", en:"My mood has been up and down lately."},
+  {id:"Aku cuma ingin istirahat seharian.", en:"I just want to rest all day."},
+
+  {id:"Aku merasa gugup berbicara bahasa Inggris.", en:"I feel nervous speaking English."},
+  {id:"Aku kadang kurang percaya diri.", en:"I sometimes lack confidence."},
+  {id:"Aku masih malu ngobrol dengan orang baru.", en:"I’m still shy talking to new people."},
+  {id:"Aku takut salah saat bicara bahasa Inggris.", en:"I’m afraid of making mistakes in English."},
+  {id:"Aku ingin lebih percaya diri.", en:"I want to be more confident."},
+  {id:"Aku sering overthinking sebelum tidur.", en:"I often overthink before sleeping."},
+  {id:"Aku sulit fokus akhir-akhir ini.", en:"I’ve been having trouble focusing lately."},
+  {id:"Aku sering merasa malas belajar.", en:"I often feel lazy to study."},
+  {id:"Aku kadang bingung dengan masa depan.", en:"I’m sometimes confused about the future."},
+  {id:"Aku merasa waktuku cepat sekali berjalan.", en:"I feel like time goes by so fast."},
+
+  {id:"Aku kangen masa kecil.", en:"I miss my childhood."},
+  {id:"Aku kangen liburan.", en:"I miss going on vacation."},
+  {id:"Aku ingin jalan-jalan tapi lagi sibuk.", en:"I want to travel but I’m busy."},
+  {id:"Aku ingin tidur lebih awal tapi susah.", en:"I want to sleep early but it’s hard."},
+  {id:"Aku terlalu sering main HP.", en:"I use my phone too much."},
+  {id:"Aku merasa hidupku monoton.", en:"I feel like my life is repetitive."},
+  {id:"Aku sedang mencoba jadi lebih produktif.", en:"I’m trying to be more productive."},
+  {id:"Aku kadang merasa kesepian.", en:"I sometimes feel lonely."},
+  {id:"Aku ingin punya lebih banyak teman.", en:"I want to have more friends."},
+  {id:"Aku suka ngobrol malam karena lebih tenang.", en:"I like talking at night because it’s calmer."},
+
+  {id:"Aku sedang mencoba memperbaiki bahasa Inggrisku.", en:"I’m trying to improve my English."},
+  {id:"Aku ingin lebih berani bicara dengan orang asing.", en:"I want to be braver talking to strangers."},
+  {id:"Aku sering malu saat video call.", en:"I often feel shy during video calls."},
+  {id:"Aku kadang merasa canggung saat ngobrol.", en:"I sometimes feel awkward while talking."},
+  {id:"Aku susah memulai percakapan.", en:"I have trouble starting conversations."},
+  {id:"Aku ingin lebih santai saat ngobrol.", en:"I want to feel more relaxed while chatting."},
+  {id:"Aku senang kalau ketemu orang yang ramah.", en:"I’m happy when I meet friendly people."},
+  {id:"Aku suka ngobrol santai seperti ini.", en:"I like casual talks like this."},
+  {id:"Aku merasa lebih nyaman sekarang.", en:"I feel more comfortable now."},
+  {id:"Aku awalnya gugup, tapi sekarang santai.", en:"I was nervous at first, but now I’m relaxed."},
+
+  {id:"Aku sedang mencoba mengurangi overthinking.", en:"I’m trying to overthink less."},
+  {id:"Aku ingin jadi orang yang lebih positif.", en:"I want to become a more positive person."},
+  {id:"Aku ingin lebih rajin belajar.", en:"I want to study more consistently."},
+  {id:"Aku sedang mencoba tidur lebih cepat.", en:"I’m trying to sleep earlier."},
+  {id:"Aku sedang mencoba mengurangi begadang.", en:"I’m trying to stay up late less often."},
+  {id:"Aku sedang mencoba hidup lebih sehat.", en:"I’m trying to live healthier."},
+  {id:"Aku kadang malas keluar rumah.", en:"I sometimes feel too lazy to go outside."},
+  {id:"Aku suka sendirian kadang-kadang.", en:"I like being alone sometimes."},
+  {id:"Aku sering dengar musik kalau sedih.", en:"I often listen to music when I’m sad."},
+  {id:"Aku suka hujan karena terasa tenang.", en:"I like rain because it feels peaceful."},
+
+  {id:"Aku sedang banyak tugas minggu ini.", en:"I have a lot of assignments this week."},
+  {id:"Aku capek dengan jadwalku akhir-akhir ini.", en:"I’m tired of my schedule lately."},
+  {id:"Aku merasa hari-hariku cepat berlalu.", en:"I feel like my days pass quickly."},
+  {id:"Aku ingin liburan panjang.", en:"I want a long vacation."},
+  {id:"Aku suka malam hari karena lebih tenang.", en:"I like nighttime because it’s calmer."},
+  {id:"Aku merasa lebih produktif di malam hari.", en:"I feel more productive at night."},
+  {id:"Aku kadang tidak tahu mau ngapain.", en:"I sometimes don’t know what to do."},
+  {id:"Aku suka ngobrol untuk menghilangkan bosan.", en:"I like chatting to cure boredom."},
+  {id:"Aku sedang mencoba lebih aktif bersosialisasi.", en:"I’m trying to socialize more."},
+  {id:"Aku ingin bertemu orang-orang baru.", en:"I want to meet new people."},
+
+  {id:"Aku kadang terlalu sensitif.", en:"I’m sometimes too sensitive."},
+  {id:"Aku gampang overthinking tentang hal kecil.", en:"I overthink small things easily."},
+  {id:"Aku sering khawatir tentang masa depan.", en:"I often worry about the future."},
+  {id:"Aku ingin jadi lebih tenang.", en:"I want to become calmer."},
+  {id:"Aku ingin berhenti terlalu banyak berpikir.", en:"I want to stop thinking too much."},
+  {id:"Aku suka suasana tenang.", en:"I like peaceful vibes."},
+  {id:"Aku suka ngobrol dengan orang yang santai.", en:"I like talking with chill people."},
+  {id:"Aku merasa nyaman ngobrol denganmu.", en:"I feel comfortable talking with you."},
+  {id:"Aku senang bisa latihan bahasa Inggris di sini.", en:"I’m happy I can practice English here."},
+  {id:"Aku ingin lebih lancar bahasa Inggris.", en:"I want to speak English more fluently."},
+
+  {id:"Aku sering dengar lagu chill sebelum tidur.", en:"I often listen to chill songs before sleeping."},
+  {id:"Aku suka duduk sambil dengar hujan.", en:"I like sitting while listening to rain."},
+  {id:"Aku suka suasana malam.", en:"I like nighttime vibes."},
+  {id:"Aku suka ngobrol santai sebelum tidur.", en:"I like casual talks before sleeping."},
+  {id:"Aku sedang mencoba menikmati hidup lebih santai.", en:"I’m trying to enjoy life more calmly."},
+  {id:"Aku kadang terlalu keras pada diriku sendiri.", en:"I’m sometimes too hard on myself."},
+  {id:"Aku ingin lebih menikmati proses hidup.", en:"I want to enjoy the process of life more."},
+  {id:"Aku sedang mencoba lebih sabar.", en:"I’m trying to be more patient."},
+  {id:"Aku kadang merasa capek secara mental.", en:"I sometimes feel mentally tired."},
+  {id:"Aku cuma butuh istirahat sebentar.", en:"I just need a little rest."},
+
+  {id:"Aku suka ngobrol dengan orang yang bisa mendengarkan.", en:"I like talking with people who can listen."},
+  {id:"Aku merasa lebih baik setelah ngobrol.", en:"I feel better after talking."},
+  {id:"Aku suka percakapan yang santai seperti ini.", en:"I like relaxed conversations like this."},
+  {id:"Aku kadang merasa terlalu pendiam.", en:"I sometimes feel too quiet."},
+  {id:"Aku ingin lebih terbuka dengan orang lain.", en:"I want to be more open with people."},
+  {id:"Aku suka ngobrol random tengah malam.", en:"I like random late-night conversations."},
+  {id:"Aku merasa lebih santai sekarang.", en:"I feel more relaxed now."},
+  {id:"Aku senang ketemu orang baik di sini.", en:"I’m happy to meet kind people here."},
+  {id:"Aku pikir ngobrol seperti ini menyenangkan.", en:"I think conversations like this are fun."},
+  {id:"Aku suka orang yang bisa membuat suasana nyaman.", en:"I like people who make the atmosphere comfortable."},
+
+  {id:"Aku sedang mencoba lebih percaya diri bicara Inggris.", en:"I’m trying to be more confident speaking English."},
+  {id:"Aku ingin punya lebih banyak pengalaman ngobrol.", en:"I want to have more chatting experiences."},
+  {id:"Aku suka ngobrol dengan orang dari negara lain.", en:"I like talking with people from other countries."},
+  {id:"Aku merasa bahasa Inggrisku perlahan membaik.", en:"I feel like my English is slowly improving."},
+  {id:"Aku senang bisa latihan ngobrol di sini.", en:"I’m happy I can practice conversations here."},
+  {id:"Aku kadang takut di-judge orang lain.", en:"I sometimes worry about being judged."},
+  {id:"Aku ingin lebih santai saat bicara.", en:"I want to feel more relaxed while speaking."},
+  {id:"Aku suka ngobrol dengan orang yang ramah.", en:"I like talking with friendly people."},
+  {id:"Aku senang kalau obrolannya nyambung.", en:"I’m happy when the conversation flows well."},
+  {id:"Aku merasa malam ini lebih menyenangkan setelah ngobrol.", en:"I feel like tonight became more enjoyable after chatting."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="success" onclick="nextSentence()">✅ Lanjut</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Senang ngobrol denganmu.", en:"It was nice talking to you."},
+  {id:"Aku senang bisa ngobrol denganmu hari ini.", en:"I’m glad I could talk with you today."},
+  {id:"Obrolannya seru.", en:"The conversation was fun."},
+  {id:"Kamu orang yang menyenangkan diajak ngobrol.", en:"You’re fun to talk to."},
+  {id:"Terima kasih sudah ngobrol denganku.", en:"Thank you for talking with me."},
+  {id:"Aku harus pergi sekarang.", en:"I have to go now."},
+  {id:"Maaf, aku harus offline sekarang.", en:"Sorry, I need to go offline now."},
+  {id:"Aku harus istirahat sekarang.", en:"I need to rest now."},
+  {id:"Aku harus tidur sekarang.", en:"I need to sleep now."},
+  {id:"Sudah larut malam di sini.", en:"It’s getting late here."},
+
+  {id:"Aku harus bangun pagi besok.", en:"I have to wake up early tomorrow."},
+  {id:"Aku harus kembali belajar.", en:"I need to get back to studying."},
+  {id:"Aku harus menyelesaikan tugas.", en:"I need to finish some work."},
+  {id:"Aku harus pergi sebentar.", en:"I need to go for a bit."},
+  {id:"Aku akan keluar sekarang.", en:"I’m heading out now."},
+  {id:"Aku senang bertemu denganmu.", en:"I’m happy to meet you."},
+  {id:"Semoga harimu menyenangkan.", en:"I hope you have a great day."},
+  {id:"Semoga malammu menyenangkan.", en:"Have a good night."},
+  {id:"Jaga diri baik-baik.", en:"Take care of yourself."},
+  {id:"Sampai jumpa lagi.", en:"See you again."},
+
+  {id:"Semoga kita bisa ngobrol lagi nanti.", en:"I hope we can talk again sometime."},
+  {id:"Aku menikmati obrolan ini.", en:"I enjoyed this conversation."},
+  {id:"Terima kasih sudah baik padaku.", en:"Thanks for being kind to me."},
+  {id:"Semoga harimu berjalan lancar.", en:"I hope your day goes well."},
+  {id:"Semoga kamu tidur nyenyak nanti.", en:"I hope you sleep well later."},
+  {id:"Hati-hati ya.", en:"Take care, okay?"},
+  {id:"Semoga semuanya baik-baik saja untukmu.", en:"I hope everything goes well for you."},
+  {id:"Terima kasih sudah meluangkan waktu.", en:"Thanks for your time."},
+  {id:"Kamu membuat obrolan ini menyenangkan.", en:"You made this conversation enjoyable."},
+  {id:"Aku senang bisa latihan bahasa Inggris denganmu.", en:"I’m happy I could practice English with you."},
+
+  {id:"Aku harus lanjut aktivitas lagi.", en:"I need to continue my activities now."},
+  {id:"Aku harus makan sekarang.", en:"I need to eat now."},
+  {id:"Aku harus membantu keluargaku.", en:"I need to help my family now."},
+  {id:"Aku harus pergi sebentar, maaf ya.", en:"I need to go for a bit, sorry."},
+  {id:"Maaf kalau aku harus pergi tiba-tiba.", en:"Sorry if I have to leave suddenly."},
+  {id:"Aku tidak ingin mengganggu waktumu lebih lama.", en:"I don’t want to take more of your time."},
+  {id:"Terima kasih sudah mendengarkanku.", en:"Thanks for listening to me."},
+  {id:"Aku harap kamu punya malam yang tenang.", en:"I hope you have a peaceful night."},
+  {id:"Semoga harimu lebih baik besok.", en:"I hope tomorrow is better for you."},
+  {id:"Aku senang kita bisa ngobrol santai.", en:"I’m glad we could have a chill conversation."},
+
+  {id:"Aku akan tidur sekarang, dadah.", en:"I’m going to sleep now, bye."},
+  {id:"Aku harus pergi sekarang, sampai nanti.", en:"I need to go now, see you later."},
+  {id:"Terima kasih untuk obrolannya.", en:"Thanks for the conversation."},
+  {id:"Kamu sangat ramah.", en:"You’re really friendly."},
+  {id:"Semoga kamu selalu sehat.", en:"I hope you stay healthy."},
+  {id:"Aku menghargai obrolan ini.", en:"I appreciate this conversation."},
+  {id:"Aku harap harimu menyenangkan.", en:"I hope you have a nice day."},
+  {id:"Aku harus fokus ke tugas sekarang.", en:"I need to focus on my tasks now."},
+  {id:"Aku harus kembali bekerja.", en:"I need to get back to work."},
+  {id:"Aku akan offline sekarang.", en:"I’m going offline now."},
+
+  {id:"Semoga kamu menemukan orang-orang baik di sini.", en:"I hope you meet kind people here."},
+  {id:"Semoga kita bertemu lagi di Ometv.", en:"I hope we meet again on Ometv."},
+  {id:"Aku menikmati vibe obrolan ini.", en:"I enjoyed the vibe of this conversation."},
+  {id:"Kamu mudah diajak ngobrol.", en:"You’re easy to talk to."},
+  {id:"Aku harap kamu sukses dengan apa yang kamu lakukan.", en:"I hope you succeed in what you do."},
+  {id:"Aku senang bisa mengenalmu sedikit.", en:"I’m glad I got to know you a little."},
+  {id:"Terima kasih sudah membuat malamku lebih seru.", en:"Thanks for making my night more fun."},
+  {id:"Semoga harimu penuh hal baik.", en:"I hope your day is full of good things."},
+  {id:"Aku akan lanjut nonton sekarang.", en:"I’m going to continue watching something now."},
+  {id:"Aku akan lanjut istirahat sekarang.", en:"I’m going to continue resting now."},
+
+  {id:"Dadah, semoga harimu menyenangkan.", en:"Bye, have a great day."},
+  {id:"Dadah, hati-hati ya.", en:"Bye, take care."},
+  {id:"Sampai jumpa dan jaga diri.", en:"See you and take care."},
+  {id:"Aku senang bisa ngobrol dengan orang baik seperti kamu.", en:"I’m happy I could talk with someone kind like you."},
+  {id:"Terima kasih sudah membuatku nyaman ngobrol.", en:"Thanks for making me feel comfortable talking."},
+  {id:"Aku harap kamu bahagia selalu.", en:"I hope you stay happy."},
+  {id:"Semoga malammu tenang.", en:"I hope your night is peaceful."},
+  {id:"Aku harus lanjut sekarang, maaf ya.", en:"I need to continue now, sorry."},
+  {id:"Terima kasih sudah meluangkan waktu untuk ngobrol.", en:"Thanks for spending time talking with me."},
+  {id:"Semoga kamu punya minggu yang bagus.", en:"I hope you have a good week."},
+
+  {id:"Aku akan pergi sekarang, sampai jumpa.", en:"I’m leaving now, see you."},
+  {id:"Aku tidak ingin membuatmu bosan.", en:"I don’t want to make you bored."},
+  {id:"Semoga kamu menikmati sisa harimu.", en:"I hope you enjoy the rest of your day."},
+  {id:"Aku harus mengecek sesuatu sekarang.", en:"I need to check something now."},
+  {id:"Aku akan kembali belajar sekarang.", en:"I’m going back to studying now."},
+  {id:"Aku harap kamu mendapatkan tidur yang nyenyak.", en:"I hope you get good sleep."},
+  {id:"Aku senang bisa mendengar ceritamu.", en:"I’m glad I could hear your stories."},
+  {id:"Terima kasih sudah jadi pendengar yang baik.", en:"Thanks for being a good listener."},
+  {id:"Aku suka obrolan santai seperti ini.", en:"I like casual conversations like this."},
+  {id:"Aku harus pergi sebelum terlalu malam.", en:"I need to leave before it gets too late."},
+
+  {id:"Semoga semuanya berjalan baik untukmu.", en:"I hope everything goes well for you."},
+  {id:"Aku akan lanjut scrolling sekarang.", en:"I’m going to continue scrolling now."},
+  {id:"Aku senang tidak awkward ngobrol denganmu.", en:"I’m glad the conversation wasn’t awkward with you."},
+  {id:"Aku harap kita bertemu lagi suatu saat.", en:"I hope we meet again someday."},
+  {id:"Semoga kamu punya mimpi indah nanti.", en:"I hope you have sweet dreams later."},
+  {id:"Terima kasih sudah membuat obrolan ini nyaman.", en:"Thanks for making this conversation comfortable."},
+  {id:"Aku akan lanjut mendengarkan musik sekarang.", en:"I’m going to continue listening to music now."},
+  {id:"Aku harus mengecas HP-ku sekarang.", en:"I need to charge my phone now."},
+  {id:"Aku akan istirahat dulu sekarang.", en:"I’m going to rest for now."},
+  {id:"Semoga kita sama-sama punya hari yang baik.", en:"I hope we both have a good day."},
+
+  {id:"Baiklah, aku pergi dulu ya.", en:"Alright, I’m going now."},
+  {id:"Dadah dan semoga sukses selalu.", en:"Bye and good luck with everything."},
+  {id:"Aku harap kamu terus semangat.", en:"I hope you stay motivated."},
+  {id:"Semoga obrolan berikutnya juga menyenangkan untukmu.", en:"I hope your next conversation is fun too."},
+  {id:"Aku akan tidur sekarang, selamat malam.", en:"I’m going to sleep now, good night."},
+  {id:"Aku menikmati waktu ngobrol ini.", en:"I enjoyed spending time talking."},
+  {id:"Aku harus benar-benar pergi sekarang.", en:"I really have to go now."},
+  {id:"Jaga kesehatan ya.", en:"Take care of your health."},
+  {id:"Aku harap kamu tetap bahagia.", en:"I hope you stay happy."},
+  {id:"Sampai jumpa lagi dan semoga harimu menyenangkan.", en:"See you again and have a wonderful day."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

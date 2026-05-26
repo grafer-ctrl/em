@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+  {id:"Menurutmu apa arti kebahagiaan?", en:"What do you think happiness means?"},
+  {id:"Apa hal yang paling kamu syukuri dalam hidup?", en:"What are you most grateful for in life?"},
+  {id:"Menurutmu hidup itu tentang apa?", en:"What do you think life is about?"},
+  {id:"Apa ketakutan terbesar kamu?", en:"What is your biggest fear?"},
+  {id:"Menurutmu manusia paling butuh apa?", en:"What do you think humans need the most?"},
+  {id:"Apa hal yang paling mengubah hidupmu?", en:"What changed your life the most?"},
+  {id:"Menurutmu kesepian itu seperti apa?", en:"What does loneliness feel like to you?"},
+  {id:"Apa hal yang sulit kamu lupakan?", en:"What is something hard for you to forget?"},
+  {id:"Menurutmu semua orang punya tujuan hidup?", en:"Do you think everyone has a purpose in life?"},
+  {id:"Apa arti rumah menurutmu?", en:"What does home mean to you?"},
+  {id:"Menurutmu orang bisa benar-benar berubah?", en:"Do you think people can truly change?"},
+  {id:"Apa hal yang paling membuatmu tenang?", en:"What gives you the most peace?"},
+  {id:"Menurutmu cinta itu pilihan atau perasaan?", en:"Do you think love is a choice or a feeling?"},
+  {id:"Apa hal yang paling kamu sesali?", en:"What do you regret the most?"},
+  {id:"Menurutmu hidup terlalu cepat sekarang?", en:"Do you think life moves too fast nowadays?"},
+  {id:"Apa momen paling bahagia dalam hidupmu?", en:"What is the happiest moment in your life?"},
+  {id:"Menurutmu orang dewasa sebenarnya hanya pura-pura kuat?", en:"Do you think adults are just pretending to be strong?"},
+  {id:"Apa hal kecil yang membuatmu bahagia?", en:"What small thing makes you happy?"},
+  {id:"Menurutmu semua orang pernah merasa kehilangan arah?", en:"Do you think everyone feels lost sometimes?"},
+  {id:"Apa arti sukses menurutmu?", en:"What does success mean to you?"},
+  {id:"Menurutmu waktu bisa menyembuhkan semuanya?", en:"Do you think time heals everything?"},
+  {id:"Apa hal yang paling kamu takutkan tentang masa depan?", en:"What scares you most about the future?"},
+  {id:"Menurutmu hidup sederhana lebih bahagia?", en:"Do you think simple lives are happier?"},
+  {id:"Apa arti teman sejati menurutmu?", en:"What does true friendship mean to you?"},
+  {id:"Menurutmu manusia terlalu bergantung pada teknologi?", en:"Do you think people depend too much on technology?"},
+  {id:"Apa hal yang paling ingin kamu ubah dari dunia?", en:"What would you change most about the world?"},
+  {id:"Menurutmu overthinking itu normal?", en:"Do you think overthinking is normal?"},
+  {id:"Apa yang biasanya kamu pikirkan sebelum tidur?", en:"What do you usually think about before sleeping?"},
+  {id:"Menurutmu kebahagiaan datang dari dalam diri?", en:"Do you think happiness comes from within?"},
+  {id:"Apa hal yang paling membuatmu merasa hidup?", en:"What makes you feel truly alive?"},
+  {id:"Menurutmu semua orang butuh seseorang untuk bersandar?", en:"Do you think everyone needs someone to lean on?"},
+  {id:"Apa arti kebebasan menurutmu?", en:"What does freedom mean to you?"},
+  {id:"Menurutmu manusia terlalu sibuk mengejar sesuatu?", en:"Do you think people are too busy chasing things?"},
+  {id:"Apa hal yang membuatmu takut kehilangan?", en:"What are you afraid to lose?"},
+  {id:"Menurutmu kenangan lebih penting daripada barang?", en:"Do you think memories are more important than things?"},
+  {id:"Apa arti dicintai menurutmu?", en:"What does being loved mean to you?"},
+  {id:"Menurutmu semua orang menyembunyikan rasa sakit?", en:"Do you think everyone hides pain?"},
+  {id:"Apa yang paling sulit tentang menjadi dewasa?", en:"What is the hardest part about becoming an adult?"},
+  {id:"Menurutmu hidup harus dinikmati atau diperjuangkan?", en:"Do you think life should be enjoyed or fought for?"},
+  {id:"Apa hal yang membuatmu merasa tenang?", en:"What makes you feel calm?"},
+  {id:"Menurutmu uang bisa membeli kebahagiaan?", en:"Do you think money can buy happiness?"},
+  {id:"Apa arti keluarga buatmu?", en:"What does family mean to you?"},
+  {id:"Menurutmu orang bisa benar-benar memahami satu sama lain?", en:"Do you think people can truly understand each other?"},
+  {id:"Apa pelajaran hidup terbesar yang pernah kamu dapat?", en:"What is the biggest life lesson you’ve learned?"},
+  {id:"Menurutmu rasa sakit membuat seseorang lebih kuat?", en:"Do you think pain makes people stronger?"},
+  {id:"Apa arti damai menurutmu?", en:"What does peace mean to you?"},
+  {id:"Menurutmu semua orang punya sisi gelap?", en:"Do you think everyone has a dark side?"},
+  {id:"Apa hal yang paling ingin kamu capai dalam hidup?", en:"What do you want most in life?"},
+  {id:"Menurutmu manusia terlalu takut gagal?", en:"Do you think people are too afraid of failure?"},
+  {id:"Apa arti keberanian menurutmu?", en:"What does courage mean to you?"},
+  {id:"Menurutmu hidup tanpa tujuan terasa kosong?", en:"Do you think life without purpose feels empty?"},
+  {id:"Apa kenangan masa kecil favoritmu?", en:"What is your favorite childhood memory?"},
+  {id:"Menurutmu semua orang ingin dimengerti?", en:"Do you think everyone wants to be understood?"},
+  {id:"Apa arti kepercayaan bagimu?", en:"What does trust mean to you?"},
+  {id:"Menurutmu manusia sering terlalu keras pada dirinya?", en:"Do you think people are too hard on themselves?"},
+  {id:"Apa hal yang paling membuatmu takut kehilangan waktu?", en:"What makes you afraid of wasting time?"},
+  {id:"Menurutmu hidup lebih tentang perjalanan atau tujuan?", en:"Do you think life is more about the journey or the destination?"},
+  {id:"Apa arti kesuksesan emosional menurutmu?", en:"What does emotional success mean to you?"},
+  {id:"Menurutmu semua orang pernah merasa sendirian?", en:"Do you think everyone feels alone sometimes?"},
+  {id:"Apa hal yang membuatmu merasa nyaman dengan seseorang?", en:"What makes you feel comfortable with someone?"},
+  {id:"Menurutmu manusia sulit jujur pada dirinya sendiri?", en:"Do you think people struggle to be honest with themselves?"},
+  {id:"Apa yang paling ingin kamu lakukan sebelum tua?", en:"What do you want to do before getting old?"},
+  {id:"Menurutmu hidup terlalu singkat untuk dibenci?", en:"Do you think life is too short for hate?"},
+  {id:"Apa arti kebahagiaan sederhana buatmu?", en:"What does simple happiness mean to you?"},
+  {id:"Menurutmu orang berubah karena waktu atau pengalaman?", en:"Do people change because of time or experiences?"},
+  {id:"Apa hal yang paling ingin kamu dengar dari seseorang?", en:"What do you most want to hear from someone?"},
+  {id:"Menurutmu cinta tanpa komunikasi bisa bertahan?", en:"Do you think love can survive without communication?"},
+  {id:"Apa hal yang paling membuatmu merasa manusia?", en:"What makes you feel most human?"},
+  {id:"Menurutmu semua orang mencari arti hidup?", en:"Do you think everyone searches for meaning in life?"},
+  {id:"Apa arti tenang menurutmu?", en:"What does peace of mind mean to you?"},
+  {id:"Menurutmu hidup modern membuat orang lebih kesepian?", en:"Do you think modern life makes people lonelier?"},
+  {id:"Apa hal yang paling ingin kamu perbaiki dari dirimu?", en:"What do you most want to improve about yourself?"},
+  {id:"Menurutmu rasa takut bisa menghentikan mimpi?", en:"Do you think fear can stop dreams?"},
+  {id:"Apa hal yang membuatmu tetap bertahan saat sulit?", en:"What keeps you going during hard times?"},
+  {id:"Menurutmu manusia terlalu memikirkan pendapat orang?", en:"Do you think people care too much about opinions?"},
+  {id:"Apa arti bahagia sendirian menurutmu?", en:"What does being happy alone mean to you?"},
+  {id:"Menurutmu semua luka bisa sembuh?", en:"Do you think all wounds can heal?"},
+  {id:"Apa hal yang paling membuatmu merasa dicintai?", en:"What makes you feel loved the most?"},
+  {id:"Menurutmu kenapa manusia takut ditinggalkan?", en:"Why do you think people fear abandonment?"},
+  {id:"Apa arti hidup tenang buatmu?", en:"What does peaceful living mean to you?"},
+  {id:"Menurutmu manusia terlalu sibuk mengejar validasi?", en:"Do you think people chase validation too much?"},
+  {id:"Apa hal yang paling kamu rindukan dari masa kecil?", en:"What do you miss most about childhood?"},
+  {id:"Menurutmu semua orang butuh tempat untuk pulang?", en:"Do you think everyone needs a place to return to?"},
+  {id:"Apa arti dewasa menurutmu?", en:"What does being mature mean to you?"},
+  {id:"Menurutmu diam kadang lebih baik daripada bicara?", en:"Do you think silence is sometimes better than words?"},
+  {id:"Apa hal yang paling sulit untuk dilepaskan?", en:"What is hardest to let go of?"},
+  {id:"Menurutmu kebahagiaan bisa ditemukan di hal kecil?", en:"Do you think happiness can be found in small things?"},
+  {id:"Apa arti hubungan yang sehat menurutmu?", en:"What does a healthy relationship mean to you?"},
+  {id:"Menurutmu semua orang ingin diterima?", en:"Do you think everyone wants acceptance?"},
+  {id:"Apa hal yang paling membuatmu takut kehilangan dirimu sendiri?", en:"What makes you afraid of losing yourself?"},
+  {id:"Menurutmu manusia terlalu banyak berpikir?", en:"Do you think people think too much?"},
+  {id:"Apa hal yang membuat hidup terasa berarti?", en:"What makes life meaningful?"},
+  {id:"Menurutmu cinta terbaik datang dengan tenang?", en:"Do you think the best love comes peacefully?"},
+  {id:"Apa arti kebebasan emosional menurutmu?", en:"What does emotional freedom mean to you?"},
+  {id:"Menurutmu semua orang ingin didengar?", en:"Do you think everyone wants to be heard?"},
+  {id:"Apa yang paling membuatmu takut tentang waktu?", en:"What scares you most about time?"},
+  {id:"Menurutmu hidup harus realistis atau mengikuti mimpi?", en:"Should life be realistic or dream-driven?"},
+  {id:"Apa hal yang paling membuatmu merasa damai?", en:"What makes you feel most at peace?"},
+  {id:"Menurutmu deep conversation lebih bermakna daripada small talk?", en:"Do you think deep conversations are more meaningful than small talk?"},
+  {id:"Apa arti menjadi bahagia untukmu sekarang?", en:"What does being happy mean to you right now?"},
+  {id:"Menurutmu manusia paling butuh dimengerti atau dicintai?", en:"Do you think people need understanding or love more?"},
+  {id:"Apa hal yang ingin kamu katakan pada dirimu di masa lalu?", en:"What would you say to your past self?"},
+  {id:"Menurutmu hidup akan lebih baik jika orang lebih jujur?", en:"Do you think life would be better if people were more honest?"},
+  {id:"Apa arti koneksi yang tulus menurutmu?", en:"What does a genuine connection mean to you?"},
+   {id:"Menurutmu kenapa manusia takut sendirian?", en:"Why do you think people are afraid of being alone?"},
+  {id:"Apa hal yang paling membuatmu merasa dipahami?", en:"What makes you feel understood the most?"},
+  {id:"Menurutmu semua orang punya luka yang disembunyikan?", en:"Do you think everyone hides emotional wounds?"},
+  {id:"Apa arti ketenangan dalam hidupmu?", en:"What does peace mean in your life?"},
+  {id:"Menurutmu orang bisa bahagia tanpa cinta?", en:"Do you think people can be happy without love?"},
+  {id:"Apa hal yang paling sulit untuk kamu ceritakan ke orang lain?", en:"What is the hardest thing for you to tell others?"},
+  {id:"Menurutmu hidup akan berbeda tanpa internet?", en:"Do you think life would be different without the internet?"},
+  {id:"Apa momen yang paling mengubah cara pandangmu?", en:"What moment changed your perspective the most?"},
+  {id:"Menurutmu manusia terlalu mengejar kesempurnaan?", en:"Do you think people chase perfection too much?"},
+  {id:"Apa arti nyaman dengan diri sendiri menurutmu?", en:"What does being comfortable with yourself mean to you?"},
+  {id:"Menurutmu kesendirian selalu buruk?", en:"Do you think solitude is always bad?"},
+  {id:"Apa hal yang paling membuatmu takut gagal?", en:"What makes you most afraid of failure?"},
+  {id:"Menurutmu semua orang ingin dicintai tanpa syarat?", en:"Do you think everyone wants unconditional love?"},
+  {id:"Apa hal yang paling membuatmu bangga pada dirimu?", en:"What makes you most proud of yourself?"},
+  {id:"Menurutmu waktu berjalan terlalu cepat saat dewasa?", en:"Do you think time moves too fast as adults?"},
+  {id:"Apa arti hubungan yang tulus menurutmu?", en:"What does a genuine relationship mean to you?"},
+  {id:"Menurutmu manusia sering menyembunyikan emosi asli?", en:"Do you think people often hide their true emotions?"},
+  {id:"Apa hal yang paling ingin kamu rasakan lagi?", en:"What feeling do you want to experience again?"},
+  {id:"Menurutmu hidup lebih sulit sekarang?", en:"Do you think life is harder nowadays?"},
+  {id:"Apa hal yang membuatmu merasa aman?", en:"What makes you feel safe?"},
+  {id:"Menurutmu semua orang butuh validasi?", en:"Do you think everyone needs validation?"},
+  {id:"Apa arti kedewasaan emosional menurutmu?", en:"What does emotional maturity mean to you?"},
+  {id:"Menurutmu manusia terlalu sering memendam perasaan?", en:"Do you think people suppress feelings too often?"},
+  {id:"Apa hal yang paling kamu takutkan tentang cinta?", en:"What scares you most about love?"},
+  {id:"Menurutmu orang bisa benar-benar move on?", en:"Do you think people can truly move on?"},
+  {id:"Apa hal yang membuatmu merasa hidupmu berarti?", en:"What makes your life feel meaningful?"},
+  {id:"Menurutmu manusia terlalu sibuk untuk menikmati hidup?", en:"Do you think people are too busy to enjoy life?"},
+  {id:"Apa arti diterima apa adanya menurutmu?", en:"What does being accepted as you are mean to you?"},
+  {id:"Menurutmu semua orang pernah kehilangan dirinya sendiri?", en:"Do you think everyone loses themselves sometimes?"},
+  {id:"Apa hal yang paling ingin kamu dengar saat sedih?", en:"What do you most want to hear when you're sad?"},
+  {id:"Menurutmu diam bisa menjadi bentuk perhatian?", en:"Do you think silence can be a form of care?"},
+  {id:"Apa arti rasa aman dalam relationship?", en:"What does feeling safe in a relationship mean?"},
+  {id:"Menurutmu orang yang kuat juga bisa lelah?", en:"Do you think strong people get tired too?"},
+  {id:"Apa hal yang paling kamu takutkan dari masa depan?", en:"What scares you most about the future?"},
+  {id:"Menurutmu manusia sulit memahami dirinya sendiri?", en:"Do you think people struggle to understand themselves?"},
+  {id:"Apa arti pulang menurutmu selain rumah?", en:"What does home mean besides a house?"},
+  {id:"Menurutmu manusia terlalu sering memakai topeng sosial?", en:"Do you think people wear social masks too often?"},
+  {id:"Apa hal yang paling kamu syukuri hari ini?", en:"What are you most grateful for today?"},
+  {id:"Menurutmu hidup yang damai lebih penting daripada sukses?", en:"Do you think peaceful lives matter more than success?"},
+  {id:"Apa arti koneksi emosional menurutmu?", en:"What does emotional connection mean to you?"},
+  {id:"Menurutmu semua orang ingin dimengerti tanpa menjelaskan?", en:"Do you think everyone wants to be understood without explaining?"},
+  {id:"Apa hal yang paling membuatmu takut kehilangan seseorang?", en:"What makes you fear losing someone the most?"},
+  {id:"Menurutmu manusia terlalu keras pada masa lalunya?", en:"Do you think people are too harsh on their past selves?"},
+  {id:"Apa arti menjadi dewasa secara mental?", en:"What does mental maturity mean to you?"},
+  {id:"Menurutmu semua orang membutuhkan tempat bercerita?", en:"Do you think everyone needs someone to talk to?"},
+  {id:"Apa hal yang paling membuatmu merasa sendiri?", en:"What makes you feel lonely the most?"},
+  {id:"Menurutmu cinta terbaik datang di waktu yang tepat?", en:"Do you think the best love comes at the right time?"},
+  {id:"Apa arti kehilangan menurutmu?", en:"What does loss mean to you?"},
+  {id:"Menurutmu manusia terlalu takut memulai ulang?", en:"Do you think people are too afraid to start over?"},
+  {id:"Apa hal yang paling ingin kamu ubah dari dunia modern?", en:"What would you change most about the modern world?"},
+  {id:"Menurutmu hidup akan lebih baik jika lebih sederhana?", en:"Do you think life would be better if it were simpler?"},
+  {id:"Apa arti hubungan yang nyaman tanpa drama?", en:"What does a peaceful relationship mean to you?"},
+  {id:"Menurutmu manusia lebih takut gagal atau ditolak?", en:"Do you think people fear failure or rejection more?"},
+  {id:"Apa hal yang membuatmu merasa tenang di malam hari?", en:"What makes you feel calm at night?"},
+  {id:"Menurutmu semua orang ingin dicintai dengan tulus?", en:"Do you think everyone wants genuine love?"},
+  {id:"Apa arti perhatian kecil menurutmu?", en:"What do small acts of care mean to you?"},
+  {id:"Menurutmu manusia terlalu memikirkan ekspektasi orang lain?", en:"Do you think people care too much about others’ expectations?"},
+  {id:"Apa hal yang paling membuatmu merasa kuat?", en:"What makes you feel strong?"},
+  {id:"Menurutmu hidup lebih tentang bertahan atau menikmati?", en:"Do you think life is more about surviving or enjoying?"},
+  {id:"Apa arti hubungan yang dewasa menurutmu?", en:"What does a mature relationship mean to you?"},
+  {id:"Menurutmu semua orang pernah merasa tidak cukup?", en:"Do you think everyone feels inadequate sometimes?"},
+  {id:"Apa hal yang paling sulit untuk diterima dalam hidup?", en:"What is the hardest thing to accept in life?"},
+  {id:"Menurutmu manusia terlalu takut terlihat lemah?", en:"Do you think people are too afraid of looking weak?"},
+  {id:"Apa arti bahagia tanpa banyak hal menurutmu?", en:"What does simple happiness mean to you?"},
+  {id:"Menurutmu manusia sering menyakiti dirinya sendiri lewat pikiran?", en:"Do you think people hurt themselves through thoughts?"},
+  {id:"Apa hal yang paling ingin kamu capai sebelum tua?", en:"What do you want to achieve before getting old?"},
+  {id:"Menurutmu semua orang membutuhkan cinta?", en:"Do you think everyone needs love?"},
+  {id:"Apa arti kehadiran seseorang dalam hidupmu?", en:"What does someone’s presence mean in your life?"},
+  {id:"Menurutmu manusia terlalu sering menyembunyikan kesedihan?", en:"Do you think people hide sadness too often?"},
+  {id:"Apa hal yang membuatmu percaya pada seseorang?", en:"What makes you trust someone?"},
+  {id:"Menurutmu hidup akan lebih mudah jika manusia lebih jujur?", en:"Do you think life would be easier if people were more honest?"},
+  {id:"Apa arti rasa nyaman dalam obrolan menurutmu?", en:"What does comfort in conversations mean to you?"},
+  {id:"Menurutmu manusia terlalu takut kehilangan orang lain?", en:"Do you think people fear losing others too much?"},
+  {id:"Apa hal yang paling ingin kamu lindungi?", en:"What do you most want to protect?"},
+  {id:"Menurutmu semua orang butuh didengar tanpa dihakimi?", en:"Do you think everyone needs to be heard without judgment?"},
+  {id:"Apa arti kedekatan emosional menurutmu?", en:"What does emotional closeness mean to you?"},
+  {id:"Menurutmu manusia terlalu sibuk mengejar masa depan?", en:"Do you think people are too busy chasing the future?"},
+  {id:"Apa hal yang membuatmu merasa damai dengan hidup?", en:"What makes you feel at peace with life?"},
+  {id:"Menurutmu manusia lebih membutuhkan uang atau ketenangan?", en:"Do you think people need money or peace more?"},
+  {id:"Apa arti hubungan yang sehat secara emosional?", en:"What does an emotionally healthy relationship mean?"},
+  {id:"Menurutmu semua orang ingin diterima tanpa syarat?", en:"Do you think everyone wants unconditional acceptance?"},
+  {id:"Apa hal yang paling membuatmu merasa berharga?", en:"What makes you feel valuable?"},
+  {id:"Menurutmu hidup akan lebih baik jika lebih pelan?", en:"Do you think life would be better if it slowed down?"},
+  {id:"Apa arti memahami diri sendiri menurutmu?", en:"What does understanding yourself mean to you?"},
+  {id:"Menurutmu manusia sering takut menghadapi dirinya sendiri?", en:"Do you think people fear facing themselves?"},
+  {id:"Apa hal yang paling ingin kamu dengar dari seseorang yang kamu sayang?", en:"What do you most want to hear from someone you love?"},
+  {id:"Menurutmu semua orang punya cara berbeda untuk bahagia?", en:"Do you think everyone has different ways of being happy?"},
+  {id:"Apa arti ketulusan menurutmu?", en:"What does sincerity mean to you?"},
+  {id:"Menurutmu manusia terlalu sering memendam air mata?", en:"Do you think people hold back tears too often?"},
+  {id:"Apa hal yang paling membuatmu merasa hidupmu nyata?", en:"What makes your life feel real?"},
+  {id:"Menurutmu hubungan terbaik terasa seperti rumah?", en:"Do you think the best relationships feel like home?"},
+  {id:"Apa arti memaafkan menurutmu?", en:"What does forgiveness mean to you?"},
+  {id:"Menurutmu semua orang ingin dicintai tanpa rasa takut?", en:"Do you think everyone wants love without fear?"},
+  {id:"Apa hal yang paling membuatmu takut kehilangan waktu?", en:"What makes you fear losing time the most?"},
+  {id:"Menurutmu manusia terlalu fokus pada hasil daripada proses?", en:"Do you think people focus too much on results over process?"},
+  {id:"Apa arti kebersamaan menurutmu?", en:"What does togetherness mean to you?"},
+  {id:"Menurutmu manusia paling membutuhkan ketenangan hati?", en:"Do you think people need inner peace the most?"},
+  {id:"Apa hal yang membuatmu merasa benar-benar bahagia?", en:"What makes you feel truly happy?"},
+  {id:"Menurutmu deep conversation membuat orang lebih dekat?", en:"Do you think deep conversations bring people closer?"},
+  {id:"Apa arti koneksi yang sulit dijelaskan menurutmu?", en:"What does an unexplainable connection mean to you?"}
+  
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

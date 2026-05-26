@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+   {id:"Aku sebenarnya ngomong spontan aja.", en:"I’m honestly speaking spontaneously."},
+  {id:"Kadang aku bicara tanpa mikir terlalu banyak.", en:"Sometimes I talk without thinking too much."},
+  {id:"Aku suka ngobrol apa adanya.", en:"I like genuine conversations."},
+  {id:"Aku cuma ngomong yang ada di kepala.", en:"I’m just saying what’s on my mind."},
+  {id:"Kadang obrolan random lebih seru.", en:"Sometimes random conversations are more fun."},
+  {id:"Aku tidak terlalu suka percakapan formal.", en:"I don’t really like formal conversations."},
+  {id:"Aku biasanya ngomong spontan.", en:"I usually speak spontaneously."},
+  {id:"Aku suka ngobrol santai tanpa script.", en:"I like relaxed conversations without scripts."},
+  {id:"Kadang aku sendiri bingung kenapa ngomong itu.", en:"Sometimes I don’t even know why I said that."},
+  {id:"Aku cuma mengikuti alur obrolan.", en:"I’m just following the flow of the conversation."},
+  {id:"Aku lebih nyaman ngobrol natural.", en:"I’m more comfortable with natural conversations."},
+  {id:"Kadang ide muncul tiba-tiba.", en:"Sometimes ideas appear suddenly."},
+  {id:"Aku suka bicara random seperti ini.", en:"I like random talks like this."},
+  {id:"Aku cuma ingin ngobrol santai.", en:"I just want a relaxed conversation."},
+  {id:"Kadang topik aneh malah menarik.", en:"Sometimes weird topics are interesting."},
+  {id:"Aku suka suasana obrolan yang bebas.", en:"I like free-flowing conversations."},
+  {id:"Aku tidak pandai membuat percakapan formal.", en:"I’m not good at making formal conversations."},
+  {id:"Aku lebih suka ngomong dari hati.", en:"I prefer speaking from the heart."},
+  {id:"Kadang aku terlalu jujur saat ngobrol.", en:"Sometimes I’m too honest during conversations."},
+  {id:"Aku hanya mencoba jadi diri sendiri.", en:"I’m just trying to be myself."},
+  {id:"Aku suka ngobrol tanpa banyak aturan.", en:"I like conversations without too many rules."},
+  {id:"Kadang aku bicara dulu baru mikir.", en:"Sometimes I speak first and think later."},
+  {id:"Aku menikmati obrolan spontan.", en:"I enjoy spontaneous conversations."},
+  {id:"Aku cuma ingin suasananya nyaman.", en:"I just want the vibe to feel comfortable."},
+  {id:"Kadang aku ngomong random kalau gugup.", en:"Sometimes I say random things when I’m nervous."},
+  {id:"Aku suka orang yang bisa ngobrol santai.", en:"I like people who can talk casually."},
+  {id:"Aku lebih nyaman tanpa tekanan.", en:"I’m more comfortable without pressure."},
+  {id:"Kadang hal random bikin obrolan hidup.", en:"Sometimes random things make conversations lively."},
+  {id:"Aku tidak suka terlalu banyak formalitas.", en:"I don’t like too much formality."},
+  {id:"Aku biasanya mengikuti vibes obrolan.", en:"I usually follow the conversation vibes."},
+  {id:"Kadang aku bicara hanya untuk mengisi suasana.", en:"Sometimes I talk just to fill the silence."},
+  {id:"Aku suka ngobrol yang natural dan santai.", en:"I like natural and relaxed conversations."},
+  {id:"Aku hanya mencoba membuat suasana nyaman.", en:"I’m just trying to make things comfortable."},
+  {id:"Kadang aku sendiri kaget dengan apa yang aku bilang.", en:"Sometimes I surprise myself with what I say."},
+  {id:"Aku lebih suka ngobrol tanpa dibuat-buat.", en:"I prefer genuine conversations."},
+  {id:"Kadang topik random datang sendiri.", en:"Sometimes random topics come naturally."},
+  {id:"Aku tidak ingin obrolannya terasa kaku.", en:"I don’t want the conversation to feel stiff."},
+  {id:"Aku suka berbicara bebas seperti ini.", en:"I like talking freely like this."},
+  {id:"Kadang aku ngomong apa yang terlintas aja.", en:"Sometimes I just say whatever comes to mind."},
+  {id:"Aku suka suasana yang santai dan natural.", en:"I like relaxed and natural vibes."},
+  {id:"Aku cuma ingin jadi diri sendiri saat ngobrol.", en:"I just want to be myself during conversations."},
+  {id:"Kadang obrolan tanpa arah malah menyenangkan.", en:"Sometimes directionless conversations are enjoyable."},
+  {id:"Aku suka ketika obrolan mengalir sendiri.", en:"I like when conversations flow naturally."},
+  {id:"Aku tidak terlalu memikirkan kata-kata.", en:"I don’t overthink my words too much."},
+  {id:"Kadang aku berbicara hanya karena penasaran.", en:"Sometimes I talk just because I’m curious."},
+  {id:"Aku suka ngobrol santai tanpa tujuan.", en:"I like aimless casual conversations."},
+  {id:"Kadang hal kecil bisa jadi topik panjang.", en:"Sometimes small things become long conversations."},
+  {id:"Aku menikmati obrolan yang tidak terlalu serius.", en:"I enjoy conversations that aren’t too serious."},
+  {id:"Aku suka berbicara dengan bebas.", en:"I like speaking freely."},
+  {id:"Kadang aku hanya mengikuti suasana.", en:"Sometimes I just follow the mood."},
+  {id:"Aku lebih suka spontan daripada terlalu dipikirkan.", en:"I prefer spontaneity over overthinking."},
+  {id:"Kadang aku bicara random untuk mencairkan suasana.", en:"Sometimes I say random things to lighten the mood."},
+  {id:"Aku suka obrolan yang tidak terlalu formal.", en:"I like conversations that aren’t too formal."},
+  {id:"Aku menikmati ngobrol tanpa tekanan.", en:"I enjoy pressure-free conversations."},
+  {id:"Kadang aku ngomong apa adanya.", en:"Sometimes I speak honestly."},
+  {id:"Aku suka orang yang ngobrol dengan natural.", en:"I like people who talk naturally."},
+  {id:"Aku tidak suka suasana terlalu serius.", en:"I don’t like overly serious atmospheres."},
+  {id:"Kadang aku hanya ingin ngobrol santai.", en:"Sometimes I just want a relaxed chat."},
+  {id:"Aku suka ketika orang bisa spontan.", en:"I like when people can be spontaneous."},
+  {id:"Kadang ide random muncul saat ngobrol.", en:"Sometimes random ideas appear during conversations."},
+  {id:"Aku menikmati suasana yang santai.", en:"I enjoy relaxed vibes."},
+  {id:"Aku suka bicara tanpa terlalu dipikirkan.", en:"I like speaking without overthinking."},
+  {id:"Kadang obrolan paling seru datang tiba-tiba.", en:"Sometimes the best conversations happen unexpectedly."},
+  {id:"Aku cuma mengikuti mood obrolan.", en:"I’m just following the conversation mood."},
+  {id:"Aku suka ngobrol bebas seperti ini.", en:"I like free-flowing conversations like this."},
+  {id:"Kadang aku bicara random supaya tidak awkward.", en:"Sometimes I say random things to avoid awkwardness."},
+  {id:"Aku lebih nyaman ngobrol santai.", en:"I’m more comfortable with casual conversations."},
+  {id:"Kadang aku terlalu spontan.", en:"Sometimes I’m too spontaneous."},
+  {id:"Aku suka suasana ngobrol yang chill.", en:"I like chill conversation vibes."},
+  {id:"Aku tidak ingin obrolannya membosankan.", en:"I don’t want the conversation to be boring."},
+  {id:"Kadang aku ngomong hanya karena lucu.", en:"Sometimes I say things just because they’re funny."},
+  {id:"Aku suka mengikuti alur pembicaraan.", en:"I like following the flow of conversations."},
+  {id:"Kadang aku tidak tahu mau ngomong apa tapi tetap ngomong.", en:"Sometimes I don’t know what to say but still talk anyway."},
+  {id:"Aku suka suasana yang natural dan nyaman.", en:"I like natural and comfortable atmospheres."},
+  {id:"Kadang aku bicara terlalu jujur.", en:"Sometimes I speak too honestly."},
+  {id:"Aku cuma ingin menikmati obrolannya.", en:"I just want to enjoy the conversation."},
+  {id:"Kadang random talk terasa lebih hidup.", en:"Sometimes random talks feel more alive."},
+  {id:"Aku suka ngobrol tanpa beban.", en:"I like stress-free conversations."},
+  {id:"Kadang aku berbicara hanya untuk seru-seruan.", en:"Sometimes I talk just for fun."},
+  {id:"Aku menikmati obrolan yang spontan.", en:"I enjoy spontaneous chats."},
+  {id:"Kadang suasana santai membuatku lebih banyak bicara.", en:"Sometimes relaxed vibes make me talk more."},
+  {id:"Aku suka berbicara tanpa terlalu formal.", en:"I like speaking without being too formal."},
+  {id:"Kadang aku hanya mengikuti energi lawan bicara.", en:"Sometimes I just follow the other person’s energy."},
+  {id:"Aku suka ketika obrolan terasa bebas.", en:"I like when conversations feel free."},
+  {id:"Kadang aku ngomong random untuk mencairkan suasana.", en:"Sometimes I say random things to break the ice."},
+  {id:"Aku menikmati ngobrol apa adanya.", en:"I enjoy genuine conversations."},
+  {id:"Kadang aku suka bercanda tiba-tiba.", en:"Sometimes I suddenly joke around."},
+  {id:"Aku suka obrolan yang mengalir alami.", en:"I like conversations that flow naturally."},
+  {id:"Kadang aku berbicara hanya karena penasaran.", en:"Sometimes I talk just because I’m curious."},
+  {id:"Aku tidak terlalu memikirkan kesan orang.", en:"I don’t overthink what people think of me."},
+  {id:"Kadang suasana random itu menyenangkan.", en:"Sometimes random vibes are enjoyable."},
+  {id:"Aku suka ketika orang bisa jadi dirinya sendiri.", en:"I like when people can be themselves."},
+  {id:"Kadang aku bicara tanpa filter sedikit.", en:"Sometimes I talk with little filter."},
+  {id:"Aku menikmati ngobrol santai seperti ini.", en:"I enjoy relaxed conversations like this."},
+  {id:"Kadang aku terlalu spontan saat nyaman.", en:"Sometimes I get too spontaneous when comfortable."},
+  {id:"Aku suka suasana ngobrol yang tidak dibuat-buat.", en:"I like genuine conversation vibes."},
+  {id:"Kadang hal random membuat obrolan lebih seru.", en:"Sometimes random things make conversations more fun."},
+  {id:"Aku cuma ingin ngobrol dengan nyaman.", en:"I just want comfortable conversations."},
+   {id:"Kadang aku ngomong dulu baru sadar apa yang aku bilang.", en:"Sometimes I speak before realizing what I said."},
+  {id:"Aku suka ngobrol yang terasa bebas.", en:"I like conversations that feel free."},
+  {id:"Kadang aku terlalu spontan kalau sudah nyaman.", en:"Sometimes I get too spontaneous once I’m comfortable."},
+  {id:"Aku lebih suka obrolan natural daripada formal.", en:"I prefer natural conversations over formal ones."},
+  {id:"Kadang aku berbicara hanya mengikuti mood.", en:"Sometimes I speak based on my mood."},
+  {id:"Aku suka ngobrol tanpa banyak mikir.", en:"I like conversations without overthinking."},
+  {id:"Kadang aku mengatakan hal random tiba-tiba.", en:"Sometimes I suddenly say random things."},
+  {id:"Aku cuma ingin ngobrol santai dan enjoy.", en:"I just want relaxed and enjoyable conversations."},
+  {id:"Kadang suasana nyaman membuatku banyak bicara.", en:"Sometimes comfortable vibes make me talk a lot."},
+  {id:"Aku suka ketika obrolan terasa mengalir.", en:"I like when conversations flow naturally."},
+  {id:"Kadang aku bicara apa yang langsung terlintas.", en:"Sometimes I say whatever instantly comes to mind."},
+  {id:"Aku tidak terlalu suka percakapan yang kaku.", en:"I don’t really like stiff conversations."},
+  {id:"Kadang aku random hanya untuk seru-seruan.", en:"Sometimes I’m random just for fun."},
+  {id:"Aku suka ngobrol tanpa harus terlihat sempurna.", en:"I like conversations without trying to look perfect."},
+  {id:"Kadang aku sendiri tertawa dengan omonganku.", en:"Sometimes I laugh at my own words."},
+  {id:"Aku suka vibes obrolan yang santai.", en:"I like relaxed conversation vibes."},
+  {id:"Kadang aku terlalu jujur saat spontan.", en:"Sometimes I’m too honest when spontaneous."},
+  {id:"Aku menikmati obrolan yang apa adanya.", en:"I enjoy genuine conversations."},
+  {id:"Kadang aku bicara hanya untuk menghilangkan awkward.", en:"Sometimes I talk just to remove awkwardness."},
+  {id:"Aku suka ngobrol random tengah malam.", en:"I like random late-night talks."},
+  {id:"Kadang topik aneh justru paling seru.", en:"Sometimes weird topics are the most fun."},
+  {id:"Aku suka ketika orang bisa ngobrol bebas.", en:"I like when people can talk freely."},
+  {id:"Kadang aku tidak tahu arah obrolannya tapi tetap lanjut.", en:"Sometimes I don’t know where the conversation is going but keep talking anyway."},
+  {id:"Aku suka suasana yang tidak terlalu serius.", en:"I like atmospheres that aren’t too serious."},
+  {id:"Kadang aku berbicara terlalu cepat saat semangat.", en:"Sometimes I talk too fast when excited."},
+  {id:"Aku lebih nyaman ngobrol santai daripada formal.", en:"I’m more comfortable with casual conversations than formal ones."},
+  {id:"Kadang aku bicara hanya karena penasaran.", en:"Sometimes I talk just because I’m curious."},
+  {id:"Aku suka orang yang bisa mengikuti random talk.", en:"I like people who can follow random talks."},
+  {id:"Kadang aku berbicara tanpa sadar terlalu jauh.", en:"Sometimes I unknowingly talk too much."},
+  {id:"Aku menikmati obrolan yang tidak dibuat-buat.", en:"I enjoy conversations that feel genuine."},
+  {id:"Kadang aku suka berpikir sambil bicara.", en:"Sometimes I think while talking."},
+  {id:"Aku suka ngobrol bebas tanpa takut salah.", en:"I like free conversations without fear of mistakes."},
+  {id:"Kadang aku hanya mengikuti energi lawan bicara.", en:"Sometimes I just follow the other person’s energy."},
+  {id:"Aku suka obrolan yang spontan dan hidup.", en:"I like spontaneous and lively conversations."},
+  {id:"Kadang aku berbicara random supaya suasana tidak sepi.", en:"Sometimes I say random things so it doesn’t get quiet."},
+  {id:"Aku menikmati suasana ngobrol yang santai.", en:"I enjoy relaxed conversation vibes."},
+  {id:"Kadang aku suka bercanda tiba-tiba.", en:"Sometimes I suddenly joke around."},
+  {id:"Aku suka ketika obrolan terasa natural.", en:"I like when conversations feel natural."},
+  {id:"Kadang aku ngomong apa aja yang muncul di kepala.", en:"Sometimes I say whatever pops into my head."},
+  {id:"Aku lebih suka ngobrol tanpa banyak aturan.", en:"I prefer conversations without too many rules."},
+  {id:"Kadang aku terlalu banyak bicara saat nyaman.", en:"Sometimes I talk too much when comfortable."},
+  {id:"Aku suka obrolan yang flow-nya enak.", en:"I like conversations with a good flow."},
+  {id:"Kadang aku spontan karena suasananya nyaman.", en:"Sometimes I’m spontaneous because the vibe feels comfortable."},
+  {id:"Aku suka ngobrol santai sambil bercanda.", en:"I like relaxed conversations with jokes."},
+  {id:"Kadang random conversation terasa lebih dekat.", en:"Sometimes random conversations feel more personal."},
+  {id:"Aku menikmati ngobrol tanpa tekanan.", en:"I enjoy pressure-free conversations."},
+  {id:"Kadang aku bicara hanya karena ingin suasananya hidup.", en:"Sometimes I talk just to keep the vibe alive."},
+  {id:"Aku suka suasana ngobrol yang bebas dan nyaman.", en:"I like free and comfortable conversation vibes."},
+  {id:"Kadang aku terlalu spontan tapi seru juga.", en:"Sometimes I’m too spontaneous, but it’s fun too."},
+  {id:"Aku cuma ingin ngobrol santai tanpa overthinking.", en:"I just want relaxed conversations without overthinking."}
+  ];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OmeTV English Shadowing App</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: white;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 34px;
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    p {
+      line-height: 1.7;
+    }
+
+    .instruction {
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .setting {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .value {
+      margin-top: 5px;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 15px;
+      background: white;
+      color: #4f46e5;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .topic-box {
+      background: rgba(255,255,255,0.15);
+      padding: 25px;
+      border-radius: 20px;
+      margin-top: 20px;
+      text-align: center;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .text-hidden {
+      font-size: 20px;
+      opacity: 0;
+      transition: 0.4s;
+      user-select: none;
+    }
+
+    .text-show {
+      opacity: 1;
+    }
+
+    .timer {
+      font-size: 60px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .desc {
+      margin-top: 15px;
+      font-size: 17px;
+      opacity: 0.9;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .btn-group button {
+      margin-top: 0;
+      flex: 1;
+    }
+
+    .category-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 10px 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    @media(max-width: 600px) {
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .timer {
+        font-size: 45px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- SCREEN 1 -->
+    <div id="screen1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:10px;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <h1 style="margin:0;font-size:28px;">OmeTV English Practice</h1>
+      </div>
+
+      <div class="instruction">
+        <strong>Instruksi:</strong><br><br>
+        Anda cukup dengarkan suara lalu tirukan pengucapannya.
+        Fokus pada pronunciation, kecepatan bicara, dan intonasi.
+      </div>
+
+      <div class="setting">
+        <label>Volume Suara</label>
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+        <div class="value" id="volumeValue">100%</div>
+      </div>
+
+      <div class="setting">
+        <label>Lamanya Timer</label>
+        <input type="range" id="timerSetting" min="1" max="10" value="5">
+        <div class="value" id="timerValue">5 Menit</div>
+      </div>
+
+      <div class="setting">
+        <label>Kecepatan Suara</label>
+        <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1">
+        <div class="value" id="speedValue">1x</div>
+      </div>
+
+      <button onclick="startPractice()">Mulai Latihan</button>
+      <button onclick="randomTopic()">Acak Topik</button>
+    </div>
+
+
+    <!-- SCREEN 2 -->
+    <div id="screen2" class="hidden">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px;flex-wrap:wrap;">
+        <a href="index.html" style="text-decoration:none;background:white;color:#4f46e5;padding:10px 18px;border-radius:12px;font-weight:bold;">⬅ Back Home</a>
+        <button onclick="randomTopic()" style="width:auto;padding:10px 18px;margin-top:0;">🎲 Acak</button>
+      </div>
+
+      <div class="category-badge">English Shadowing Category</div>
+
+      <h2 id="categoryTitle">Listen & Repeat</h2>
+
+      <div class="topic-box">
+
+        <div id="practiceText" class="text-hidden">
+          Hello everyone! My name is Dias.
+        </div>
+
+        <div id="translationText" class="text-hidden" style="margin-top:15px; font-size:16px; opacity:0.85;">
+          Halo semuanya! Nama saya Dias.
+        </div>
+
+        <div class="timer" id="timer">05:00</div>
+
+        <div class="desc">
+          Dengarkan dan tirukan kalimat tadi sebelum waktu habis.
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button onclick="showAnswer()">Kunci Jawaban</button>
+        <button onclick="repeatVoice()">Putar Ulang Suara</button>
+        <button onclick="nextTopic()">Next Topic</button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const topics = [
+
+   {
+    category: "1. Hobi Baru",
+    en: "I recently started learning photography. Taking pictures of nature and people is very relaxing for me."
+  },
+  {
+    category: "2. Musik Favorit",
+    en: "I usually listen to music before sleeping because it helps me feel calm and comfortable."
+  },
+  {
+    category: "3. Film Menarik",
+    en: "Last weekend I watched a comedy movie with my cousins and we laughed a lot together."
+  },
+  {
+    category: "4. Makanan Kesukaan",
+    en: "I love eating fried rice at night because it tastes simple but very delicious."
+  },
+  {
+    category: "5. Cuaca Hari Ini",
+    en: "The weather is very hot today, so I decided to stay inside and drink cold water."
+  },
+  {
+    category: "6. Bermain Game",
+    en: "Sometimes I play mobile games with my friends after finishing my homework and daily tasks."
+  },
+  {
+    category: "7. Liburan Impian",
+    en: "I want to visit Japan someday because the culture, food, and technology look very interesting."
+  },
+  {
+    category: "8. Hewan Peliharaan",
+    en: "My neighbor has a cute cat that always sleeps near the front door every afternoon."
+  },
+  {
+    category: "9. Aktivitas Pagi",
+    en: "Every morning I drink tea and check my phone before starting my daily activities."
+  },
+  {
+    category: "10. Belajar Bahasa",
+    en: "Learning English little by little every day is better than studying too much only once."
+  },
+  {
+    category: "11. Teman Sekolah",
+    en: "I still talk with some of my old school friends even though we live far away now."
+  },
+  {
+    category: "12. Kota Tinggal",
+    en: "My town is not very crowded, so the atmosphere feels peaceful and comfortable at night."
+  },
+  {
+    category: "13. Menonton YouTube",
+    en: "I often watch funny videos on YouTube when I feel bored or tired after studying."
+  },
+  {
+    category: "14. Belanja Online",
+    en: "Buying things online is easy, but sometimes the product looks different from the picture."
+  },
+  {
+    category: "15. Makanan Pedas",
+    en: "Some people really enjoy spicy food, but I cannot eat too much chili because it hurts my stomach."
+  },
+  {
+    category: "16. Bangun Pagi",
+    en: "Waking up early gives me more time to prepare and think clearly before doing activities."
+  },
+  {
+    category: "17. Hari Hujan",
+    en: "Rainy days make me want to stay at home, watch movies, and eat warm noodles."
+  },
+  {
+    category: "18. Media Sosial",
+    en: "Many teenagers spend hours scrolling social media every day without realizing the time."
+  },
+  {
+    category: "19. Traveling",
+    en: "Traveling to new places can teach us many things about culture and different lifestyles."
+  },
+  {
+    category: "20. Kopi atau Teh",
+    en: "I prefer tea over coffee because tea tastes lighter and helps me relax more."
+  },
+  {
+    category: "21. Weekend Santai",
+    en: "On weekends I usually clean my room and spend time chatting with my friends online."
+  },
+  {
+    category: "22. Belajar Online",
+    en: "Online classes are flexible, but sometimes it is difficult to stay focused for a long time."
+  },
+  {
+    category: "23. Musik Saat Belajar",
+    en: "Listening to soft music while studying helps me concentrate better on difficult lessons."
+  },
+  {
+    category: "24. Main Badminton",
+    en: "I enjoy playing badminton in the afternoon because it keeps my body active and healthy."
+  },
+  {
+    category: "25. Tidur Larut",
+    en: "Sleeping too late can make our body feel tired and unmotivated the next morning."
+  },
+  {
+    category: "26. Teknologi Modern",
+    en: "Technology makes communication easier because people can talk from different countries instantly."
+  },
+  {
+    category: "27. Belajar Memasak",
+    en: "I want to learn cooking because homemade food is healthier and sometimes cheaper too."
+  },
+  {
+    category: "28. Tempat Favorit",
+    en: "My favorite place to relax is a small café near my house with quiet music and good drinks."
+  },
+  {
+    category: "29. Buku Menarik",
+    en: "Reading books before bed is a good habit because it improves knowledge and imagination."
+  },
+  {
+    category: "30. Bermain Sepak Bola",
+    en: "Some of my friends play football every Sunday morning at the field near our neighborhood."
+  },
+  {
+    category: "31. Menonton Drama",
+    en: "I sometimes watch Korean dramas because the stories are emotional and entertaining."
+  },
+  {
+    category: "32. Mimpi Masa Depan",
+    en: "In the future I hope to have a stable job and make my family proud."
+  },
+  {
+    category: "33. Belajar Sendiri",
+    en: "Studying alone can improve focus because there are fewer distractions around us."
+  },
+  {
+    category: "34. Jalan-jalan Malam",
+    en: "Walking at night feels peaceful when the streets are quiet and the air is cool."
+  },
+  {
+    category: "35. Kebiasaan Buruk",
+    en: "Using the phone too much before sleeping is a habit I want to reduce."
+  },
+  {
+    category: "36. Menabung Uang",
+    en: "Saving money regularly is important for future plans and unexpected situations."
+  },
+  {
+    category: "37. Belajar dari Internet",
+    en: "The internet gives us access to many useful lessons and educational videos for free."
+  },
+  {
+    category: "38. Cuaca Dingin",
+    en: "Cold weather makes me feel sleepy, especially when it rains during the afternoon."
+  },
+  {
+    category: "39. Foto Kenangan",
+    en: "Old photos can remind us about happy moments and unforgettable experiences in life."
+  },
+  {
+    category: "40. Naik Motor",
+    en: "Riding a motorcycle is practical in busy cities because it can avoid heavy traffic."
+  },
+  {
+    category: "41. Belajar Setiap Hari",
+    en: "Even small progress every day can create big improvements over time."
+  },
+  {
+    category: "42. Bermain Musik",
+    en: "My cousin can play the guitar very well and often performs at small events."
+  },
+  {
+    category: "43. Menikmati Alam",
+    en: "Spending time in nature helps reduce stress and refresh the mind after busy activities."
+  },
+  {
+    category: "44. Sarapan Pagi",
+    en: "Eating breakfast every morning gives energy and helps us stay focused during the day."
+  },
+  {
+    category: "45. Film Horor",
+    en: "Some people enjoy horror movies, but I usually get scared very easily."
+  },
+  {
+    category: "46. Belajar Bahasa Baru",
+    en: "Learning another language can open more opportunities for work and communication."
+  },
+  {
+    category: "47. Nongkrong Bersama",
+    en: "Hanging out with friends at night is fun when everyone shares funny stories together."
+  },
+  {
+    category: "48. Menjaga Kesehatan",
+    en: "Drinking enough water every day is a simple way to keep the body healthy."
+  },
+  {
+    category: "49. Bermain Basket",
+    en: "Basketball is exciting because the game is fast and requires teamwork."
+  },
+  {
+    category: "50. Belanja di Pasar",
+    en: "Traditional markets are usually crowded but the food there feels fresh and affordable."
+  },
+  {
+    category: "51. Mendengarkan Podcast",
+    en: "Podcasts are interesting because we can learn many things while relaxing or traveling."
+  },
+  {
+    category: "52. Menonton Matahari Terbenam",
+    en: "Watching the sunset near the beach creates a peaceful and beautiful feeling."
+  },
+  {
+    category: "53. Bermain dengan Anak Kecil",
+    en: "Children often say funny things that can make adults laugh unexpectedly."
+  },
+  {
+    category: "54. Libur Sekolah",
+    en: "School holidays are the best time to rest and spend time with family."
+  },
+  {
+    category: "55. Belajar Menggambar",
+    en: "Drawing is a creative hobby that helps express ideas and emotions visually."
+  },
+  {
+    category: "56. Menonton Bola",
+    en: "Many people gather together to watch football matches during important tournaments."
+  },
+  {
+    category: "57. Bermain di Pantai",
+    en: "The beach is a relaxing place to enjoy fresh air and beautiful ocean views."
+  },
+  {
+    category: "58. Makanan Manis",
+    en: "I enjoy sweet snacks sometimes, but eating too much sugar is not healthy."
+  },
+  {
+    category: "59. Pekerjaan Impian",
+    en: "My dream job is something that allows me to help people and enjoy my work."
+  },
+  {
+    category: "60. Bangun Siang",
+    en: "When I sleep late, I often wake up late and feel lazy all day."
+  },
+  {
+    category: "61. Belajar dari Kesalahan",
+    en: "Mistakes can teach valuable lessons if we are willing to improve ourselves."
+  },
+  {
+    category: "62. Menjaga Persahabatan",
+    en: "Good friendships require honesty, support, and regular communication with each other."
+  },
+  {
+    category: "63. Bermain Catur",
+    en: "Chess is an interesting game because it trains strategy and patience."
+  },
+  {
+    category: "64. Menonton Konser",
+    en: "Live concerts feel exciting because the atmosphere is energetic and unforgettable."
+  },
+  {
+    category: "65. Belajar di Malam Hari",
+    en: "Some people focus better at night because the environment is quieter."
+  },
+  {
+    category: "66. Naik Gunung",
+    en: "Climbing mountains can be tiring, but the scenery at the top feels rewarding."
+  },
+  {
+    category: "67. Bermain dengan Hewan",
+    en: "Animals can reduce stress because their presence often feels calming and comforting."
+  },
+  {
+    category: "68. Menonton Anime",
+    en: "Anime has many unique stories and creative characters from different genres."
+  },
+  {
+    category: "69. Membaca Berita",
+    en: "Reading the news every day helps us understand what is happening around the world."
+  },
+  {
+    category: "70. Menggunakan Laptop",
+    en: "I use my laptop almost every day for studying, watching videos, and chatting online."
+  },
+  {
+    category: "71. Belajar Disiplin",
+    en: "Being disciplined can help people reach their goals more effectively."
+  },
+  {
+    category: "72. Menghabiskan Waktu Sendiri",
+    en: "Sometimes being alone is necessary to relax and organize our thoughts peacefully."
+  },
+  {
+    category: "73. Belajar Public Speaking",
+    en: "Speaking confidently in front of people takes practice and courage."
+  },
+  {
+    category: "74. Menjaga Kebersihan",
+    en: "Keeping our room clean can improve comfort and reduce stress."
+  },
+  {
+    category: "75. Bermain Voli",
+    en: "Volleyball is fun because teamwork and communication are very important in the game."
+  },
+  {
+    category: "76. Menonton Video Lucu",
+    en: "Funny videos can improve mood when someone feels stressed or tired."
+  },
+  {
+    category: "77. Menggunakan Transportasi Umum",
+    en: "Public transportation is cheaper and can reduce traffic in crowded cities."
+  },
+  {
+    category: "78. Belajar Menulis",
+    en: "Writing regularly can improve creativity and communication skills over time."
+  },
+  {
+    category: "79. Bermain dengan Teman",
+    en: "Spending time with good friends creates happy memories and enjoyable experiences."
+  },
+  {
+    category: "80. Mengatur Waktu",
+    en: "Good time management helps people finish tasks without feeling overwhelmed."
+  },
+  {
+    category: "81. Belajar Memancing",
+    en: "Fishing requires patience because sometimes people wait a long time for results."
+  },
+  {
+    category: "82. Mencoba Hal Baru",
+    en: "Trying new experiences can make life more exciting and meaningful."
+  },
+  {
+    category: "83. Menikmati Musik Santai",
+    en: "Soft music in the evening creates a calm atmosphere after a busy day."
+  },
+  {
+    category: "84. Bermain di Taman",
+    en: "Parks are good places for exercising, relaxing, and spending time with family."
+  },
+  {
+    category: "85. Menonton Film Action",
+    en: "Action movies are entertaining because the scenes are exciting and full of adventure."
+  },
+  {
+    category: "86. Belajar Sabar",
+    en: "Patience is important because not everything happens quickly in life."
+  },
+  {
+    category: "87. Menggunakan Internet",
+    en: "The internet can be useful for learning, but people should use it wisely."
+  },
+  {
+    category: "88. Menolong Orang",
+    en: "Helping others can create positive feelings and strengthen social relationships."
+  },
+  {
+    category: "89. Bermain Musik Bersama",
+    en: "Playing music together with friends feels enjoyable and improves teamwork."
+  },
+  {
+    category: "90. Menonton Langit Malam",
+    en: "The night sky looks beautiful when the stars are visible and the weather is clear."
+  },
+  {
+    category: "91. Bermain Renang",
+    en: "Swimming is a healthy activity because it trains many parts of the body."
+  },
+  {
+    category: "92. Mengunjungi Keluarga",
+    en: "Visiting relatives during holidays creates warm and meaningful moments together."
+  },
+  {
+    category: "93. Menikmati Liburan",
+    en: "Vacations help people rest their minds and recover from daily routines."
+  },
+  {
+    category: "94. Belajar dari Video",
+    en: "Educational videos can explain difficult topics in simple and interesting ways."
+  },
+  {
+    category: "95. Bermain dengan Saudara",
+    en: "Spending time with siblings often creates funny and unforgettable memories."
+  },
+  {
+    category: "96. Menulis Diary",
+    en: "Writing daily experiences in a diary can help express emotions honestly."
+  },
+  {
+    category: "97. Menjaga Semangat",
+    en: "Staying motivated is easier when people remember their goals clearly."
+  },
+  {
+    category: "98. Belajar Komputer",
+    en: "Computer skills are useful today because technology is part of everyday life."
+  },
+  {
+    category: "99. Menonton Acara TV",
+    en: "Some television programs are educational and can teach useful information."
+  },
+  {
+    category: "100. Menghabiskan Waktu Bersama Keluarga",
+    en: "Family time is important because strong relationships bring happiness and support."
+  }
+
+];
+
+    let currentTopic = 0;
+    let countdown;
+
+    const volumeSlider = document.getElementById('volume');
+    const timerSlider = document.getElementById('timerSetting');
+    const speedSlider = document.getElementById('speed');
+
+    volumeSlider.addEventListener('input', () => {
+      document.getElementById('volumeValue').innerText = Math.round(volumeSlider.value * 100) + '%';
+    });
+
+    timerSlider.addEventListener('input', () => {
+      document.getElementById('timerValue').innerText = timerSlider.value + ' Menit';
+    });
+
+    speedSlider.addEventListener('input', () => {
+      document.getElementById('speedValue').innerText = speedSlider.value + 'x';
+    });
+
+    function loadTopic() {
+      document.getElementById('categoryTitle').innerText = topics[currentTopic].category;
+      document.getElementById('practiceText').innerText = topics[currentTopic].en;
+      document.getElementById('translationText').innerText = topics[currentTopic].id;
+    }
+
+    function speakText() {
+
+      speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance(topics[currentTopic].en);
+
+      speech.lang = 'en-US';
+      speech.volume = volumeSlider.value;
+      speech.rate = speedSlider.value;
+
+      speech.onend = () => {
+        document.getElementById('practiceText').classList.remove('text-show');
+        document.getElementById('translationText').classList.remove('text-show');
+        startTimer();
+      };
+
+      speechSynthesis.speak(speech);
+    }
+
+    function startPractice() {
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function startTimer() {
+
+      clearInterval(countdown);
+
+      let minutes = parseInt(timerSlider.value);
+      let time = minutes * 60;
+
+      countdown = setInterval(() => {
+
+        let mins = Math.floor(time / 60);
+        let secs = time % 60;
+
+        mins = mins < 10 ? '0' + mins : mins;
+        secs = secs < 10 ? '0' + secs : secs;
+
+        document.getElementById('timer').innerText = `${mins}:${secs}`;
+
+        if(time <= 0) {
+          clearInterval(countdown);
+          document.getElementById('timer').innerText = 'Selesai';
+        }
+
+        time--;
+
+      }, 1000);
+    }
+
+    function showAnswer() {
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+    }
+
+    function repeatVoice() {
+
+      clearInterval(countdown);
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function nextTopic() {
+
+      clearInterval(countdown);
+
+      currentTopic++;
+
+      if(currentTopic >= topics.length) {
+        currentTopic = 0;
+      }
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+    function randomTopic() {
+
+      clearInterval(countdown);
+
+      let randomIndex;
+
+      do {
+        randomIndex = Math.floor(Math.random() * topics.length);
+      } while(randomIndex === currentTopic && topics.length > 1);
+
+      currentTopic = randomIndex;
+
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.remove('hidden');
+
+      loadTopic();
+
+      document.getElementById('practiceText').classList.add('text-show');
+      document.getElementById('translationText').classList.add('text-show');
+
+      speakText();
+    }
+
+  </script>
+
+</body>
+</html>

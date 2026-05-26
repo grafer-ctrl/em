@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OmeTV Speaking Challenge</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#e0f2fe,#f8fbff);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.app{
+    width:100%;
+    max-width:750px;
+    background:white;
+    border-radius:30px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    gap: 10px;
+}
+
+.home-btn {
+    text-decoration: none;
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo{ font-size:20px; font-weight:700; color:#2563eb; }
+
+.progress-text{ color:#6b7280; font-weight:600; }
+
+.progress{
+    width:100%;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:30px;
+    overflow:hidden;
+    margin-bottom:30px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#2563eb,#60a5fa);
+    border-radius:30px;
+    transition:0.4s;
+}
+
+.card{
+    background:#f9fbff;
+    border:2px solid #dbeafe;
+    border-radius:25px;
+    padding:40px 25px;
+    text-align:center;
+}
+
+.label{ color:#2563eb; font-weight:700; font-size:14px; letter-spacing:1px; margin-bottom:15px; }
+
+.indonesia{ font-size:30px; font-weight:700; line-height:1.4; color:#111827; margin-bottom:25px; }
+
+.blink{ font-size:18px; color:#ef4444; font-weight:700; animation:blink 1s infinite; margin-bottom:20px; }
+
+@keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+
+.english{ display:none; background:white; border-radius:20px; padding:20px; margin-top:20px; border:2px dashed #93c5fd; }
+
+.english-text{ font-size:24px; color:#2563eb; font-weight:700; line-height:1.4; }
+
+.buttons{ margin-top:35px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:15px; }
+
+button{ border:none; border-radius:18px; padding:15px; font-size:14px; font-weight:600; cursor:pointer; transition:0.25s; }
+
+.primary{ background:#2563eb; color:white; }
+.primary:hover{ transform:translateY(-2px); background:#1d4ed8; }
+.secondary{ background:#eff6ff; color:#2563eb; }
+.secondary:hover{ background:#dbeafe; }
+.success{ background:#10b981; color:white; }
+.success:hover{ background:#059669; }
+
+.footer{ margin-top:25px; text-align:center; color:#6b7280; font-size:14px; }
+.auto{ margin-top:15px; display:flex; justify-content:center; gap:10px; align-items:center; color:#374151; font-size:14px; }
+
+.switch{ position:relative; width:50px; height:26px; }
+.switch input{ display:none; }
+.slider{ position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:30px; transition:0.3s; }
+.slider:before{ content:""; position:absolute; width:20px; height:20px; left:3px; top:3px; background:white; border-radius:50%; transition:0.3s; }
+input:checked + .slider{ background:#2563eb; }
+input:checked + .slider:before{ transform:translateX(24px); }
+
+@media(max-width:600px){
+    .indonesia{ font-size:24px; }
+    .english-text{ font-size:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div class="logo">Speaking Challenge</div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="card">
+        <div class="label">KALIMAT INDONESIA</div>
+        <div class="indonesia" id="indoText">Senyummu sangat cantik.</div>
+        <div class="blink">🎤 UCAPKAN DALAM B. INGGRIS</div>
+
+        <div class="english" id="englishBox">
+            <div class="label">JAWABAN INGGRIS</div>
+            <div class="english-text" id="englishText">Your smile is really beautiful.</div>
+        </div>
+
+        <div class="buttons">
+            <button class="primary" onclick="speakIndo()">🔊 Ulang Audio</button>
+            <button class="secondary" onclick="toggleEnglish()">👀 Lihat Jawaban</button>
+            <button class="secondary" onclick="prevSentence()">⬅ Prev</button>
+            <button class="success" onclick="nextSentence()">Next ➡</button>
+            <button class="secondary" onclick="randomSentence()">🎲 Acak</button>
+        </div>
+
+        <div class="auto">
+            <span>Auto Voice</span>
+            <label class="switch">
+                <input type="checkbox" id="autoVoice" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="footer">Practice speaking English for OmeTV everyday 🚀</div>
+</div>
+
+<script>
+const data =[
+  {id:"Kamu tahu meme itu?", en:"Do you know that meme?"},
+  {id:"Meme itu lucu banget.", en:"That meme is really funny."},
+  {id:"Aku lihat meme itu di TikTok.", en:"I saw that meme on TikTok."},
+  {id:"Aku ketawa terus lihat video itu.", en:"I kept laughing at that video."},
+  {id:"Sound itu viral banget sekarang.", en:"That sound is so viral right now."},
+  {id:"FYP-ku penuh meme aneh.", en:"My FYP is full of weird memes."},
+  {id:"Internet makin random sekarang.", en:"The internet is getting more random now."},
+  {id:"Aku suka humor absurd.", en:"I like absurd humor."},
+  {id:"Meme favoritmu apa?", en:"What’s your favorite meme?"},
+  {id:"Aku suka video yang editnya random.", en:"I like videos with random edits."},
+
+  {id:"Itu sangat relatable.", en:"That’s so relatable."},
+  {id:"Aku merasa tersindir oleh meme itu.", en:"I felt attacked by that meme."},
+  {id:"Aku langsung ingat teman-temanku.", en:"That reminded me of my friends instantly."},
+  {id:"Meme itu terlalu akurat.", en:"That meme is too accurate."},
+  {id:"Aku tidak bisa berhenti ketawa.", en:"I can’t stop laughing."},
+  {id:"Humor Gen Z memang aneh.", en:"Gen Z humor is really weird."},
+  {id:"Aku bahkan tidak tahu kenapa itu lucu.", en:"I don’t even know why it’s funny."},
+  {id:"Tapi tetap lucu.", en:"But it’s still funny."},
+  {id:"Kadang meme tanpa konteks paling lucu.", en:"Sometimes no-context memes are the funniest."},
+  {id:"Aku suka humor yang random.", en:"I like random humor."},
+
+  {id:"Kamu sering scroll TikTok?", en:"Do you scroll TikTok a lot?"},
+  {id:"Aku terlalu lama di TikTok tadi.", en:"I spent too much time on TikTok earlier."},
+  {id:"Aku buka TikTok cuma lima menit, lalu tiba-tiba tiga jam.", en:"I opened TikTok for five minutes and suddenly it was three hours."},
+  {id:"TikTok benar-benar berbahaya untuk waktu tidur.", en:"TikTok is dangerous for sleep schedules."},
+  {id:"FYP-ku tahu terlalu banyak tentangku.", en:"My FYP knows too much about me."},
+  {id:"Algoritma TikTok menakutkan.", en:"TikTok’s algorithm is scary."},
+  {id:"Kadang aku tertawa sendiri karena meme.", en:"Sometimes I laugh alone because of memes."},
+  {id:"Aku suka kirim meme ke teman.", en:"I like sending memes to my friends."},
+  {id:"Temanku spam meme setiap hari.", en:"My friend spams memes every day."},
+  {id:"Aku lebih suka meme daripada berita.", en:"I prefer memes over news."},
+
+  {id:"Kamu tahu istilah ‘delulu’?", en:"Do you know the term ‘delulu’?"},
+  {id:"Dia benar-benar delulu.", en:"She’s really delulu."},
+  {id:"Aku cuma hidup dengan delusi.", en:"I’m just living on delusion."},
+  {id:"Itu sangat cringe.", en:"That’s so cringe."},
+  {id:"Aku malu melihat itu.", en:"I got secondhand embarrassment from that."},
+  {id:"Itu memberi energi NPC.", en:"That gives NPC energy."},
+  {id:"Dia bertingkah seperti karakter utama.", en:"He’s acting like the main character."},
+  {id:"Aku merasa seperti NPC hari ini.", en:"I feel like an NPC today."},
+  {id:"Itu sangat sus.", en:"That’s really sus."},
+  {id:"Kamu sangat chaotic.", en:"You’re so chaotic."},
+
+  {id:"Aku suka meme kucing.", en:"I love cat memes."},
+  {id:"Video anjing selalu membuatku tertawa.", en:"Dog videos always make me laugh."},
+  {id:"Aku suka meme reaction wajah.", en:"I like reaction face memes."},
+  {id:"GIF lucu selalu menyelamatkan obrolan.", en:"Funny GIFs always save conversations."},
+  {id:"Aku punya folder meme di HP-ku.", en:"I have a meme folder on my phone."},
+  {id:"Aku sering screenshot meme lucu.", en:"I often screenshot funny memes."},
+  {id:"Meme adalah bahasa internasional.", en:"Memes are an international language."},
+  {id:"Aku suka humor internet.", en:"I love internet humor."},
+  {id:"Kadang internet terlalu lucu.", en:"Sometimes the internet is too funny."},
+  {id:"Aku suka edit video lucu.", en:"I like editing funny videos."},
+
+  {id:"Kamu pernah lihat meme itu jam 3 pagi?", en:"Have you ever seen that meme at 3 AM?"},
+  {id:"Semua jadi lebih lucu tengah malam.", en:"Everything becomes funnier at midnight."},
+  {id:"Aku ketawa terlalu keras tadi malam.", en:"I laughed way too hard last night."},
+  {id:"Aku suka humor bodoh.", en:"I like stupid humor."},
+  {id:"Humor rusak memang terbaik.", en:"Broken humor is the best humor."},
+  {id:"Aku suka video edit yang berisik.", en:"I like loud edit videos."},
+  {id:"Brainrot-ku sudah terlalu parah.", en:"My brainrot is getting serious."},
+  {id:"Internet merusak otakku.", en:"The internet ruined my brain."},
+  {id:"Aku terlalu sering online.", en:"I’m online too much."},
+  {id:"Aku mengerti terlalu banyak referensi meme.", en:"I understand too many meme references."},
+
+  {id:"Kamu tahu meme ‘side eye’?", en:"Do you know the side-eye meme?"},
+  {id:"Aku suka reaction ‘bombastic side eye’.", en:"I love the ‘bombastic side eye’ reaction."},
+  {id:"Aku suka meme sound effect.", en:"I love meme sound effects."},
+  {id:"Sound ‘oh no’ itu legendaris.", en:"That ‘oh no’ sound is legendary."},
+  {id:"Aku suka edit meme dengan zoom random.", en:"I like meme edits with random zooms."},
+  {id:"Aku suka video dengan subtitle lucu.", en:"I like videos with funny subtitles."},
+  {id:"Kadang komentar lebih lucu daripada videonya.", en:"Sometimes the comments are funnier than the video."},
+  {id:"Komentar internet benar-benar liar.", en:"Internet comments are wild."},
+  {id:"Aku suka membaca komentar random.", en:"I like reading random comments."},
+  {id:"Internet benar-benar tempat aneh.", en:"The internet is a really weird place."},
+
+  {id:"Aku suka humor dark sedikit.", en:"I like slightly dark humor."},
+  {id:"Aku suka roasting teman-temanku.", en:"I like roasting my friends."},
+  {id:"Teman-temanku sangat chaotic.", en:"My friends are very chaotic."},
+  {id:"GC kami isinya meme semua.", en:"Our group chat is full of memes."},
+  {id:"Aku suka sticker WhatsApp lucu.", en:"I like funny WhatsApp stickers."},
+  {id:"Sticker random selalu lucu.", en:"Random stickers are always funny."},
+  {id:"Aku suka reaction meme.", en:"I like reaction memes."},
+  {id:"Aku suka meme yang sangat tidak masuk akal.", en:"I like memes that make absolutely no sense."},
+  {id:"Kadang humor rusak lebih lucu.", en:"Sometimes broken humor is funnier."},
+  {id:"Aku terlalu sering bilang ‘bro’ sekarang.", en:"I say ‘bro’ too much now."},
+
+  {id:"Internet mengubah cara aku bicara.", en:"The internet changed the way I talk."},
+  {id:"Aku kadang bicara pakai bahasa meme.", en:"Sometimes I speak in meme language."},
+  {id:"Aku suka bilang ‘nah bro’.", en:"I like saying ‘nah bro’."},
+  {id:"Aku terlalu banyak melihat TikTok edits.", en:"I’ve watched too many TikTok edits."},
+  {id:"Aku suka humor sarkas.", en:"I like sarcastic humor."},
+  {id:"Aku suka meme reaction wajah serius.", en:"I like serious face reaction memes."},
+  {id:"Aku suka meme yang terlalu dramatis.", en:"I like overly dramatic memes."},
+  {id:"Internet membuat semuanya jadi meme.", en:"The internet turns everything into a meme."},
+  {id:"Aku suka humor cepat dan random.", en:"I like fast and random humor."},
+  {id:"Meme membuat obrolan jadi lebih seru.", en:"Memes make conversations more fun."},
+
+  {id:"Aku suka orang yang ngerti meme.", en:"I like people who understand memes."},
+  {id:"Humor kita mungkin sama.", en:"We probably have the same humor."},
+  {id:"Aku rasa kamu sering online.", en:"I think you’re online a lot."},
+  {id:"Kamu terlihat seperti orang yang suka shitpost.", en:"You look like someone who enjoys shitposting."},
+  {id:"Aku suka ngobrol random seperti ini.", en:"I like random conversations like this."},
+  {id:"Aku suka orang dengan humor absurd.", en:"I like people with absurd humor."},
+  {id:"Internet humor benar-benar unik.", en:"Internet humor is really unique."},
+  {id:"Aku merasa kita satu frekuensi.", en:"I feel like we’re on the same wavelength."},
+  {id:"Obrolan meme selalu seru.", en:"Meme conversations are always fun."},
+  {id:"Aku bisa ngobrol soal meme berjam-jam.", en:"I could talk about memes for hours."}
+];
+
+let index = 0;
+const indoText = document.getElementById("indoText");
+const englishText = document.getElementById("englishText");
+const englishBox = document.getElementById("englishBox");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
+function render(){
+    indoText.innerText = data[index].id;
+    englishText.innerText = data[index].en;
+    englishBox.style.display = "none";
+    progressText.innerText = `${index + 1} / ${data.length}`;
+    progressFill.style.width = `${((index + 1) / data.length) * 100}%`;
+    if(document.getElementById("autoVoice").checked) setTimeout(speakIndo, 400);
+}
+
+function speakIndo(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].id);
+    speech.lang = "id-ID";
+    speechSynthesis.speak(speech);
+}
+
+function speakEnglish(){
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(data[index].en);
+    speech.lang = "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function toggleEnglish(){
+    if(englishBox.style.display === "block"){
+        englishBox.style.display = "none";
+    } else {
+        englishBox.style.display = "block";
+        speakEnglish();
+    }
+}
+
+function prevSentence(){
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextSentence(){
+    index = (index + 1) % data.length;
+    render();
+}
+
+function randomSentence(){
+    index = Math.floor(Math.random() * data.length);
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>
