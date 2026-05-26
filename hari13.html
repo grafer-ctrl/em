@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+ { id:"Siapa nama kamu?", en:"What is your name?" },
+  { id:"Kamu berasal dari mana?", en:"Where are you from?" },
+  { id:"Umur kamu berapa?", en:"How old are you?" },
+  { id:"Kamu masih sekolah atau sudah kerja?", en:"Are you still studying or already working?" },
+  { id:"Sekarang kamu lagi apa?", en:"What are you doing right now?" },
+  { id:"Kamu sering main OmeTV?", en:"Do you often use OmeTV?" },
+  { id:"Jam berapa sekarang di tempat kamu?", en:"What time is it in your place?" },
+  { id:"Cuaca di sana bagaimana?", en:"How is the weather there?" },
+  { id:"Kamu tinggal sendiri atau sama keluarga?", en:"Do you live alone or with your family?" },
+  { id:"Hobi kamu apa?", en:"What is your hobby?" },
+
+  { id:"Kamu suka musik?", en:"Do you like music?" },
+  { id:"Musik favorit kamu apa?", en:"What is your favorite music?" },
+  { id:"Kamu suka nonton film?", en:"Do you like watching movies?" },
+  { id:"Film favorit kamu apa?", en:"What is your favorite movie?" },
+  { id:"Kamu suka main game?", en:"Do you like playing games?" },
+  { id:"Game favorit kamu apa?", en:"What is your favorite game?" },
+  { id:"Kamu suka olahraga?", en:"Do you like sports?" },
+  { id:"Makanan favorit kamu apa?", en:"What is your favorite food?" },
+  { id:"Minuman favorit kamu apa?", en:"What is your favorite drink?" },
+  { id:"Kamu suka kopi atau teh?", en:"Do you prefer coffee or tea?" },
+
+  { id:"Hari ini kamu sibuk?", en:"Are you busy today?" },
+  { id:"Tadi pagi kamu bangun jam berapa?", en:"What time did you wake up this morning?" },
+  { id:"Kamu sudah makan belum?", en:"Have you eaten yet?" },
+  { id:"Apa yang kamu makan hari ini?", en:"What did you eat today?" },
+  { id:"Kamu biasanya tidur jam berapa?", en:"What time do you usually sleep?" },
+  { id:"Kamu suka begadang?", en:"Do you stay up late often?" },
+  { id:"Kamu suka traveling?", en:"Do you like traveling?" },
+  { id:"Tempat impian kamu dimana?", en:"Where is your dream destination?" },
+  { id:"Kamu suka pantai atau gunung?", en:"Do you prefer beaches or mountains?" },
+  { id:"Kamu suka kucing atau anjing?", en:"Do you prefer cats or dogs?" },
+
+  { id:"Apa warna favorit kamu?", en:"What is your favorite color?" },
+  { id:"Kamu introvert atau extrovert?", en:"Are you introverted or extroverted?" },
+  { id:"Kamu suka ngobrol sama orang baru?", en:"Do you like talking to new people?" },
+  { id:"Kamu belajar bahasa Inggris sejak kapan?", en:"Since when have you been learning English?" },
+  { id:"Kenapa kamu belajar bahasa Inggris?", en:"Why are you learning English?" },
+  { id:"Bahasa Inggris kamu bagus.", en:"Your English is good." },
+  { id:"Maaf, bisa ulangi?", en:"Sorry, can you repeat that?" },
+  { id:"Aku kurang dengar tadi.", en:"I didn't hear that clearly." },
+  { id:"Bisa bicara lebih pelan?", en:"Can you speak more slowly?" },
+  { id:"Aku masih belajar bahasa Inggris.", en:"I am still learning English." },
+
+  { id:"Aku mengerti sedikit.", en:"I understand a little." },
+  { id:"Aku tidak mengerti.", en:"I don't understand." },
+  { id:"Apa maksudnya itu?", en:"What does that mean?" },
+  { id:"Bisa ketik di chat?", en:"Can you type it in the chat?" },
+  { id:"Koneksi kamu bagus.", en:"Your connection is good." },
+  { id:"Suaranya agak putus-putus.", en:"Your voice is breaking up." },
+  { id:"Kamera kamu bagus.", en:"Your camera looks good." },
+  { id:"Ruangan kamu terlihat nyaman.", en:"Your room looks cozy." },
+  { id:"Kamu kelihatan ramah.", en:"You seem friendly." },
+  { id:"Aku senang ngobrol sama kamu.", en:"I enjoy talking with you." },
+
+  { id:"Kamu biasanya bangun pagi?", en:"Do you usually wake up early?" },
+  { id:"Apa rutinitas pagi kamu?", en:"What is your morning routine?" },
+  { id:"Kamu sarapan setiap hari?", en:"Do you eat breakfast every day?" },
+  { id:"Kamu suka memasak?", en:"Do you like cooking?" },
+  { id:"Siapa yang biasanya memasak di rumah?", en:"Who usually cooks at your home?" },
+  { id:"Kamu sering keluar rumah?", en:"Do you often go outside?" },
+  { id:"Kamu lebih suka di rumah atau jalan-jalan?", en:"Do you prefer staying home or going out?" },
+  { id:"Apa aktivitas favorit kamu di akhir pekan?", en:"What is your favorite weekend activity?" },
+  { id:"Kamu suka dengar podcast?", en:"Do you like listening to podcasts?" },
+  { id:"Kamu suka nonton YouTube?", en:"Do you like watching YouTube?" },
+
+  { id:"YouTuber favorit kamu siapa?", en:"Who is your favorite YouTuber?" },
+  { id:"Kamu suka belajar hal baru?", en:"Do you like learning new things?" },
+  { id:"Apa yang ingin kamu pelajari sekarang?", en:"What do you want to learn now?" },
+  { id:"Kamu suka membaca buku?", en:"Do you like reading books?" },
+  { id:"Buku terakhir yang kamu baca apa?", en:"What was the last book you read?" },
+  { id:"Kamu lebih suka siang atau malam?", en:"Do you prefer daytime or nighttime?" },
+  { id:"Apa yang biasanya kamu lakukan malam hari?", en:"What do you usually do at night?" },
+  { id:"Kamu suka hujan?", en:"Do you like rain?" },
+  { id:"Apa musim favorit kamu?", en:"What is your favorite season?" },
+  { id:"Kamu pernah ke luar negeri?", en:"Have you ever been abroad?" },
+
+  { id:"Negara mana yang ingin kamu kunjungi?", en:"Which country do you want to visit?" },
+  { id:"Kamu suka makanan pedas?", en:"Do you like spicy food?" },
+  { id:"Kamu suka makanan manis?", en:"Do you like sweet food?" },
+  { id:"Apa cemilan favorit kamu?", en:"What is your favorite snack?" },
+  { id:"Kamu sering olahraga?", en:"Do you exercise often?" },
+  { id:"Olahraga favorit kamu apa?", en:"What is your favorite sport?" },
+  { id:"Kamu suka jogging?", en:"Do you like jogging?" },
+  { id:"Kamu lebih suka musik santai atau energik?", en:"Do you prefer relaxing or energetic music?" },
+  { id:"Kamu suka menonton konser?", en:"Do you like attending concerts?" },
+  { id:"Apa lagu yang sering kamu dengarkan akhir-akhir ini?", en:"What song have you been listening to lately?" },
+
+  { id:"Kamu biasanya pakai aplikasi apa setiap hari?", en:"What apps do you usually use every day?" },
+  { id:"Kamu aktif di media sosial?", en:"Are you active on social media?" },
+  { id:"Platform favorit kamu apa?", en:"What is your favorite platform?" },
+  { id:"Kamu suka bikin video?", en:"Do you like making videos?" },
+  { id:"Kamu suka foto-foto?", en:"Do you like taking pictures?" },
+  { id:"Apa yang membuat kamu senang akhir-akhir ini?", en:"What has made you happy lately?" },
+  { id:"Apa yang membuat kamu stres?", en:"What makes you stressed?" },
+  { id:"Bagaimana cara kamu menghilangkan bosan?", en:"How do you get rid of boredom?" },
+  { id:"Kamu punya sahabat dekat?", en:"Do you have a close best friend?" },
+  { id:"Kamu lebih suka chat atau telepon?", en:"Do you prefer texting or calling?" },
+
+  { id:"Kamu orang yang pemalu?", en:"Are you a shy person?" },
+  { id:"Apa hal paling lucu hari ini?", en:"What was the funniest thing today?" },
+  { id:"Apa yang kamu lakukan kemarin?", en:"What did you do yesterday?" },
+  { id:"Apa rencana kamu besok?", en:"What are your plans for tomorrow?" },
+  { id:"Kamu suka belajar bahasa asing lain?", en:"Do you like learning other languages?" },
+  { id:"Bahasa apa yang ingin kamu kuasai?", en:"Which language do you want to master?" },
+  { id:"Apa pekerjaan impian kamu?", en:"What is your dream job?" },
+  { id:"Kamu suka kerja tim?", en:"Do you like teamwork?" },
+  { id:"Apa hal yang paling penting dalam hidup menurut kamu?", en:"What is the most important thing in life for you?" },
+  { id:"Menurut kamu ngobrol di OmeTV seru?", en:"Do you think talking on OmeTV is fun?" },
+   { id:"Kamu biasanya online OmeTV jam berapa?", en:"What time do you usually go online on OmeTV?" },
+  { id:"Berapa lama kamu biasanya ngobrol di OmeTV?", en:"How long do you usually chat on OmeTV?" },
+  { id:"Kamu lebih suka voice call atau video call?", en:"Do you prefer voice calls or video calls?" },
+  { id:"Apa hal paling menarik yang pernah kamu lihat di OmeTV?", en:"What is the most interesting thing you have seen on OmeTV?" },
+  { id:"Kamu pernah dapat teman baru dari OmeTV?", en:"Have you ever made a new friend from OmeTV?" },
+  { id:"Kamu suka ngobrol dengan orang luar negeri?", en:"Do you like talking with foreigners?" },
+  { id:"Apa bahasa yang paling sering kamu dengar di OmeTV?", en:"What language do you hear most often on OmeTV?" },
+  { id:"Kamu suka ngobrol random seperti ini?", en:"Do you like random conversations like this?" },
+  { id:"Apa yang biasanya kamu lakukan setelah bangun tidur?", en:"What do you usually do after waking up?" },
+  { id:"Kamu mandi pagi atau malam?", en:"Do you shower in the morning or at night?" },
+
+  { id:"Kamu biasanya makan siang jam berapa?", en:"What time do you usually have lunch?" },
+  { id:"Apa makanan yang paling sering kamu makan?", en:"What food do you eat most often?" },
+  { id:"Kamu suka makanan cepat saji?", en:"Do you like fast food?" },
+  { id:"Kamu bisa masak?", en:"Can you cook?" },
+  { id:"Masakan favorit kamu apa?", en:"What is your favorite dish?" },
+  { id:"Kamu suka pedas banget?", en:"Do you like very spicy food?" },
+  { id:"Apa minuman yang sering kamu beli?", en:"What drink do you often buy?" },
+  { id:"Kamu suka es kopi?", en:"Do you like iced coffee?" },
+  { id:"Kamu sering pesan makanan online?", en:"Do you often order food online?" },
+  { id:"Aplikasi yang paling sering kamu buka apa?", en:"What app do you open the most?" },
+
+  { id:"Kamu suka TikTok?", en:"Do you like TikTok?" },
+  { id:"Video seperti apa yang sering kamu tonton?", en:"What kind of videos do you often watch?" },
+  { id:"Kamu suka meme lucu?", en:"Do you like funny memes?" },
+  { id:"Kamu sering scroll media sosial sebelum tidur?", en:"Do you often scroll social media before sleeping?" },
+  { id:"Kamu lebih suka Instagram atau TikTok?", en:"Do you prefer Instagram or TikTok?" },
+  { id:"Kamu suka livestream?", en:"Do you like livestreams?" },
+  { id:"Kamu pernah bikin konten?", en:"Have you ever made content?" },
+  { id:"Apa yang bikin kamu tertawa hari ini?", en:"What made you laugh today?" },
+  { id:"Kamu suka bercanda?", en:"Do you like joking around?" },
+  { id:"Kamu orang yang serius atau santai?", en:"Are you a serious or relaxed person?" },
+
+  { id:"Kamu suka ngobrol lama?", en:"Do you like long conversations?" },
+  { id:"Apa topik favorit kamu saat ngobrol?", en:"What is your favorite topic to talk about?" },
+  { id:"Kamu gampang bosan?", en:"Do you get bored easily?" },
+  { id:"Kamu suka cerita tentang hidup kamu?", en:"Do you like talking about your life?" },
+  { id:"Hari kamu hari ini bagaimana?", en:"How was your day today?" },
+  { id:"Apa hal terbaik yang terjadi minggu ini?", en:"What was the best thing that happened this week?" },
+  { id:"Apa yang biasanya kamu lakukan saat weekend?", en:"What do you usually do on weekends?" },
+  { id:"Kamu lebih suka santai di rumah?", en:"Do you prefer relaxing at home?" },
+  { id:"Kamu suka jalan-jalan malam?", en:"Do you like night walks?" },
+  { id:"Kamu suka suasana kota atau desa?", en:"Do you prefer city or village vibes?" },
+
+  { id:"Apa tempat favorit kamu untuk santai?", en:"What is your favorite place to relax?" },
+  { id:"Kamu suka mendengarkan musik saat belajar?", en:"Do you like listening to music while studying?" },
+  { id:"Kamu biasanya dengar musik pakai headset?", en:"Do you usually listen to music with headphones?" },
+  { id:"Kamu suka lagu sedih?", en:"Do you like sad songs?" },
+  { id:"Apa lagu favorit kamu sekarang?", en:"What is your favorite song right now?" },
+  { id:"Kamu pernah nonton konser secara langsung?", en:"Have you ever watched a concert live?" },
+  { id:"Siapa penyanyi favorit kamu?", en:"Who is your favorite singer?" },
+  { id:"Kamu suka dance?", en:"Do you like dancing?" },
+  { id:"Kamu suka karaoke?", en:"Do you like karaoke?" },
+  { id:"Kamu suka nyanyi di kamar mandi?", en:"Do you sing in the shower?" },
+
+  { id:"Kamu lebih suka film action atau comedy?", en:"Do you prefer action or comedy movies?" },
+  { id:"Serial apa yang terakhir kamu tonton?", en:"What series did you watch recently?" },
+  { id:"Kamu suka anime?", en:"Do you like anime?" },
+  { id:"Anime favorit kamu apa?", en:"What is your favorite anime?" },
+  { id:"Kamu suka film horror?", en:"Do you like horror movies?" },
+  { id:"Film yang paling bikin kamu menangis apa?", en:"What movie made you cry the most?" },
+  { id:"Kamu suka nonton sendiri atau bareng teman?", en:"Do you prefer watching alone or with friends?" },
+  { id:"Kamu sering nonton YouTube sebelum tidur?", en:"Do you often watch YouTube before sleeping?" },
+  { id:"Channel favorit kamu apa?", en:"What is your favorite channel?" },
+  { id:"Kamu suka vlog?", en:"Do you like vlogs?" },
+
+  { id:"Kamu biasanya bangun tanpa alarm?", en:"Do you usually wake up without an alarm?" },
+  { id:"Kamu suka pagi hari?", en:"Do you like mornings?" },
+  { id:"Kamu tipe orang yang cepat siap?", en:"Are you the type of person who gets ready quickly?" },
+  { id:"Kamu suka memakai parfum?", en:"Do you like wearing perfume?" },
+  { id:"Apa warna baju favorit kamu?", en:"What is your favorite clothing color?" },
+  { id:"Kamu suka belanja online?", en:"Do you like online shopping?" },
+  { id:"Barang terakhir yang kamu beli apa?", en:"What was the last thing you bought?" },
+  { id:"Kamu suka sepatu atau sandal?", en:"Do you prefer shoes or sandals?" },
+  { id:"Kamu suka fashion?", en:"Do you like fashion?" },
+  { id:"Style pakaian kamu seperti apa?", en:"What is your clothing style like?" },
+
+  { id:"Kamu suka olahraga di rumah?", en:"Do you like exercising at home?" },
+  { id:"Kamu pernah pergi ke gym?", en:"Have you ever gone to the gym?" },
+  { id:"Kamu suka sepak bola?", en:"Do you like football?" },
+  { id:"Tim favorit kamu apa?", en:"What is your favorite team?" },
+  { id:"Kamu suka badminton?", en:"Do you like badminton?" },
+  { id:"Kamu suka berenang?", en:"Do you like swimming?" },
+  { id:"Apa olahraga yang ingin kamu coba?", en:"What sport do you want to try?" },
+  { id:"Kamu lebih suka cuaca dingin atau panas?", en:"Do you prefer cold or hot weather?" },
+  { id:"Kamu suka hujan malam?", en:"Do you like rainy nights?" },
+  { id:"Apa suara yang bikin kamu rileks?", en:"What sound makes you relaxed?" },
+
+  { id:"Kamu biasanya tidur cepat?", en:"Do you usually sleep early?" },
+  { id:"Apa yang kamu pikirkan sebelum tidur?", en:"What do you think about before sleeping?" },
+  { id:"Kamu sering mimpi aneh?", en:"Do you often have strange dreams?" },
+  { id:"Kamu suka suasana tenang?", en:"Do you like quiet atmospheres?" },
+  { id:"Apa yang membuat kamu nyaman?", en:"What makes you feel comfortable?" },
+  { id:"Kamu suka ngobrol sampai larut malam?", en:"Do you like talking until late at night?" },
+  { id:"Apa hal kecil yang bikin kamu bahagia?", en:"What small thing makes you happy?" },
+  { id:"Kamu lebih suka mendengar atau berbicara?", en:"Do you prefer listening or talking?" },
+  { id:"Menurut kamu mendengarkan itu penting?", en:"Do you think listening is important?" },
+  { id:"Apa tipe orang yang nyaman diajak ngobrol?", en:"What type of person is comfortable to talk to?" },
+
+  { id:"Kamu lebih suka obrolan santai atau deep talk?", en:"Do you prefer casual chats or deep talks?" },
+  { id:"Kamu suka bertemu orang baru?", en:"Do you like meeting new people?" },
+  { id:"Apa yang pertama kali kamu lihat dari seseorang?", en:"What do you notice first about someone?" },
+  { id:"Kamu percaya first impression?", en:"Do you believe in first impressions?" },
+  { id:"Apa hal yang paling kamu sukai dari diri kamu?", en:"What do you like most about yourself?" },
+  { id:"Apa impian terbesar kamu?", en:"What is your biggest dream?" },
+  { id:"Apa yang ingin kamu lakukan tahun ini?", en:"What do you want to do this year?" },
+  { id:"Kamu ingin tinggal di negara lain?", en:"Do you want to live in another country?" },
+  { id:"Apa pekerjaan yang kamu inginkan di masa depan?", en:"What job do you want in the future?" },
+  { id:"Kamu menikmati obrolan ini?", en:"Are you enjoying this conversation?" }
+];
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>

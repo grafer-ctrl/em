@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>English Speaking Trainer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --blue: #3b82f6; --red: #ef4444; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #f9fafb; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .app { width: 100%; max-width: 400px; }
+        
+        header { text-align: left; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: var(--blue); font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+        
+        .title-group { text-align: center; margin-bottom: 25px; }
+        .main-title { font-size: 1.4rem; font-weight: 800; color: #111827; margin-bottom: 8px; }
+        .description { font-size: 0.85rem; color: #6b7280; line-height: 1.4; padding: 0 10px; }
+        
+        .card { background: white; padding: 30px; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; }
+        
+        .blink-label { color: var(--red); font-weight: 800; font-size: 0.7rem; letter-spacing: 1px; animation: blink 1.5s infinite; margin-bottom: 15px; text-transform: uppercase; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+        
+        .text-indo { font-size: 1.5rem; font-weight: 700; color: #111827; margin: 15px 0; min-height: 60px; }
+        
+        .answer-box { display: none; margin-top: 25px; padding-top: 25px; border-top: 2px solid #f3f4f6; text-align: center; }
+        .text-en { font-size: 1.6rem; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+        .explanation { font-size: 0.9rem; color: #4b5563; font-style: italic; background: #eff6ff; padding: 12px; border-radius: 12px; text-align: left; }
+        
+        .btn-reveal { background: var(--blue); color: white; border: none; padding: 15px 30px; border-radius: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; margin: 0 auto; display: block; }
+        
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 30px; }
+        button { border: none; padding: 15px; border-radius: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-nav { background: var(--blue); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <header>
+        <a href="index.html" class="home-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            Back Home
+        </a>
+    </header>
+
+    <div class="title-group">
+        <div class="main-title">Pelatihan Aktif Bicara</div>
+        <div class="description">Pelatihan ini merubah kebiasaan orang yang selalu menjawab pasif.</div>
+    </div>
+
+    <div class="card">
+        <div class="blink-label">ucapkan dalam bahasa inggris</div>
+        <div class="text-indo" id="text-indo">--</div>
+        
+        <button class="btn-reveal" id="btn-reveal" onclick="reveal()">Lihat Jawaban</button>
+        
+        <div class="answer-box" id="answer-box">
+            <div class="text-en" id="text-en">--</div>
+            <div class="explanation" id="text-exp">--</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-nav" onclick="change(-1)">Prev</button>
+        <button class="btn-nav" onclick="change(1)">Next</button>
+    </div>
+</div>
+
+<script>
+const data =[
+{id: "Aku dari Indonesia", en: "I am from Indonesia", exp: "Penjelasan: Gunakan 'am' karena subjeknya 'I'. Kalimat ini untuk memperkenalkan asal negara."},
+{id: "Kamu baik sekali", en: "You are very kind", exp: "Penjelasan: Gunakan 'are' karena subjeknya 'You'. 'Are' dipakai untuk kamu/kalian."},
+{id: "Dia sedang online", en: "He is online now", exp: "Penjelasan: Gunakan 'is' karena subjeknya 'He'. 'Is' dipakai untuk he, she, dan it."},
+{id: "Namaku Onda", en: "I am Onda", exp: "Penjelasan: Gunakan 'am' karena subjeknya 'I'. Kalimat ini untuk memperkenalkan nama."},
+{id: "Kamu sedang sibuk?", en: "Are you busy?", exp: "Penjelasan: Pada kalimat tanya, 'are' diletakkan di depan subjek 'you'."},
+{id: "Dia cantik", en: "She is beautiful", exp: "Penjelasan: Gunakan 'is' karena subjeknya 'She'. Digunakan untuk mendeskripsikan seseorang."},
+{id: "Aku senang bertemu kamu", en: "I am happy to meet you", exp: "Penjelasan: Gunakan 'am' karena subjeknya 'I'. 'Happy' adalah kata sifat."},
+{id: "Mereka sangat ramah", en: "They are very friendly", exp: "Penjelasan: Gunakan 'are' karena subjeknya 'They'. 'Are' dipakai untuk jamak."},
+{id: "Ini pertama kaliku di OmeTV", en: "This is my first time on OmeTV", exp: "Penjelasan: Gunakan 'is' karena subjeknya 'This' adalah tunggal."},
+{id: "Kamu dari mana?", en: "Where are you from?", exp: "Penjelasan: Gunakan 'are' karena subjeknya 'you'. Ini pertanyaan dasar yang sering dipakai."},
+{id: "Aku sedang belajar bahasa Inggris", en: "I am learning English", exp: "Penjelasan: Gunakan 'am' karena subjeknya 'I'. Pola 'am learning' menunjukkan kegiatan yang sedang dilakukan."},
+{id: "Apakah dia orang Indonesia?", en: "Is he Indonesian?", exp: "Penjelasan: Pada kalimat tanya, 'is' diletakkan di depan subjek 'he'."},
+{id: "Kami teman baik", en: "We are good friends", exp: "Penjelasan: Gunakan 'are' karena subjeknya 'We'. 'Are' dipakai untuk we dan they."},
+{id: "Aku sedikit malu", en: "I am a little shy", exp: "Penjelasan: Gunakan 'am' karena subjeknya 'I'. 'Shy' adalah kata sifat."},
+{id: "Dia sangat lucu", en: "He is very funny", exp: "Penjelasan: Gunakan 'is' karena subjeknya 'He'. Digunakan untuk mendeskripsikan sifat."},
+{id: "Apakah kamu sendirian sekarang?", en: "Are you alone now?", exp: "Penjelasan: Gunakan 'are' karena subjeknya 'you'. Bentuk tanya memakai 'are' di depan."},
+{id: "Aku siap untuk ngobrol", en: "I am ready to chat", exp: "Penjelasan: Gunakan 'am' karena subjeknya 'I'. 'Ready' adalah kata sifat."},
+{id: "Mereka sedang di rumah", en: "They are at home", exp: "Penjelasan: Gunakan 'are' karena subjeknya 'They'. Menunjukkan lokasi."},
+{id: "Dia sangat baik", en: "She is very nice", exp: "Penjelasan: Gunakan 'is' karena subjeknya 'She'. Kalimat sederhana untuk memuji."},
+{id: "Jadilah dirimu sendiri", en: "Be yourself", exp: "Penjelasan: Gunakan 'be' untuk kalimat perintah atau motivasi. 'Be' adalah bentuk dasar dari to be."},
+{id: "Kamu suka musik?", en: "Do you like music?", exp: "Penjelasan: Gunakan 'do' untuk kalimat tanya dengan subjek I, you, we, dan they."},
+{id: "Aku tidak suka kopi", en: "I do not like coffee", exp: "Penjelasan: Gunakan 'do not' karena subjeknya 'I'. Bentuk negatif memakai do/does + not."},
+{id: "Dia suka game?", en: "Does he like games?", exp: "Penjelasan: Gunakan 'does' karena subjeknya 'he'. Kata kerja kembali ke bentuk dasar yaitu 'like'."},
+{id: "Kamu bermain TikTok setiap hari?", en: "Do you use TikTok every day?", exp: "Penjelasan: Gunakan 'do' karena subjeknya 'you'. Ini pertanyaan present tense."},
+{id: "Dia tidak suka ngobrol lama", en: "She does not like long conversations", exp: "Penjelasan: Gunakan 'does not' karena subjeknya 'she'. Kata kerja tetap bentuk dasar."},
+{id: "Kamu tadi tidur cepat?", en: "Did you sleep early?", exp: "Penjelasan: Gunakan 'did' untuk menanyakan kejadian masa lalu. Kata kerja kembali ke bentuk dasar 'sleep'."},
+{id: "Aku tadi menonton film", en: "I did watch a movie", exp: "Penjelasan: Gunakan 'did' untuk menegaskan aktivitas di masa lalu."},
+{id: "Dia main OmeTV tadi malam?", en: "Did he use OmeTV last night?", exp: "Penjelasan: Gunakan 'did' untuk pertanyaan masa lalu dengan subjek apa pun."},
+{id: "Mereka tidak datang kemarin", en: "They did not come yesterday", exp: "Penjelasan: Gunakan 'did not' untuk kalimat negatif masa lalu. Kata kerja kembali ke bentuk dasar 'come'."},
+{id: "Kamu mengerti bahasa Inggris?", en: "Do you understand English?", exp: "Penjelasan: Gunakan 'do' karena subjeknya 'you'. Kata kerja utama adalah 'understand'."},
+{id: "Dia punya Instagram?", en: "Does she have Instagram?", exp: "Penjelasan: Gunakan 'does' karena subjeknya 'she'. Kata kerja kembali ke bentuk dasar 'have'."},
+{id: "Aku tidak bermain game", en: "I do not play games", exp: "Penjelasan: Gunakan 'do not' karena subjeknya 'I'. Bentuk negatif present tense."},
+{id: "Kamu tadi makan?", en: "Did you eat?", exp: "Penjelasan: Gunakan 'did' untuk pertanyaan masa lalu. Kata kerja kembali ke bentuk dasar 'eat'."},
+{id: "Dia sering tersenyum", en: "Does he smile a lot?", exp: "Penjelasan: Gunakan 'does' karena subjeknya 'he'. Kalimat tanya present tense."},
+{id: "Mereka suka anime?", en: "Do they like anime?", exp: "Penjelasan: Gunakan 'do' karena subjeknya 'they'. Kata kerja tetap bentuk dasar."},
+{id: "Aku tadi tidak tidur", en: "I did not sleep", exp: "Penjelasan: Gunakan 'did not' untuk negatif masa lalu. Kata kerja kembali ke bentuk dasar 'sleep'."},
+{id: "Dia belajar bahasa Inggris setiap hari?", en: "Does she study English every day?", exp: "Penjelasan: Gunakan 'does' karena subjeknya 'she'. Kata kerja kembali ke bentuk dasar 'study'."},
+{id: "Kamu suka ngobrol dengan orang asing?", en: "Do you like talking to strangers?", exp: "Penjelasan: Gunakan 'do' karena subjeknya 'you'. Kalimat ini umum dipakai di OmeTV."},
+{id: "Dia tadi menelepon kamu?", en: "Did he call you?", exp: "Penjelasan: Gunakan 'did' untuk pertanyaan masa lalu. Kata kerja kembali ke bentuk dasar 'call'."},
+{id: "Aku benar-benar suka musik", en: "I do really like music", exp: "Penjelasan: Gunakan 'do' untuk memberi penekanan bahwa seseorang benar-benar suka sesuatu."},
+{id: "Dia suka musik", en: "She likes music", exp: "Penjelasan: Tambahkan 's' pada kata kerja 'like' karena subjeknya 'she'."},
+
+{id: "Ayahku bekerja di kantor", en: "My father works in an office", exp: "Penjelasan: Gunakan 'works' karena subjek tunggal 'father' memakai tambahan s/es."},
+
+{id: "Dia menonton film setiap malam", en: "He watches movies every night", exp: "Penjelasan: Kata kerja 'watch' ditambah 'es' karena berakhiran huruf ch."},
+
+{id: "Temanku bermain game online", en: "My friend plays online games", exp: "Penjelasan: Gunakan 'plays' karena subjek tunggal memakai s/es."},
+
+{id: "Dia belajar bahasa Inggris", en: "She studies English", exp: "Penjelasan: 'Study' berubah menjadi 'studies' karena huruf akhir y setelah konsonan."},
+
+{id: "Aku punya banyak teman", en: "I have many friends", exp: "Penjelasan: Gunakan 'have' untuk subjek I, you, we, dan they."},
+
+{id: "Dia punya kucing lucu", en: "He has a cute cat", exp: "Penjelasan: Gunakan 'has' karena subjeknya 'he'."},
+
+{id: "Kami punya tugas hari ini", en: "We have homework today", exp: "Penjelasan: Gunakan 'have' karena subjeknya 'we'."},
+
+{id: "Dia punya akun TikTok", en: "She has a TikTok account", exp: "Penjelasan: Gunakan 'has' untuk subjek tunggal seperti she."},
+
+{id: "Aku tadi punya banyak pekerjaan", en: "I had a lot of work earlier", exp: "Penjelasan: Gunakan 'had' untuk bentuk lampau dari have/has."},
+
+{id: "Mereka tadi punya waktu luang", en: "They had free time yesterday", exp: "Penjelasan: 'Had' dipakai untuk semua subjek di masa lalu."},
+
+{id: "Aku akan pergi besok", en: "I will go tomorrow", exp: "Penjelasan: Gunakan 'will' untuk menyatakan masa depan."},
+
+{id: "Dia akan meneleponmu nanti", en: "She will call you later", exp: "Penjelasan: 'Will' dipakai sebelum kata kerja dasar."},
+
+{id: "Aku akan belajar malam ini", en: "I will study tonight", exp: "Penjelasan: Setelah 'will', kata kerja tetap bentuk dasar."},
+
+{id: "Aku ingin bertemu kamu", en: "I would like to meet you", exp: "Penjelasan: 'Would like' dipakai untuk menyatakan keinginan dengan sopan."},
+
+{id: "Dia mau membantu kamu", en: "He would help you", exp: "Penjelasan: 'Would' bisa dipakai untuk kemungkinan atau niat."},
+
+{id: "Aku bisa berbicara Inggris sedikit", en: "I can speak a little English", exp: "Penjelasan: Gunakan 'can' untuk kemampuan."},
+
+{id: "Kamu bisa bantu aku?", en: "Can you help me?", exp: "Penjelasan: 'Can' juga dipakai untuk meminta bantuan."},
+
+{id: "Dia bisa bermain gitar", en: "She can play guitar", exp: "Penjelasan: Setelah 'can', kata kerja tetap bentuk dasar."},
+
+{id: "Bisakah kamu mengulanginya?", en: "Could you repeat that?", exp: "Penjelasan: 'Could' adalah bentuk lebih sopan dari can."},
+
+{id: "Aku dulu bisa berenang", en: "I could swim before", exp: "Penjelasan: 'Could' bisa menunjukkan kemampuan di masa lalu."},
+
+{id: "Boleh aku bertanya?", en: "May I ask something?", exp: "Penjelasan: 'May' dipakai untuk meminta izin secara sopan."},
+
+{id: "Mungkin dia sedang sibuk", en: "He may be busy", exp: "Penjelasan: 'May' juga bisa berarti kemungkinan."},
+
+{id: "Mungkin aku datang nanti", en: "I might come later", exp: "Penjelasan: 'Might' menunjukkan kemungkinan yang lebih kecil."},
+
+{id: "Dia mungkin lupa", en: "She might forget", exp: "Penjelasan: Setelah 'might', kata kerja tetap bentuk dasar."},
+
+{id: "Haruskah kita mulai?", en: "Shall we start?", exp: "Penjelasan: 'Shall' sering dipakai untuk ajakan atau saran."},
+
+{id: "Kamu seharusnya tidur lebih awal", en: "You should sleep earlier", exp: "Penjelasan: 'Should' dipakai untuk memberi saran."},
+
+{id: "Dia seharusnya belajar lebih giat", en: "He should study harder", exp: "Penjelasan: Setelah 'should', kata kerja tetap dasar."},
+
+{id: "Kamu harus hati-hati", en: "You must be careful", exp: "Penjelasan: 'Must' menunjukkan keharusan yang kuat."},
+
+{id: "Aku harus pergi sekarang", en: "I must go now", exp: "Penjelasan: Gunakan 'must' untuk kewajiban."},
+
+{id: "Dia harus menyelesaikan tugasnya", en: "She must finish her homework", exp: "Penjelasan: Setelah 'must', kata kerja tetap bentuk dasar."},
+
+{id: "Aku mau belajar bahasa Inggris", en: "I want to learn English", exp: "Penjelasan: 'Want to' adalah semi modal untuk menyatakan keinginan."},
+
+{id: "Dia perlu istirahat", en: "He needs to rest", exp: "Penjelasan: 'Need to' dipakai untuk kebutuhan."},
+
+{id: "Kamu harus mencoba aplikasi ini", en: "You ought to try this app", exp: "Penjelasan: 'Ought to' mirip dengan should untuk saran."},
+
+{id: "Aku biasa bangun pagi", en: "I used to wake up early", exp: "Penjelasan: 'Used to' dipakai untuk kebiasaan masa lalu."},
+
+{id: "Dia berani berbicara dengan orang asing", en: "She dares to talk to strangers", exp: "Penjelasan: 'Dare to' menunjukkan keberanian."},
+
+{id: "Aku perlu belajar lebih banyak", en: "I need to study more", exp: "Penjelasan: 'Need to' menunjukkan sesuatu yang penting dilakukan."},
+
+{id: "Kamu lebih baik pulang sekarang", en: "You had better go home now", exp: "Penjelasan: 'Had better' dipakai untuk saran kuat."},
+
+{id: "Dia sering menonton YouTube", en: "He watches YouTube often", exp: "Penjelasan: Tambahkan 'es' pada watch karena subjek tunggal."},
+
+{id: "Ibuku memasak setiap pagi", en: "My mother cooks every morning", exp: "Penjelasan: Gunakan 'cooks' karena subjek tunggal."},
+
+{id: "Aku punya ide bagus", en: "I have a good idea", exp: "Penjelasan: 'Have' dipakai untuk subjek I."},
+
+{id: "Dia punya banyak teman online", en: "She has many online friends", exp: "Penjelasan: Gunakan 'has' untuk she."},
+
+{id: "Kami tadi punya masalah internet", en: "We had internet problems earlier", exp: "Penjelasan: 'Had' adalah bentuk lampau."},
+
+{id: "Aku akan menghubungimu nanti", en: "I will contact you later", exp: "Penjelasan: 'Will' menunjukkan rencana masa depan."},
+
+{id: "Aku ingin minum kopi", en: "I would like some coffee", exp: "Penjelasan: 'Would like' terdengar lebih sopan."},
+
+{id: "Dia bisa berbicara Jepang", en: "He can speak Japanese", exp: "Penjelasan: 'Can' menunjukkan kemampuan."},
+
+{id: "Bisakah kamu membantuku sebentar?", en: "Could you help me for a moment?", exp: "Penjelasan: 'Could' lebih sopan daripada can."},
+
+{id: "Aku mungkin pergi malam ini", en: "I may go tonight", exp: "Penjelasan: 'May' menunjukkan kemungkinan."},
+
+{id: "Mungkin mereka sedang tidur", en: "They might be sleeping", exp: "Penjelasan: 'Might' menunjukkan kemungkinan."},
+
+{id: "Mari kita pergi sekarang", en: "Shall we go now?", exp: "Penjelasan: 'Shall we' sering dipakai untuk ajakan."},
+
+{id: "Kamu seharusnya minum air", en: "You should drink water", exp: "Penjelasan: 'Should' dipakai untuk saran."},
+
+{id: "Aku harus belajar hari ini", en: "I must study today", exp: "Penjelasan: 'Must' menunjukkan kewajiban."},
+
+{id: "Dia ingin menjadi dokter", en: "She wants to be a doctor", exp: "Penjelasan: 'Want to' dipakai untuk keinginan."},
+
+{id: "Aku perlu tidur lebih awal", en: "I need to sleep earlier", exp: "Penjelasan: 'Need to' menunjukkan kebutuhan."},
+
+{id: "Kamu sebaiknya diam", en: "You had better stay quiet", exp: "Penjelasan: 'Had better' untuk saran yang kuat."},
+
+{id: "Dia dulu tinggal di Jakarta", en: "He used to live in Jakarta", exp: "Penjelasan: 'Used to' untuk kebiasaan atau keadaan masa lalu."},
+
+{id: "Aku berani mencoba hal baru", en: "I dare to try new things", exp: "Penjelasan: 'Dare to' menunjukkan keberanian."},
+
+{id: "Dia mencuci mobil setiap minggu", en: "He washes his car every week", exp: "Penjelasan: Tambahkan 'es' pada wash karena berakhiran sh."},
+
+{id: "Guru itu mengajar matematika", en: "The teacher teaches math", exp: "Penjelasan: 'Teach' menjadi 'teaches' karena berakhiran ch."},
+
+{id: "Adikku punya sepeda baru", en: "My brother has a new bicycle", exp: "Penjelasan: Gunakan 'has' untuk subjek tunggal."},
+
+{id: "Aku akan menunggumu", en: "I will wait for you", exp: "Penjelasan: Setelah 'will', kata kerja tetap bentuk dasar."}
+];
+
+let i = 0;
+const synth = window.speechSynthesis;
+
+function update() {
+    document.getElementById('text-indo').innerText = data[i].id;
+    document.getElementById('text-en').innerText = data[i].en;
+    document.getElementById('text-exp').innerText = data[i].exp;
+    document.getElementById('answer-box').style.display = 'none';
+    document.getElementById('btn-reveal').style.display = 'block';
+    
+    speak(data[i].id, 'id-ID');
+}
+
+function reveal() {
+    document.getElementById('answer-box').style.display = 'block';
+    document.getElementById('btn-reveal').style.display = 'none';
+    speak(data[i].en, 'en-US');
+}
+
+function change(dir) {
+    i = (i + dir + data.length) % data.length;
+    update();
+}
+
+function speak(text, lang) {
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    synth.speak(u);
+}
+
+update();
+</script>
+</body>
+</html>

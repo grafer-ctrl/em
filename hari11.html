@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+      <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional English Conversation</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 24px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+    
+    body { 
+      background: var(--bg); 
+      color: var(--text-main); 
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 16px;
+    }
+
+    .app-container { width: 100%; max-width: 500px; }
+
+    .card, .chat-window {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .card-header { padding: 24px; border-bottom: 1px solid var(--border); }
+    .card-body { padding: 24px; }
+    
+    /* Control Groups */
+    .control-group { margin-bottom: 15px; }
+    label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 5px; }
+    input[type="range"] { width: 100%; cursor: pointer; }
+    
+    button { padding: 12px 24px; border-radius: 14px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+    button.primary { background: var(--primary); color: white; width: 100%; }
+    button.primary:hover { background: var(--primary-hover); }
+    button.outline { background: #f1f5f9; color: var(--text-main); }
+    
+    .info-box { background: #eef2ff; color: var(--primary); padding: 15px; border-radius: 14px; font-size: 0.85rem; font-weight: 500; margin-top: 15px; text-align: center; line-height: 1.4; }
+    
+    .bubbles-area { padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 250px; }
+    .bubble-text { max-width: 85%; padding: 14px 20px; border-radius: 20px; font-size: 1rem; }
+    .bubble-them { background: #f1f5f9; border-bottom-left-radius: 4px; align-self: flex-start; }
+    .bubble-me { background: var(--primary); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+    
+    .translation { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+    .speaker-btn { background: #e2e8f0; border-radius: 50%; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border: none; }
+    
+    .nav-bottom { padding: 20px; background: #fff; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .slide { display: none; }
+    .active-slide { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div id="slideSetup" class="slide active-slide">
+    <div class="card">
+      <div class="card-header">
+        <h2>3 bulan bisa bicara B Inggris</h2>
+        <p>Atur kecepatan dan volume suara Anda.</p>
+      </div>
+      <div class="card-body">
+        <div class="control-group">
+          <label>Kecepatan Suara</label>
+          <input type="range" id="rateRange" min="0.5" max="2" step="0.1" value="1">
+        </div>
+        <div class="control-group">
+          <label>Volume Suara (Max 300%)</label>
+          <input type="range" id="volumeRange" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        
+        <div class="info-box">
+          Jawablah dengan B inggris, bicara bahasa inggris gak harus nunggu sempurna.
+        </div>
+        
+        <button class="primary" style="margin-top: 20px;" id="startBtn">Mulai Latihan</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="slideChat" class="slide">
+    <div class="chat-window">
+      <div class="card-header" style="display:flex; justify-content: space-between; align-items: center;">
+        <div><h2 id="partnerName">Andi</h2><p id="sessionCounter">Sesi 1 / 10</p></div>
+        <button class="outline" onclick="location.reload()">Exit</button>
+      </div>
+
+      <div class="bubbles-area">
+        <div class="bubble-them">
+          <div class="bubble-text" id="partnerMsg">...</div>
+        </div>
+        <div class="translation">
+          <button class="speaker-btn" id="speakPartner">🔊</button>
+          <span id="partnerTrans">...</span>
+        </div>
+
+        <div class="bubble-me">
+          <div class="bubble-text" id="userMsg">❓ ❓ ❓</div>
+        </div>
+        <div class="translation" style="justify-content: flex-end;">
+          <span id="userTrans" style="font-style: italic;"></span>
+        </div>
+      </div>
+
+      <div class="nav-bottom">
+        <button id="prevBtn" class="outline">Prev</button>
+        <button id="revealBtn" class="outline">Lihat Jawaban</button>
+        <button id="nextBtn" class="primary" style="width: auto;">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===[MULAI TANDA] TAMBAHKAN PERCAKAPAN ANDA DI BAWAH INI ===
+  const DIALOGS =[
+  { pEn: () => `How do you pronounce your name?`, pId: () => `Bagaimana cara mengucapkan namamu?`, aEn: () => `It's "Ah-leks".`, aId: () => `"Ah-leks".` },
+  { pEn: () => `Can you say that again?`, pId: () => `Bisa kamu ulangi?`, aEn: () => `Sure, I said "hello".`, aId: () => `Tentu, aku bilang "halo".` },
+  { pEn: () => `How is "water" pronounced?`, pId: () => `Bagaimana "water" diucapkan?`, aEn: () => `"Wah-ter" in the US, "Woh-tah" in the UK.`, aId: () => `"Wah-ter" di AS, "Woh-tah" di Inggris.` },
+  { pEn: () => `Is the "r" silent in "car"?`, pId: () => `Apakah huruf "r" di "car" tidak diucapkan?`, aEn: () => `In British English, yes. In American, no.`, aId: () => `Di Inggris, iya. Di Amerika, tidak.` },
+  { pEn: () => `How do you say "tomato"?`, pId: () => `Bagaimana kamu mengucapkan "tomato"?`, aEn: () => `"Tuh-may-to" or "Tuh-mah-to".`, aId: () => `"Tuh-may-to" atau "Tuh-mah-to".` },
+  { pEn: () => `Can you teach me a word?`, pId: () => `Bisa ajari saya satu kata?`, aEn: () => `Say "beautiful". Bee-yoo-ti-ful.`, aId: () => `Ucapkan "beautiful". Bee-yoo-ti-ful.` },
+  { pEn: () => `Is "k" silent in "know"?`, pId: () => `Apakah "k" di "know" tidak diucapkan?`, aEn: () => `Yes, it's silent. Say "no".`, aId: () => `Iya, tidak diucapkan. Ucapkan "no".` },
+  { pEn: () => `How to pronounce "clothes"?`, pId: () => `Bagaimana mengucapkan "clothes"?`, aEn: () => `It sounds like "cloze".`, aId: () => `Kedengarannya seperti "cloze".` },
+  { pEn: () => `Say "three" for me.`, pId: () => `Ucapkan "three" untukku.`, aEn: () => `"Three" — th-ree.`, aId: () => `"Three" — th-ree.` },
+  { pEn: () => `What's the difference between "ship" and "sheep"?`, pId: () => `Apa perbedaan antara "ship" dan "sheep"?`, aEn: () => `"Ship" has short i, "sheep" has long ee.`, aId: () => `"Ship" pakai i pendek, "sheep" pakai ee panjang.` },
+  { pEn: () => `How do you say "world"?`, pId: () => `Bagaimana kamu mengucapkan "world"?`, aEn: () => `"Wer-uld" — it's tricky.`, aId: () => `"Wer-uld" — ini agak sulit.` },
+  { pEn: () => `Is the "h" in "hour" silent?`, pId: () => `Apakah huruf "h" di "hour" tidak diucapkan?`, aEn: () => `Yes, it's silent. Say "our".`, aId: () => `Iya, tidak diucapkan. Ucapkan "our".` },
+  { pEn: () => `Can you say "vegetable" slowly?`, pId: () => `Bisa ucapkan "vegetable" pelan-pelan?`, aEn: () => `Vej-tuh-bul.`, aId: () => `Vej-tuh-bul.` },
+  { pEn: () => `How to say "February"?`, pId: () => `Bagaimana mengucapkan "February"?`, aEn: () => `"Feb-roo-ary" or "Feb-yoo-ary".`, aId: () => `"Feb-roo-ary" atau "Feb-yoo-ary".` },
+  { pEn: () => `Is the "b" silent in "debt"?`, pId: () => `Apakah huruf "b" di "debt" tidak diucapkan?`, aEn: () => `Yes, it's "det".`, aId: () => `Iya, jadi "det".` },
+  { pEn: () => `How do you pronounce "comfortable"?`, pId: () => `Bagaimana mengucapkan "comfortable"?`, aEn: () => `"Kumf-tur-bul" or "Kumf-tuh-bul".`, aId: () => `"Kumf-tur-bul" atau "Kumf-tuh-bul".` },
+  { pEn: () => `Say "think" and "sink" for me.`, pId: () => `Ucapkan "think" dan "sink" untukku.`, aEn: () => `"Think" (th) and "sink" (s).`, aId: () => `"Think" (th) dan "sink" (s).` },
+  { pEn: () => `How to say "island"?`, pId: () => `Bagaimana mengucapkan "island"?`, aEn: () => `The "s" is silent. Say "eye-land".`, aId: () => `Huruf "s" tidak diucapkan. Ucapkan "eye-land".` },
+  { pEn: () => `Can you say "pronunciation"?`, pId: () => `Bisa ucapkan "pronunciation"?`, aEn: () => `"Pro-nun-see-ay-shun" — not "pro-noun".`, aId: () => `"Pro-nun-see-ay-shun" — bukan "pro-noun".` },
+  { pEn: () => `How do you say "usually"?`, pId: () => `Bagaimana kamu mengucapkan "usually"?`, aEn: () => `"Yoo-zhoo-uh-lee".`, aId: () => `"Yoo-zhoo-uh-lee".` },
+  { pEn: () => `Is the "l" silent in "half"?`, pId: () => `Apakah huruf "l" di "half" tidak diucapkan?`, aEn: () => `No, you say "half" with an L sound.`, aId: () => `Tidak, kamu ucapkan "half" dengan bunyi L.` },
+  { pEn: () => `Say "through" and "throw".`, pId: () => `Ucapkan "through" dan "throw".`, aEn: () => `"Throo" and "throh".`, aId: () => `"Throo" dan "throh".` },
+  { pEn: () => `How to say "chocolate"?`, pId: () => `Bagaimana mengucapkan "chocolate"?`, aEn: () => `"Chok-lit" or "Chok-uh-lit".`, aId: () => `"Chok-lit" atau "Chok-uh-lit".` },
+  { pEn: () => `Is "t" silent in "castle"?`, pId: () => `Apakah "t" di "castle" tidak diucapkan?`, aEn: () => `Yes, it's "cass-ul".`, aId: () => `Iya, jadi "cass-ul".` },
+  { pEn: () => `Say "very" and "berry" for me.`, pId: () => `Ucapkan "very" dan "berry" untukku.`, aEn: () => `"Very" has V sound, "berry" has B sound.`, aId: () => `"Very" pakai bunyi V, "berry" pakai bunyi B.` },
+  { pEn: () => `How to say "schedule"?`, pId: () => `Bagaimana mengucapkan "schedule"?`, aEn: () => `"Skej-ool" in US, "Shed-yool" in UK.`, aId: () => `"Skej-ool" di AS, "Shed-yool" di Inggris.` },
+  { pEn: () => `What's the right way to say "salmon"?`, pId: () => `Cara benar mengucapkan "salmon"?`, aEn: () => `The L is silent — "sam-un".`, aId: () => `Huruf L tidak diucapkan — "sam-un".` },
+  { pEn: () => `Can you repeat the word "literally"?`, pId: () => `Bisa ulangi kata "literally"?`, aEn: () => `"Lit-ruh-lee" or "Lit-uh-ruh-lee".`, aId: () => `"Lit-ruh-lee" atau "Lit-uh-ruh-lee".` },
+  { pEn: () => `How do you say "interesting"?`, pId: () => `Bagaimana kamu mengucapkan "interesting"?`, aEn: () => `"In-truh-sting" or "In-ter-es-ting".`, aId: () => `"In-truh-sting" atau "In-ter-es-ting".` },
+  { pEn: () => `Is "d" silent in "handsome"?`, pId: () => `Apakah "d" di "handsome" tidak diucapkan?`, aEn: () => `No, you say the D softly.`, aId: () => `Tidak, kamu ucapkan huruf D dengan lembut.` },
+  { pEn: () => `Say "thanks" slowly.`, pId: () => `Ucapkan "thanks" pelan-pelan.`, aEn: () => `Th-a-n-k-s.`, aId: () => `Th-a-n-k-s.` },
+  { pEn: () => `How to pronounce "restaurant"?`, pId: () => `Bagaimana mengucapkan "restaurant"?`, aEn: () => `"Res-tuh-rahnt" or "Res-tuh-rant".`, aId: () => `"Res-tuh-rahnt" atau "Res-tuh-rant".` },
+  { pEn: () => `Is the "w" silent in "answer"?`, pId: () => `Apakah huruf "w" di "answer" tidak diucapkan?`, aEn: () => `Yes, it's "ans-er".`, aId: () => `Iya, jadi "ans-er".` },
+  { pEn: () => `Say "mouse" and "mouth".`, pId: () => `Ucapkan "mouse" dan "mouth".`, aEn: () => `"Mows" and "mowth" (with th sound).`, aId: () => `"Mows" dan "mowth" (dengan bunyi th).` },
+  { pEn: () => `How do you say "often"?`, pId: () => `Bagaimana kamu mengucapkan "often"?`, aEn: () => `"Off-en" or "Off-ten" — both are fine.`, aId: () => `"Off-en" atau "Off-ten" — keduanya boleh.` },
+  { pEn: () => `Can you pronounce "squirrel"?`, pId: () => `Bisa ucapkan "squirrel"?`, aEn: () => `"Skwer-rel" — it's hard for non-natives.`, aId: () => `"Skwer-rel" — ini sulit bagi non-native.` },
+  { pEn: () => `Say "sheet" not another word.`, pId: () => `Ucapkan "sheet" bukan kata lain.`, aEn: () => `"Sheet" — be careful with the vowel.`, aId: () => `"Sheet" — hati-hati dengan vokalnya.` },
+  { pEn: () => `How to say "yacht"?`, pId: () => `Bagaimana mengucapkan "yacht"?`, aEn: () => `"Yot" — the ch is silent.`, aId: () => `"Yot" — huruf ch tidak diucapkan.` },
+  { pEn: () => `Is the "g" silent in "sign"?`, pId: () => `Apakah huruf "g" di "sign" tidak diucapkan?`, aEn: () => `Yes, it's "sine".`, aId: () => `Iya, jadi "sine".` },
+  { pEn: () => `Say "food" and "foot".`, pId: () => `Ucapkan "food" dan "foot".`, aEn: () => `"Food" has long oo, "foot" has short oo.`, aId: () => `"Food" pakai oo panjang, "foot" pakai oo pendek.` },
+  { pEn: () => `How do you say "sesame"?`, pId: () => `Bagaimana kamu mengucapkan "sesame"?`, aEn: () => `"Ses-uh-mee".`, aId: () => `"Ses-uh-mee".` },
+  { pEn: () => `Can you say "situation" clearly?`, pId: () => `Bisa ucapkan "situation" dengan jelas?`, aEn: () => `"Sitch-oo-ay-shun".`, aId: () => `"Sitch-oo-ay-shun".` },
+  { pEn: () => `Is "p" silent in "psychology"?`, pId: () => `Apakah "p" di "psychology" tidak diucapkan?`, aEn: () => `Yes, it's "sai-kol-uh-jee".`, aId: () => `Iya, jadi "sai-kol-uh-jee".` },
+  { pEn: () => `Say "live" (verb) and "live" (adjective).`, pId: () => `Ucapkan "live" (kata kerja) dan "live" (kata sifat).`, aEn: () => `"Liv" (verb) and "lyev" (adjective).`, aId: () => `"Liv" (kata kerja) dan "lyev" (kata sifat).` },
+  { pEn: () => `How to say "vegetable"?`, pId: () => `Bagaimana mengucapkan "vegetable"?`, aEn: () => `"Vej-tuh-bul" — the third e is soft.`, aId: () => `"Vej-tuh-bul" — huruf e ketiga lembut.` },
+  { pEn: () => `Is the "t" in "soften" silent?`, pId: () => `Apakah huruf "t" di "soften" tidak diucapkan?`, aEn: () => `Yes, it's "soff-en".`, aId: () => `Iya, jadi "soff-en".` },
+  { pEn: () => `Say "police" and "please".`, pId: () => `Ucapkan "police" dan "please".`, aEn: () => `"Puh-lees" and "pleez".`, aId: () => `"Puh-lees" dan "pleez".` },
+  { pEn: () => `How do you say "exactly"?`, pId: () => `Bagaimana kamu mengucapkan "exactly"?`, aEn: () => `"Egg-zakt-lee".`, aId: () => `"Egg-zakt-lee".` },
+  { pEn: () => `Can you repeat "rural" for me?`, pId: () => `Bisa ulangi "rural" untukku?`, aEn: () => `"Roor-ul" — it's hard even for natives.`, aId: () => `"Roor-ul" — ini sulit bahkan bagi native.` },
+  { pEn: () => `How to say "chaos"?`, pId: () => `Bagaimana mengucapkan "chaos"?`, aEn: () => `"Kay-os".`, aId: () => `"Kay-os".` },
+  { pEn: () => `Is "n" silent in "autumn"?`, pId: () => `Apakah "n" di "autumn" tidak diucapkan?`, aEn: () => `Yes, it's "aw-tum".`, aId: () => `Iya, jadi "aw-tum".` },
+  { pEn: () => `Say "close" (near) and "close" (shut).`, pId: () => `Ucapkan "close" (dekat) dan "close" (menutup).`, aEn: () => `"Clos" (s sound) and "cloze" (z sound).`, aId: () => `"Clos" (bunyi s) dan "cloze" (bunyi z).` },
+  { pEn: () => `How do you say "throughout"?`, pId: () => `Bagaimana kamu mengucapkan "throughout"?`, aEn: () => `"Throo-out".`, aId: () => `"Throo-out".` },
+  { pEn: () => `Can you teach me "th" sound?`, pId: () => `Bisa ajari saya bunyi "th"?`, aEn: () => `Put your tongue between your teeth.`, aId: () => `Letakkan lidah di antara gigimu.` },
+  { pEn: () => `Say "these" and "those".`, pId: () => `Ucapkan "these" dan "those".`, aEn: () => `"Theez" and "thohz".`, aId: () => `"Theez" dan "thohz".` },
+  { pEn: () => `How to say "subtle"?`, pId: () => `Bagaimana mengucapkan "subtle"?`, aEn: () => `"Sut-tul" — the b is silent.`, aId: () => `"Sut-tul" — huruf b tidak diucapkan.` },
+  { pEn: () => `Is "c" silent in "scene"?`, pId: () => `Apakah "c" di "scene" tidak diucapkan?`, aEn: () => `Yes, it's "seen".`, aId: () => `Iya, jadi "seen".` },
+  { pEn: () => `Say "should", "would", "could".`, pId: () => `Ucapkan "should", "would", "could".`, aEn: () => `"Shood", "wood", "kood" — L is silent.`, aId: () => `"Shood", "wood", "kood" — huruf L tidak diucapkan.` },
+  { pEn: () => `How do you pronounce "recipe"?`, pId: () => `Bagaimana mengucapkan "recipe"?`, aEn: () => `"Res-uh-pee".`, aId: () => `"Res-uh-pee".` },
+  { pEn: () => `Can you say "frustrated" slowly?`, pId: () => `Bisa ucapkan "frustrated" pelan-pelan?`, aEn: () => `"Frus-tray-ted" — don't forget the first R.`, aId: () => `"Frus-tray-ted" — jangan lupa huruf R pertama.` },
+  { pEn: () => `Say "breadth" and "breath".`, pId: () => `Ucapkan "breadth" dan "breath".`, aEn: () => `"Bredth" and "breth".`, aId: () => `"Bredth" dan "breth".` },
+  { pEn: () => `How to say "finally"?`, pId: () => `Bagaimana mengucapkan "finally"?`, aEn: () => `"Fye-nuh-lee".`, aId: () => `"Fye-nuh-lee".` },
+  { pEn: () => `Is the "w" silent in "sword"?`, pId: () => `Apakah huruf "w" di "sword" tidak diucapkan?`, aEn: () => `Yes, it's "sord".`, aId: () => `Iya, jadi "sord".` },
+  { pEn: () => `Say "here", "hear", "hair".`, pId: () => `Ucapkan "here", "hear", "hair".`, aEn: () => `"Heer", "heer" (same), "hair".`, aId: () => `"Heer", "heer" (sama), "hair".` },
+  { pEn: () => `How do you say "colonel"?`, pId: () => `Bagaimana kamu mengucapkan "colonel"?`, aEn: () => `"Ker-nul" — it's very strange.`, aId: () => `"Ker-nul" — ini sangat aneh.` },
+  { pEn: () => `Can you pronounce "genre"?`, pId: () => `Bisa ucapkan "genre"?`, aEn: () => `"Zhon-ruh" — French origin.`, aId: () => `"Zhon-ruh" — berasal dari bahasa Prancis.` },
+  { pEn: () => `Say "enough", "though", "through".`, pId: () => `Ucapkan "enough", "though", "through".`, aEn: () => `"Ee-nuff", "thoh", "throo".`, aId: () => `"Ee-nuff", "thoh", "throo".` },
+  { pEn: () => `How to say "almond"?`, pId: () => `Bagaimana mengucapkan "almond"?`, aEn: () => `"Ah-mund" or "Al-mund" — L can be silent.`, aId: () => `"Ah-mund" atau "Al-mund" — huruf L bisa tidak diucapkan.` },
+  { pEn: () => `Is "s" silent in "island"?`, pId: () => `Apakah "s" di "island" tidak diucapkan?`, aEn: () => `Yes, we already said that. "Eye-land".`, aId: () => `Iya, sudah kita bahas. "Eye-land".` },
+  { pEn: () => `Say "weight" and "wait".`, pId: () => `Ucapkan "weight" dan "wait".`, aEn: () => `They sound the same — "wayt".`, aId: () => `Keduanya terdengar sama — "wayt".` },
+  { pEn: () => `How do you say "geography"?`, pId: () => `Bagaimana kamu mengucapkan "geography"?`, aEn: () => `"Jee-og-ruh-fee".`, aId: () => `"Jee-og-ruh-fee".` },
+  { pEn: () => `Say "muscle" for me.`, pId: () => `Ucapkan "muscle" untukku.`, aEn: () => `"Muss-ul" — the c is silent.`, aId: () => `"Muss-ul" — huruf c tidak diucapkan.` },
+  { pEn: () => `How to pronounce "weird"?`, pId: () => `Bagaimana mengucapkan "weird"?`, aEn: () => `"Weerd" — ei sounds like ee.`, aId: () => `"Weerd" — ei berbunyi seperti ee.` },
+  { pEn: () => `Is "gh" silent in "light"?`, pId: () => `Apakah "gh" di "light" tidak diucapkan?`, aEn: () => `Yes, it's "lite".`, aId: () => `Iya, jadi "lite".` },
+  { pEn: () => `Say "sugar" and "sure".`, pId: () => `Ucapkan "sugar" dan "sure".`, aEn: () => `"Shuh-gar" and "shoor" — S sounds like Sh.`, aId: () => `"Shuh-gar" dan "shoor" — huruf S berbunyi seperti Sh.` },
+  { pEn: () => `How do you say "admirable"?`, pId: () => `Bagaimana kamu mengucapkan "admirable"?`, aEn: () => `"Ad-mur-uh-bul" — stress on first syllable.`, aId: () => `"Ad-mur-uh-bul" — tekanan di suku kata pertama.` },
+  { pEn: () => `Can you say "fifth" correctly?`, pId: () => `Bisa ucapkan "fifth" dengan benar?`, aEn: () => `"Fith" or "Fif-th" — both are okay.`, aId: () => `"Fith" atau "Fif-th" — keduanya boleh.` },
+  { pEn: () => `Say "business" slowly.`, pId: () => `Ucapkan "business" pelan-pelan.`, aEn: () => `"Biz-nis" — not "busy-ness".`, aId: () => `"Biz-nis" — bukan "busy-ness".` },
+  { pEn: () => `How to say "choir"?`, pId: () => `Bagaimana mengucapkan "choir"?`, aEn: () => `"Kwai-er" — weird spelling.`, aId: () => `"Kwai-er" — ejaannya aneh.` },
+  { pEn: () => `Is "e" silent in "vegetable"?`, pId: () => `Apakah "e" di "vegetable" tidak diucapkan?`, aEn: () => `The second e is very weak, almost silent.`, aId: () => `Huruf e kedua sangat lemah, hampir tidak diucapkan.` },
+  { pEn: () => `Say "comfortable" fast.`, pId: () => `Ucapkan "comfortable" dengan cepat.`, aEn: () => `"Kumf-tur-bul" or "Kumf-tuh-bul".`, aId: () => `"Kumf-tur-bul" atau "Kumf-tuh-bul".` },
+  { pEn: () => `How to pronounce "unique"?`, pId: () => `Bagaimana mengucapkan "unique"?`, aEn: () => `"Yoo-neek".`, aId: () => `"Yoo-neek".` },
+  { pEn: () => `Say "bread" and "bred".`, pId: () => `Ucapkan "bread" dan "bred".`, aEn: () => `They sound exactly the same.`, aId: () => `Keduanya terdengar sama persis.` },
+  { pEn: () => `Can you help me say "rural"?`, pId: () => `Bisa bantu saya mengucapkan "rural"?`, aEn: () => `Try "roo" + "rul" — "roo-rul".`, aId: () => `Coba "roo" + "rul" — "roo-rul".` },
+  { pEn: () => `How to say "hierarchy"?`, pId: () => `Bagaimana mengucapkan "hierarchy"?`, aEn: () => `"Hy-ruh-ar-kee".`, aId: () => `"Hy-ruh-ar-kee".` },
+  { pEn: () => `Is "p" silent in "receipt"?`, pId: () => `Apakah "p" di "receipt" tidak diucapkan?`, aEn: () => `Yes, it's "ree-seat".`, aId: () => `Iya, jadi "ree-seat".` },
+  { pEn: () => `Say "women" and "woman".`, pId: () => `Ucapkan "women" dan "woman".`, aEn: () => `"Wim-in" (plural) and "wuh-man" (singular).`, aId: () => `"Wim-in" (jamak) dan "wuh-man" (tunggal).` },
+  { pEn: () => `How do you say "thistle"?`, pId: () => `Bagaimana kamu mengucapkan "thistle"?`, aEn: () => `"This-ul" — the first t is silent.`, aId: () => `"This-ul" — huruf t pertama tidak diucapkan.` },
+  { pEn: () => `Pronounce "jewelry" for me.`, pId: () => `Ucapkan "jewelry" untukku.`, aEn: () => `"Joo-ul-ree" or "Jool-ree".`, aId: () => `"Joo-ul-ree" atau "Jool-ree".` },
+  { pEn: () => `Say "million" and "billion".`, pId: () => `Ucapkan "million" dan "billion".`, aEn: () => `"Mil-yun" and "bil-yun".`, aId: () => `"Mil-yun" dan "bil-yun".` },
+  { pEn: () => `How to say "actually"?`, pId: () => `Bagaimana mengucapkan "actually"?`, aEn: () => `"Ak-choo-uh-lee" or "Ak-shuh-lee".`, aId: () => `"Ak-choo-uh-lee" atau "Ak-shuh-lee".` },
+  { pEn: () => `Is "b" silent in "subtle"?`, pId: () => `Apakah "b" di "subtle" tidak diucapkan?`, aEn: () => `Yes, we did that one. "Sut-tul".`, aId: () => `Iya, sudah kita bahas. "Sut-tul".` },
+  { pEn: () => `Say "mountain" without the T.`, pId: () => `Ucapkan "mountain" tanpa huruf T.`, aEn: () => `"Moun-ain" — that's a glottal stop.`, aId: () => `"Moun-ain" — itu namanya glottal stop.` },
+  { pEn: () => `How do you pronounce "button"?`, pId: () => `Bagaimana mengucapkan "button"?`, aEn: () => `"Butt-on" or "Buh-in" (with glottal stop).`, aId: () => `"Butt-on" atau "Buh-in" (dengan glottal stop).` },
+  { pEn: () => `Say "write", "right", "rite".`, pId: () => `Ucapkan "write", "right", "rite".`, aEn: () => `All sound the same — "rite".`, aId: () => `Semua terdengar sama — "rite".` },
+  { pEn: () => `Can you say "phenomenon"?`, pId: () => `Bisa ucapkan "phenomenon"?`, aEn: () => `"Fuh-nom-uh-non".`, aId: () => `"Fuh-nom-uh-non".` },
+  { pEn: () => `How to say "especially"?`, pId: () => `Bagaimana mengucapkan "especially"?`, aEn: () => `"Eh-spe-shuh-lee" — no "x" sound.`, aId: () => `"Eh-spe-shuh-lee" — tidak ada bunyi "x".` },
+  { pEn: () => `Say "favorite" without the second O.`, pId: () => `Ucapkan "favorite" tanpa huruf O kedua.`, aEn: () => `"Fay-vrit" — that's how many say it.`, aId: () => `"Fay-vrit" — begitulah banyak orang mengucapkannya.` },
+  { pEn: () => `Is "l" silent in "should"?`, pId: () => `Apakah "l" di "should" tidak diucapkan?`, aEn: () => `Yes, we covered that. "Shood".`, aId: () => `Iya, sudah kita bahas. "Shood".` }
+];
+  // ===[AKHIR TANDA] ===
+
+  let current = 0;
+  let voices =[];
+
+  window.speechSynthesis.onvoiceschanged = () => { voices = window.speechSynthesis.getVoices(); };
+
+  function speak(text, isPartner = true) {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    const voice = voices.find(v => v.lang.includes('en-US')) || voices[0];
+    if (voice) utter.voice = voice;
+    
+    // Ambil nilai dari slider
+    utter.rate = parseFloat(document.getElementById('rateRange').value);
+    utter.volume = parseFloat(document.getElementById('volumeRange').value);
+    
+    utter.pitch = isPartner ? 1.0 : 1.2;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function update() {
+    const d = DIALOGS[current];
+    document.getElementById('partnerMsg').textContent = d.pEn();
+    document.getElementById('partnerTrans').textContent = d.pId();
+    document.getElementById('userMsg').textContent = "❓ ❓ ❓";
+    document.getElementById('userTrans').textContent = "";
+    document.getElementById('sessionCounter').textContent = `Sesi ${current + 1} / ${DIALOGS.length}`;
+  }
+
+  document.getElementById('startBtn').addEventListener('click', () => {
+    document.getElementById('slideSetup').classList.remove('active-slide');
+    document.getElementById('slideChat').classList.add('active-slide');
+    update();
+    setTimeout(() => speak(DIALOGS[current].pEn()), 500);
+  });
+
+  document.getElementById('speakPartner').addEventListener('click', () => speak(DIALOGS[current].pEn()));
+
+  document.getElementById('revealBtn').addEventListener('click', () => {
+    const d = DIALOGS[current];
+    document.getElementById('userMsg').textContent = d.aEn();
+    document.getElementById('userTrans').textContent = d.aId();
+    speak(d.aEn(), false);
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if(current < DIALOGS.length - 1) { current++; update(); speak(DIALOGS[current].pEn()); }
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if(current > 0) { current--; update(); speak(DIALOGS[current].pEn()); }
+  });
+</script>
+</body>
+</html>

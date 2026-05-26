@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+        <script>
+        if (!localStorage.getItem('premium_code')) {
+            alert("Akses Ditolak! Silakan masukkan kode akses di halaman depan.");
+            window.location.href = "index.html"; 
+        }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tebak Kosakata - English</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:linear-gradient(135deg,#e0f2fe,#f8fbff); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px; }
+        .app { width:100%; max-width:500px; background:white; border-radius:30px; padding:30px; box-shadow:0 15px 40px rgba(0,0,0,0.12); text-align:center; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .home-btn { text-decoration: none; color: #2563eb; font-weight: 600; font-size: 14px; }
+
+        .label { color:#ef4444; font-weight:700; font-size:16px; margin-bottom:15px; animation:blink 1s infinite; }
+        @keyframes blink{ 0%{ opacity:1; } 50%{ opacity:0.2; } 100%{ opacity:1; } }
+        
+        .word-id { font-size:32px; font-weight:700; color:#111827; margin-bottom:20px; }
+        .word-en { font-size:28px; color:#10b981; font-weight:700; margin:20px 0; display:none; padding:15px; border: 2px dashed #10b981; border-radius: 15px; }
+        
+        .buttons { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+        .full-width { grid-column: span 2; }
+        
+        button { border:none; border-radius:15px; padding:15px; font-weight:600; cursor:pointer; transition:0.2s; }
+        .btn-speak { background:#f3f4f6; color:#374151; }
+        .btn-reveal { background:#2563eb; color:white; }
+        .btn-nav { background:#e5e7eb; color:#374151; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="header">
+        <a href="index.html" class="home-btn">🏠 Home</a>
+        <div style="font-weight: 700; color: #6b7280;" id="counter">1 / 6</div>
+    </div>
+
+    <div class="label">UCAPKAN DALAM BAHASA INGGRIS</div>
+    <div class="word-id" id="wordId">Minum</div>
+    
+    <button class="btn-speak full-width" onclick="playAudio('id')">🔊 Dengar Audio ID</button>
+
+    <div class="word-en" id="wordEn">Drink</div>
+
+    <div class="buttons">
+        <button class="btn-nav" onclick="prevWord()">⬅ Prev</button>
+        <button class="btn-nav" onclick="nextWord()">Next ➡</button>
+        <button class="btn-reveal full-width" onclick="revealAnswer()">Lihat Jawaban</button>
+    </div>
+</div>
+
+<script>
+const data =[
+    
+{id:"Halo, apa kabar?", en:"Hello, how are you?"},
+{id:"Senang bertemu denganmu", en:"Nice to meet you"},
+{id:"Kamu lagi ngapain?", en:"What are you doing?"},
+{id:"Kamu dari mana?", en:"Where are you from?"},
+{id:"Cuacanya bagus ya", en:"The weather is nice"},
+{id:"Kamu suka musik?", en:"Do you like music?"},
+{id:"Lagi santai ya?", en:"Are you relaxing?"},
+{id:"Hari ini sibuk?", en:"Are you busy today?"},
+{id:"Aku baru bangun", en:"I just woke up"},
+{id:"Kamu suka kopi?", en:"Do you like coffee?"},
+{id:"Aku suka ngobrol", en:"I like chatting"},
+{id:"Kamu terlihat ramah", en:"You look friendly"},
+{id:"Aku sedikit malu", en:"I am a little shy"},
+{id:"Santai saja", en:"Just relax"},
+{id:"Jangan gugup", en:"Do not be nervous"},
+{id:"Kamu suka game?", en:"Do you like games?"},
+{id:"Game favoritmu apa?", en:"What is your favorite game?"},
+{id:"Aku suka musik pop", en:"I like pop music"},
+{id:"Kamu suka film?", en:"Do you like movies?"},
+{id:"Film favoritmu apa?", en:"What is your favorite movie?"},
+{id:"Aku suka kucing", en:"I like cats"},
+{id:"Kamu punya hewan?", en:"Do you have a pet?"},
+{id:"Aku suka jalan-jalan", en:"I like traveling"},
+{id:"Kamu suka tidur?", en:"Do you like sleeping?"},
+{id:"Aku lapar sekarang", en:"I am hungry now"},
+{id:"Sudah makan?", en:"Did you eat already?"},
+{id:"Makanan favoritmu apa?", en:"What is your favorite food?"},
+{id:"Aku suka nasi goreng", en:"I like fried rice"},
+{id:"Kamu suka pedas?", en:"Do you like spicy food?"},
+{id:"Aku suka teh", en:"I like tea"},
+{id:"Kamu suka minum dingin?", en:"Do you like cold drinks?"},
+{id:"Aku suka jus", en:"I like juice"},
+{id:"Hari ini panas", en:"Today is hot"},
+{id:"Hari ini hujan", en:"Today is rainy"},
+{id:"Aku capek hari ini", en:"I am tired today"},
+{id:"Kamu sudah mandi?", en:"Did you take a shower?"},
+{id:"Aku suka warna biru", en:"I like blue color"},
+{id:"Warna favoritmu apa?", en:"What is your favorite color?"},
+{id:"Aku suka hitam", en:"I like black"},
+{id:"Kamu suka olahraga?", en:"Do you like sports?"},
+{id:"Olahraga favoritmu apa?", en:"What is your favorite sport?"},
+{id:"Aku suka sepak bola", en:"I like football"},
+{id:"Aku suka basket", en:"I like basketball"},
+{id:"Kamu suka anime?", en:"Do you like anime?"},
+{id:"Anime favoritmu apa?", en:"What is your favorite anime?"},
+{id:"Aku suka belajar bahasa", en:"I like learning languages"},
+{id:"Bahasa Inggrismu bagus", en:"Your English is good"},
+{id:"Aku masih belajar", en:"I am still learning"},
+{id:"Boleh ngobrol lagi?", en:"Can we chat again?"},
+{id:"Kamu lucu juga", en:"You are funny too"},
+{id:"Aku suka senyummu", en:"I like your smile"},
+{id:"Kamu sedang di rumah?", en:"Are you at home?"},
+{id:"Aku sedang santai", en:"I am relaxing"},
+{id:"Aku suka malam hari", en:"I like nighttime"},
+{id:"Kamu suka pagi?", en:"Do you like mornings?"},
+{id:"Aku suka akhir pekan", en:"I like weekends"},
+{id:"Besok kamu sibuk?", en:"Are you busy tomorrow?"},
+{id:"Aku suka mendengarkan lagu", en:"I like listening to songs"},
+{id:"Kamu suka TikTok?", en:"Do you like TikTok?"},
+{id:"Aku suka YouTube", en:"I like YouTube"},
+{id:"Kamu sering online?", en:"Are you online often?"},
+{id:"Aku suka ngobrol santai", en:"I like casual conversations"},
+{id:"Kamu ramah sekali", en:"You are very friendly"},
+{id:"Aku senang bicara denganmu", en:"I enjoy talking with you"},
+{id:"Jangan malu ya", en:"Do not be shy"},
+{id:"Aku orang yang santai", en:"I am a relaxed person"},
+{id:"Kamu suka bercanda?", en:"Do you like joking?"},
+{id:"Aku suka meme lucu", en:"I like funny memes"},
+{id:"Kamu suka malam atau pagi?", en:"Do you like night or morning?"},
+{id:"Aku suka tidur siang", en:"I like naps"},
+{id:"Kamu suka hujan?", en:"Do you like rain?"},
+{id:"Aku suka suara hujan", en:"I like the sound of rain"},
+{id:"Kamu suka pantai?", en:"Do you like beaches?"},
+{id:"Aku suka gunung", en:"I like mountains"},
+{id:"Tempat favoritmu apa?", en:"What is your favorite place?"},
+{id:"Aku suka suasana tenang", en:"I like calm places"},
+{id:"Kamu suka foto-foto?", en:"Do you like taking pictures?"},
+{id:"Aku suka selfie", en:"I like selfies"},
+{id:"Kamu suka traveling?", en:"Do you like traveling?"},
+{id:"Aku ingin liburan", en:"I want a vacation"},
+{id:"Aku suka tertawa", en:"I like laughing"},
+{id:"Kamu sering begadang?", en:"Do you stay up late often?"},
+{id:"Aku suka dengar cerita", en:"I like hearing stories"},
+{id:"Kamu suka membaca?", en:"Do you like reading?"},
+{id:"Aku suka komedi", en:"I like comedy"},
+{id:"Kamu suka es krim?", en:"Do you like ice cream?"},
+{id:"Aku suka cokelat", en:"I like chocolate"},
+{id:"Kamu suka memasak?", en:"Do you like cooking?"},
+{id:"Aku tidak pandai masak", en:"I am not good at cooking"},
+{id:"Kamu suka belajar?", en:"Do you like studying?"},
+{id:"Aku suka tidur lama", en:"I like sleeping long"},
+{id:"Kamu suka mendengarkan musik?", en:"Do you like listening to music?"},
+{id:"Aku suka lagu santai", en:"I like relaxing songs"},
+{id:"Kamu suka hewan lucu?", en:"Do you like cute animals?"},
+{id:"Aku suka kelinci", en:"I like rabbits"},
+{id:"Kamu suka chatting malam?", en:"Do you like chatting at night?"},
+{id:"Aku suka ngobrol random", en:"I like random talks"},
+{id:"Kamu orang yang lucu", en:"You are a funny person"},
+{id:"Aku harap harimu menyenangkan", en:"I hope your day is nice"},
+{id:"Senang bisa ngobrol", en:"Glad to chat with you"},
+{id:"Semoga harimu baik", en:"Have a good day"},
+{id:"Sampai jumpa lagi", en:"See you again"},
+{id:"Kamu terlihat santai", en:"You look relaxed"},
+{id:"Aku suka suasana malam", en:"I like the night atmosphere"},
+{id:"Kamu suka ngobrol lama?", en:"Do you like long conversations?"},
+{id:"Aku baru selesai makan", en:"I just finished eating"},
+{id:"Kamu suka teh manis?", en:"Do you like sweet tea?"},
+{id:"Aku suka suara musik pelan", en:"I like soft music"},
+{id:"Kamu sering tersenyum?", en:"Do you smile often?"},
+{id:"Aku suka orang ramah", en:"I like friendly people"},
+{id:"Kamu sedang bosan?", en:"Are you bored?"},
+{id:"Aku cuma santai di sini", en:"I am just relaxing here"},
+{id:"Kamu suka nonton video lucu?", en:"Do you like funny videos?"},
+{id:"Aku suka bercanda kecil", en:"I like little jokes"},
+{id:"Kamu suka ngobrol random?", en:"Do you like random talks?"},
+{id:"Aku suka suasana tenang", en:"I like peaceful vibes"},
+{id:"Kamu suka mendengar musik saat malam?", en:"Do you like listening to music at night?"},
+{id:"Aku suka jalan sore", en:"I like evening walks"},
+{id:"Kamu suka matahari terbenam?", en:"Do you like sunsets?"},
+{id:"Aku suka udara dingin", en:"I like cold weather"},
+{id:"Kamu suka ngobrol dengan orang baru?", en:"Do you like talking to new people?"},
+{id:"Aku kadang malu duluan", en:"I am sometimes shy first"},
+{id:"Kamu suka minuman hangat?", en:"Do you like warm drinks?"},
+{id:"Aku suka kopi pagi", en:"I like morning coffee"},
+{id:"Kamu suka bangun pagi?", en:"Do you like waking up early?"},
+{id:"Aku suka rebahan", en:"I like lying down"},
+{id:"Kamu suka suasana ramai?", en:"Do you like crowded places?"},
+{id:"Aku lebih suka tempat sepi", en:"I prefer quiet places"},
+{id:"Kamu suka tertawa keras?", en:"Do you laugh loudly?"},
+{id:"Aku suka ngobrol santai begini", en:"I like relaxed chats like this"},
+{id:"Kamu suka liburan?", en:"Do you like vacations?"},
+{id:"Aku ingin pergi ke pantai", en:"I want to go to the beach"},
+{id:"Kamu suka makanan manis?", en:"Do you like sweet food?"},
+{id:"Aku suka kue cokelat", en:"I like chocolate cake"},
+{id:"Kamu suka mie?", en:"Do you like noodles?"},
+{id:"Aku suka makanan sederhana", en:"I like simple food"},
+{id:"Kamu suka hujan malam?", en:"Do you like rainy nights?"},
+{id:"Aku suka mendengar hujan", en:"I like hearing rain"},
+{id:"Kamu suka foto langit?", en:"Do you like sky pictures?"},
+{id:"Aku suka bulan malam", en:"I like the moon at night"},
+{id:"Kamu suka menonton serial?", en:"Do you like watching series?"},
+{id:"Aku suka film lucu", en:"I like funny movies"},
+{id:"Kamu suka ngobrol sambil musik?", en:"Do you like chatting with music?"},
+{id:"Aku suka lagu pelan", en:"I like slow songs"},
+{id:"Kamu suka suara alam?", en:"Do you like nature sounds?"},
+{id:"Aku suka suara ombak", en:"I like wave sounds"},
+{id:"Kamu suka melihat bintang?", en:"Do you like watching stars?"},
+{id:"Aku suka malam yang tenang", en:"I like quiet nights"},
+{id:"Kamu suka video game santai?", en:"Do you like relaxing games?"},
+{id:"Aku suka game sederhana", en:"I like simple games"},
+{id:"Kamu suka menonton live stream?", en:"Do you like watching live streams?"},
+{id:"Aku suka ngobrol sebelum tidur", en:"I like chatting before sleeping"},
+{id:"Kamu suka makan malam terlambat?", en:"Do you like late dinners?"},
+{id:"Aku suka camilan malam", en:"I like night snacks"},
+{id:"Kamu suka humor receh?", en:"Do you like silly jokes?"},
+{id:"Aku suka orang humoris", en:"I like humorous people"},
+{id:"Kamu suka jalan malam?", en:"Do you like night walks?"},
+{id:"Aku suka udara malam", en:"I like night air"},
+{id:"Kamu suka suasana rumah?", en:"Do you like home vibes?"},
+{id:"Aku suka tinggal di rumah", en:"I like staying at home"},
+{id:"Kamu suka menonton YouTube saat santai?", en:"Do you like watching YouTube while relaxing?"},
+{id:"Aku suka video random", en:"I like random videos"},
+{id:"Kamu suka memakai headphone?", en:"Do you like using headphones?"},
+{id:"Aku suka suara yang tenang", en:"I like calm sounds"},
+{id:"Kamu suka percakapan ringan?", en:"Do you like light conversations?"},
+{id:"Aku suka ngobrol tanpa tekanan", en:"I like stress-free talks"},
+{id:"Kamu suka malam minggu?", en:"Do you like Saturday nights?"},
+{id:"Aku suka akhir pekan santai", en:"I like relaxing weekends"},
+{id:"Kamu suka menonton anime lucu?", en:"Do you like funny anime?"},
+{id:"Aku suka karakter lucu", en:"I like funny characters"},
+{id:"Kamu suka cerita misteri?", en:"Do you like mystery stories?"},
+{id:"Aku suka cerita menarik", en:"I like interesting stories"},
+{id:"Kamu suka minum air dingin?", en:"Do you like cold water?"},
+{id:"Aku suka es teh", en:"I like iced tea"},
+{id:"Kamu suka makanan pedas sedikit?", en:"Do you like slightly spicy food?"},
+{id:"Aku suka sambal", en:"I like chili sauce"},
+{id:"Kamu suka ngobrol sampai larut?", en:"Do you like chatting late?"},
+{id:"Aku suka teman yang santai", en:"I like relaxed friends"},
+{id:"Kamu suka senyum orang lain?", en:"Do you like other people's smiles?"},
+{id:"Aku suka energi positif", en:"I like positive energy"},
+{id:"Kamu suka suasana nyaman?", en:"Do you like cozy vibes?"},
+{id:"Aku suka kamar yang rapi", en:"I like tidy rooms"},
+{id:"Kamu suka tidur cepat?", en:"Do you sleep early?"},
+{id:"Aku kadang tidur larut", en:"I sometimes sleep late"},
+{id:"Kamu suka menonton kartun?", en:"Do you like cartoons?"},
+{id:"Aku suka animasi lucu", en:"I like funny animations"},
+{id:"Kamu suka nongkrong?", en:"Do you like hanging out?"},
+{id:"Aku suka duduk santai", en:"I like sitting relaxed"},
+{id:"Kamu suka orang yang banyak bicara?", en:"Do you like talkative people?"},
+{id:"Aku suka mendengar cerita orang", en:"I like hearing people's stories"},
+{id:"Kamu suka senja?", en:"Do you like sunsets?"},
+{id:"Aku suka warna langit sore", en:"I like evening sky colors"},
+{id:"Kamu suka suara kipas?", en:"Do you like fan sounds?"},
+{id:"Aku suka suasana dingin", en:"I like cool atmospheres"},
+{id:"Kamu suka percakapan sederhana?", en:"Do you like simple conversations?"},
+{id:"Aku suka obrolan ringan", en:"I like light chats"},
+{id:"Kamu suka ngobrol sambil makan?", en:"Do you like chatting while eating?"},
+{id:"Aku suka makan sambil nonton", en:"I like eating while watching"},
+{id:"Kamu suka lagu lama?", en:"Do you like old songs?"},
+{id:"Aku suka musik klasik santai", en:"I like relaxing classical music"},
+{id:"Kamu suka hari libur?", en:"Do you like holidays?"},
+{id:"Aku suka waktu santai", en:"I like free time"},
+{id:"Kamu suka ngobrol sebelum tidur?", en:"Do you like chatting before bed?"},
+{id:"Aku suka percakapan hangat", en:"I like warm conversations"},
+{id:"Kamu terlihat baik", en:"You seem kind"},
+{id:"Aku nyaman ngobrol denganmu", en:"I feel comfortable talking with you"},
+{id:"Kamu suka ngobrol santai malam-malam?", en:"Do you like casual late-night chats?"},
+{id:"Aku suka suasana yang damai", en:"I like peaceful vibes"},
+{id:"Kamu suka melihat hujan dari jendela?", en:"Do you like watching rain from the window?"},
+{id:"Aku suka minum sambil ngobrol", en:"I like drinking while chatting"},
+{id:"Kamu suka cerita lucu?", en:"Do you like funny stories?"},
+{id:"Aku suka orang yang ramah", en:"I like friendly people"},
+{id:"Kamu suka suasana cafe?", en:"Do you like cafe vibes?"},
+{id:"Aku suka duduk santai sendirian", en:"I like sitting alone peacefully"},
+{id:"Kamu suka ngobrol tentang hal random?", en:"Do you like talking about random things?"},
+{id:"Aku suka malam yang sunyi", en:"I like quiet nights"},
+{id:"Kamu suka mendengar suara hujan?", en:"Do you like listening to rain sounds?"},
+{id:"Aku suka tidur dengan musik", en:"I like sleeping with music"},
+{id:"Kamu suka makanan rumahan?", en:"Do you like homemade food?"},
+{id:"Aku suka mie hangat", en:"I like warm noodles"},
+{id:"Kamu suka ngobrol dengan orang asing?", en:"Do you like talking with strangers?"},
+{id:"Aku suka mengenal orang baru", en:"I like meeting new people"},
+{id:"Kamu suka suasana sore?", en:"Do you like evening vibes?"},
+{id:"Aku suka melihat langit sore", en:"I like watching the evening sky"},
+{id:"Kamu suka minum kopi malam?", en:"Do you like drinking coffee at night?"},
+{id:"Aku suka aroma kopi", en:"I like the smell of coffee"},
+{id:"Kamu suka menonton video lucu sebelum tidur?", en:"Do you like watching funny videos before sleep?"},
+{id:"Aku suka tertawa kecil", en:"I like small laughs"},
+{id:"Kamu suka tempat yang tenang?", en:"Do you like quiet places?"},
+{id:"Aku suka suara alam", en:"I like nature sounds"},
+{id:"Kamu suka malam hujan?", en:"Do you like rainy nights?"},
+{id:"Aku suka suasana dingin malam", en:"I like the cool night atmosphere"},
+{id:"Kamu suka berbicara lama?", en:"Do you like talking for a long time?"},
+{id:"Aku suka mendengarkan orang", en:"I like listening to people"},
+{id:"Kamu suka orang yang humoris?", en:"Do you like humorous people?"},
+{id:"Aku suka bercanda santai", en:"I like light jokes"},
+{id:"Kamu suka hari yang santai?", en:"Do you like relaxing days?"},
+{id:"Aku suka rebahan sambil musik", en:"I like lying down while listening to music"},
+{id:"Kamu suka suasana kamar nyaman?", en:"Do you like cozy room vibes?"},
+{id:"Aku suka lampu redup", en:"I like dim lights"},
+{id:"Kamu suka ngobrol tanpa topik?", en:"Do you like talking without a topic?"},
+{id:"Aku suka percakapan spontan", en:"I like spontaneous conversations"},
+{id:"Kamu suka makanan ringan?", en:"Do you like snacks?"},
+{id:"Aku suka keripik", en:"I like chips"},
+{id:"Kamu suka menonton film malam?", en:"Do you like watching movies at night?"},
+{id:"Aku suka film santai", en:"I like relaxing movies"},
+{id:"Kamu suka orang yang tenang?", en:"Do you like calm people?"},
+{id:"Aku suka suasana nyaman", en:"I like comfortable vibes"},
+{id:"Kamu suka mendengar cerita hidup?", en:"Do you like hearing life stories?"},
+{id:"Aku suka berbagi cerita", en:"I like sharing stories"},
+{id:"Kamu suka ngobrol sambil ngemil?", en:"Do you like chatting while snacking?"},
+{id:"Aku suka ngemil malam", en:"I like late-night snacks"},
+{id:"Kamu suka melihat bintang malam?", en:"Do you like watching stars at night?"},
+{id:"Aku suka langit malam", en:"I like the night sky"},
+{id:"Kamu suka suasana hujan deras?", en:"Do you like heavy rain vibes?"},
+{id:"Aku suka suara petir dari jauh", en:"I like distant thunder sounds"},
+{id:"Kamu suka percakapan santai seperti ini?", en:"Do you like relaxed talks like this?"},
+{id:"Aku suka ngobrol tanpa tekanan", en:"I like pressure-free conversations"},
+{id:"Kamu suka orang yang jujur?", en:"Do you like honest people?"},
+{id:"Aku suka kejujuran", en:"I like honesty"},
+{id:"Kamu suka menonton video pendek?", en:"Do you like short videos?"},
+{id:"Aku suka scroll TikTok", en:"I like scrolling TikTok"},
+{id:"Kamu suka menghabiskan waktu di rumah?", en:"Do you like spending time at home?"},
+{id:"Aku suka suasana rumah tenang", en:"I like calm home vibes"},
+{id:"Kamu suka bangun siang?", en:"Do you like waking up late?"},
+{id:"Aku suka tidur tambahan", en:"I like extra sleep"},
+{id:"Kamu suka malam yang dingin?", en:"Do you like cold nights?"},
+{id:"Aku suka memakai selimut", en:"I like using blankets"},
+{id:"Kamu suka mendengar musik santai?", en:"Do you like listening to relaxing music?"},
+{id:"Aku suka lagu mellow", en:"I like mellow songs"},
+{id:"Kamu suka ngobrol sambil ketawa?", en:"Do you like chatting while laughing?"},
+{id:"Aku suka suasana ceria", en:"I like cheerful vibes"},
+{id:"Kamu suka minuman manis?", en:"Do you like sweet drinks?"},
+{id:"Aku suka boba", en:"I like boba"},
+{id:"Kamu suka mengobrol dengan santai?", en:"Do you like chatting casually?"},
+{id:"Aku suka obrolan sederhana", en:"I like simple talks"},
+{id:"Kamu suka mendengarkan musik pakai earphone?", en:"Do you like listening to music with earphones?"},
+{id:"Aku suka volume pelan", en:"I like low volume"},
+{id:"Kamu suka malam minggu santai?", en:"Do you like relaxing Saturday nights?"},
+{id:"Aku suka di rumah saat malam minggu", en:"I like staying home on Saturday nights"},
+{id:"Kamu suka menonton vlog?", en:"Do you like watching vlogs?"},
+{id:"Aku suka vlog traveling", en:"I like travel vlogs"},
+{id:"Kamu suka suara hujan saat tidur?", en:"Do you like rain sounds while sleeping?"},
+{id:"Aku suka tidur nyenyak", en:"I like sleeping peacefully"},
+{id:"Kamu suka percakapan panjang?", en:"Do you like long conversations?"},
+{id:"Aku suka ngobrol sampai lupa waktu", en:"I like chatting until I lose track of time"},
+{id:"Kamu suka suasana santai malam hari?", en:"Do you like relaxed night vibes?"},
+{id:"Aku suka malam yang tenang", en:"I like calm nights"},
+{id:"Kamu suka tertawa karena hal kecil?", en:"Do you like laughing at small things?"},
+{id:"Aku suka humor sederhana", en:"I like simple humor"},
+{id:"Kamu suka mendengar suara angin?", en:"Do you like listening to the wind?"},
+{id:"Aku suka udara segar", en:"I like fresh air"},
+{id:"Kamu suka ngobrol sambil rebahan?", en:"Do you like chatting while lying down?"},
+{id:"Aku suka santai sebelum tidur", en:"I like relaxing before sleep"},
+{id:"Kamu suka orang yang santai?", en:"Do you like relaxed people?"},
+{id:"Aku suka orang yang sederhana", en:"I like simple people"},
+{id:"Kamu suka berbicara tentang keseharian?", en:"Do you like talking about daily life?"},
+{id:"Aku suka cerita ringan", en:"I like light stories"},
+{id:"Kamu suka suasana nyaman sebelum tidur?", en:"Do you like cozy vibes before sleep?"},
+{id:"Aku suka lampu malam", en:"I like night lights"},
+{id:"Kamu suka ngobrol tanpa canggung?", en:"Do you like conversations without awkwardness?"},
+{id:"Aku suka obrolan natural", en:"I like natural conversations"},
+{id:"Kamu suka teman yang asik?", en:"Do you like fun friends?"},
+{id:"Aku suka teman yang santai", en:"I like relaxed friends"},
+{id:"Kamu suka malam yang damai?", en:"Do you like peaceful nights?"},
+{id:"Aku suka waktu tenang", en:"I like quiet moments"}
+];
+
+
+let index = 0;
+const wordId = document.getElementById("wordId");
+const wordEn = document.getElementById("wordEn");
+const counter = document.getElementById("counter");
+
+function render() {
+    wordId.innerText = data[index].id;
+    wordEn.innerText = data[index].en;
+    wordEn.style.display = "none";
+    counter.innerText = `${index + 1} / ${data.length}`;
+    playAudio('id');
+}
+
+function playAudio(lang) {
+    speechSynthesis.cancel();
+    const text = (lang === 'id') ? data[index].id : data[index].en;
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = (lang === 'id') ? "id-ID" : "en-US";
+    speechSynthesis.speak(speech);
+}
+
+function revealAnswer() {
+    wordEn.style.display = "block";
+    playAudio('en');
+}
+
+function prevWord() {
+    index = (index - 1 + data.length) % data.length;
+    render();
+}
+
+function nextWord() {
+    index = (index + 1) % data.length;
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>
